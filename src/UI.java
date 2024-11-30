@@ -1,13 +1,26 @@
 package src;
 
 import java.awt.Font;
+import java.io.IOException;
 import java.awt.Color;
 
 import src.libraries.StdDraw;
 
 public class UI {
 
-     /**
+    private Map map;
+
+    public UI(Map Map) {
+        this.map = Map;
+        initCanvas();
+        drawMapZone(map);
+        drawPlayerInfoZone(100, 100);
+        drawShopZone();
+        drawGameInfoZone("1/3", "1/4");
+        StdDraw.show();
+    }
+
+    /**
      * Initialize the canvas with specified dimensions and scaling.
      */
     private static void initCanvas() {
@@ -16,8 +29,6 @@ public class UI {
         StdDraw.setYscale(-10, 710);
         StdDraw.enableDoubleBuffering();
     }
-
-
 
     /**
      * Draws the game info zone, including the level and wave indicators.
@@ -31,15 +42,12 @@ public class UI {
         double halfWidth = 144;
         double halfHeight = 12;
 
-        // Draw background rectangle
         StdDraw.setPenColor(StdDraw.WHITE);
         StdDraw.filledRectangle(centerX, centerY, halfWidth, halfHeight);
 
-        // Draw border
         StdDraw.setPenColor(StdDraw.RED);
         StdDraw.rectangle(centerX, centerY, halfWidth, halfHeight);
 
-        // Draw text
         Font font = new Font("Arial", Font.BOLD, 23);
         StdDraw.setFont(font);
         StdDraw.setPenColor(StdDraw.BLACK);
@@ -55,13 +63,11 @@ public class UI {
      * @param coinCount Number of coins.
      */
     private static void drawPlayerInfoZone(int lifeCount, int coinCount) {
-        // Zone dimensions
         double centerX = 856;
         double centerY = 641;
         double halfWidth = 144;
         double halfHeight = 25;
 
-        // Draw the white background and green border
         StdDraw.setPenColor(StdDraw.WHITE);
         StdDraw.filledRectangle(centerX, centerY, halfWidth, halfHeight);
         StdDraw.setPenColor(StdDraw.GREEN);
@@ -72,11 +78,11 @@ public class UI {
 
         // pour les pièces
         // Cercle 1 jaune
-        StdDraw.setPenColor(StdDraw.YELLOW); // Définit la couleur du cercle
+        StdDraw.setPenColor(StdDraw.YELLOW);
         StdDraw.filledCircle(centerX - 120, centerY, 20);
 
         // Cercle 2 gris petit
-        StdDraw.setPenColor(StdDraw.GRAY); // Définit la couleur du cercle
+        StdDraw.setPenColor(StdDraw.GRAY);
         StdDraw.filledCircle(centerX - 120, centerY, 15);
 
         StdDraw.text(centerX - 70, centerY, "" + coinCount);
@@ -84,7 +90,7 @@ public class UI {
         // partie coeur et santé
 
         StdDraw.setPenColor(StdDraw.RED);
-        drawHeart(centerX + halfWidth - 25, centerY, 21); // Heart symbol
+        drawHeart(centerX + halfWidth - 25, centerY, 21);
 
         StdDraw.text(centerX + 70, centerY, String.valueOf(lifeCount));
     }
@@ -97,7 +103,6 @@ public class UI {
      * @param size    Size of the heart.
      */
     private static void drawHeart(double centerX, double centerY, double halfHeight) {
-        // Définir les coordonnées X du cœur
         double[] listX = new double[] {
                 centerX,
                 centerX - halfHeight,
@@ -111,7 +116,6 @@ public class UI {
                 centerX + halfHeight
         };
 
-        // Définir les coordonnées Y du cœur
         double[] listY = new double[] {
                 centerY - halfHeight,
                 centerY,
@@ -125,34 +129,45 @@ public class UI {
                 centerY
         };
 
-        // Appliquer la couleur et dessiner le cœur
-        StdDraw.setPenColor(new Color(223, 75, 95)); // Couleur du cœur
+        StdDraw.setPenColor(new Color(223, 75, 95));
         StdDraw.filledPolygon(listX, listY);
     }
 
-   
     /**
      * Draw the map zone with a grid.
+     *
+     * @param map L'objet Map à dessiner.
      */
-    private static void drawMapZone() {
-        double centerX = 350;
-        double centerY = 350;
+    private static void drawMapZone(Map map) {
+        double centerX = 350; 
+        double centerY = 350; 
         double halfLength = 350; 
 
-        
-        StdDraw.setPenColor(StdDraw.LIGHT_GRAY);
-        StdDraw.filledSquare(centerX, centerY, halfLength);
+        // Taille d'une cellule (dynamique selon les dimensions de la carte) //TODO: A
+        // optimiser
+        double cellSize = Math.min(2 * halfLength / map.getRows(), 2 * halfLength / map.getCols());
 
-        
-        // StdDraw.setPenColor(StdDraw.BLACK);
-        // int gridSize = 10; 
-        // double cellSize = halfLength * 2 / gridSize;
-        // for (int i = 0; i <= gridSize; i++) {
-        //     StdDraw.line(centerX - halfLength, centerY - halfLength + i * cellSize,
-        //             centerX + halfLength, centerY - halfLength + i * cellSize); 
-        //     StdDraw.line(centerX - halfLength + i * cellSize, centerY - halfLength,
-        //             centerX - halfLength + i * cellSize, centerY + halfLength); 
-        // }
+        for (int row = 0; row < map.getRows(); row++) {
+            for (int col = 0; col < map.getCols(); col++) {
+                Tile tile = map.getTile(row, col);
+
+                // Calcule du centre de chaque cellule
+                double x = centerX - halfLength + col * cellSize + cellSize / 2;
+                double y = centerY + halfLength - row * cellSize - cellSize / 2;
+
+                // Remplir la cellule avec la couleur appropriée
+                StdDraw.setPenColor(tile.getType().getColor());
+                StdDraw.filledSquare(x, y, cellSize / 2);
+
+                StdDraw.setPenColor(StdDraw.BLACK);
+                StdDraw.square(x, y, cellSize / 2);
+                // pour plus tard
+                if (tile.isOccupied()) {
+                    StdDraw.setPenColor(Color.GRAY);
+                    StdDraw.filledCircle(x, y, cellSize / 4);
+                }
+            }
+        }
     }
 
     /**
@@ -164,20 +179,18 @@ public class UI {
         double halfWidth = 144;
         double halfHeight = 303;
 
-        // Draw the background
         StdDraw.setPenColor(StdDraw.WHITE);
         StdDraw.filledRectangle(centerX, centerY, halfWidth, halfHeight);
 
-        // Draw the border
         StdDraw.setPenColor(StdDraw.BLUE);
         StdDraw.rectangle(centerX, centerY, halfWidth, halfHeight);
 
-        // Parameters for the tower cards
-        double cardWidth = halfWidth * 2; // Full width of the shop zone
+        // Taille des articles magasins
+        double cardWidth = halfWidth * 2;
         double cardHeight = 25;
         double startY = centerY + halfHeight - cardHeight / 2;
 
-        // Define the towers
+        // TODO: Uniquement pour test : A supprimer
         Tower[] towers = {
                 new Tower("Archer", 30, 5, 1.0, 2, "NONE", 20, StdDraw.BLACK),
                 new Tower("Wind Caster", 30, 5, 1.5, 6, "WIND", 50, StdDraw.YELLOW),
@@ -186,7 +199,6 @@ public class UI {
                 new Tower("Fire Caster", 30, 10, 0.5, 2.5, "FIRE", 100, StdDraw.RED)
         };
 
-        // Draw the towers
         for (int i = 0; i < towers.length; i++) {
             double yPosition = startY - i * cardHeight;
             drawTowerCard(centerX, yPosition, cardWidth, cardHeight, towers[i]);
@@ -250,44 +262,111 @@ public class UI {
             this.color = color;
         }
     }
-        /**
-         * Initialize and draw all UI components.
-         */
-        public static void initUI() {
-            initCanvas();
-            drawMapZone();
-            drawPlayerInfoZone(100, 100);
-            drawShopZone();
-            drawGameInfoZone("1/3", "1/4");
-            StdDraw.show();
+
+    /**
+     * Updates the UI by redrawing all dynamic components with current game data.
+     */
+    public void update() {
+        throw new UnsupportedOperationException("Not implemented yet");
+        // // Exemple : récupération des données dynamiques
+        // int currentLifeCount = Game.getLifeCount();
+
+        // int currentCoinCount = Game.getCoinCount();
+        // String currentLevel = Game.getCurrentLevel();
+        // String currentWave = Game.getCurrentWave();
+
+        // Tower[] currentTowers = Game.getShopTowers();
+
+        // StdDraw.clear();
+
+        // drawMapZone();
+        // drawPlayerInfoZone(currentLifeCount, currentCoinCount);
+        // drawShopZone();
+        // drawGameInfoZone(currentLevel, currentWave);
+
+        // // Montre le nouvel écran
+        // StdDraw.show();
+    }
+
+    public static void main(String[] args) throws IOException, GameExceptions.GameException {
+
+        // Initialiser la carte à partir d'un fichier
+        Map map = new Map("resources\\maps\\10-10.mtp");
+        // Initialiser l'interface utilisateur
+        UI ui = new UI(map);
+        while (true) {
+            if (StdDraw.isMousePressed()) {
+                double mouseX = StdDraw.mouseX();
+                double mouseY = StdDraw.mouseY();
+
+                ui.handleClick(mouseX, mouseY);
+
+                StdDraw.show();
+                StdDraw.pause(100);
+            }
         }
 
-        /**
-         * Updates the UI by redrawing all dynamic components with current game data.
-         */
-        public void update() {
-            throw new UnsupportedOperationException("Not implemented yet");
-            // // Exemple : récupération des données dynamiques
-            // int currentLifeCount = Game.getLifeCount();
-                                                             
-            // int currentCoinCount = Game.getCoinCount(); 
-            // String currentLevel = Game.getCurrentLevel(); 
-            // String currentWave = Game.getCurrentWave(); 
+    }
+    ///////////////////////////////////////////////////////////////////
+    ////////////////////Gestion des clicks/////////////////////////////
+    ///////////////////////////////////////////////////////////////////
+    
+    /**
+     * Vérifie si un clic est sur une case et, si la case est cliquable, y place un
+     * cercle.
+     */
+    public void handleClick(double mouseX, double mouseY) {
+        double centerX = 350; 
+        double centerY = 350; 
+        double halfLength = 350; 
 
-            // Tower[] currentTowers = Game.getShopTowers(); 
+        // Taille d'une cellule
+        double cellSize = Math.min(2 * halfLength / map.getRows(), 2 * halfLength / map.getCols());
 
-        
-            // StdDraw.clear();
+        // Détermination des indices de la case cliquée
+        int col = (int) ((mouseX - (centerX - halfLength)) / cellSize);
+        int row = (int) ((centerY + halfLength - mouseY) / cellSize);
 
-           
-            // drawMapZone();
-            // drawPlayerInfoZone(currentLifeCount, currentCoinCount);
-            // drawShopZone();
-            // drawGameInfoZone(currentLevel, currentWave);
+        // Vérifie que les indices sont dans les limites de la carte
+        if (row >= 0 && row < map.getRows() && col >= 0 && col < map.getCols()) {
+            Tile clickedTile = map.getTile(row, col);
 
-            // // Montre le nouvel écran
-            // StdDraw.show();
+
+            //TODO: A supp uniquement pour debug
+            if (clickedTile.isClickable()) {
+                drawCircleOnTile(row, col, cellSize / 3); 
+            }
         }
+    }
+
+   
+    private void drawCircleOnTile(int row, int col, double radius) {
+        double centerX = 350; 
+        double centerY = 350; 
+        double halfLength = 350; 
+
+        double cellSize = Math.min(2 * halfLength / map.getRows(), 2 * halfLength / map.getCols());
+
+        double x = centerX - halfLength + col * cellSize + cellSize / 2;
+        double y = centerY + halfLength - row * cellSize - cellSize / 2;
+
+        StdDraw.setPenColor(StdDraw.BLUE);
+        StdDraw.filledCircle(x, y, radius);
+    }
 
     
+    public void listenForClicks() {
+        while (true) {
+            if (StdDraw.isMousePressed()) {
+                double mouseX = StdDraw.mouseX();
+                double mouseY = StdDraw.mouseY();
+
+                handleClick(mouseX, mouseY);
+
+                StdDraw.show();
+                StdDraw.pause(100); 
+            }
+        }
+    }
+
 }

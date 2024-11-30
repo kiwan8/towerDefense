@@ -1,0 +1,5 @@
+Notre interface boutique est elle bonne ? 
+
+La façon d'update l'UI h24 c'est une bonne chose ? 
+
+Les flèches dans l'UML sont elles importantes hors héritage ?
