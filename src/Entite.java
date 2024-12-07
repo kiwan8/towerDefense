@@ -1,8 +1,28 @@
 package src;
 
+import java.awt.Color;
+
 public abstract class Entite {
     
-    enum Element {Neutre, Feu, Eau, Terre, Air};
+    enum Element {
+        
+        Neutre(Color.BLACK),
+        Feu(new Color(184, 22, 1)),
+        Eau(new Color(6, 0, 160)),
+        Terre(new Color(0, 167, 15)),
+        Air(new Color(242, 211, 0));
+
+        private final Color color;
+
+        Element(Color color) {
+            this.color = color;
+        }
+
+        public Color getColor() {
+            return color;
+        }
+
+    };
 
     private int PV;
     private int ATK;
