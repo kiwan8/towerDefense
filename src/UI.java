@@ -288,25 +288,7 @@ public class UI {
         StdDraw.show();
     }
 
-    public static void main(String[] args) throws IOException, GameExceptions.GameException {
-
-        // Initialiser la carte à partir d'un fichier
-        Map map = new Map("resources\\maps\\10-10.mtp");
-        // Initialiser l'interface utilisateur
-        UI ui = new UI(map);
-        while (true) {
-            if (StdDraw.isMousePressed()) {
-                double mouseX = StdDraw.mouseX();
-                double mouseY = StdDraw.mouseY();
-
-                ui.handleClick(mouseX, mouseY);
-
-                StdDraw.show();
-                StdDraw.pause(100);
-            }
-        }
-
-    }
+    
     ///////////////////////////////////////////////////////////////////
     ////////////////////Gestion des clicks/////////////////////////////
     ///////////////////////////////////////////////////////////////////

@@ -42,7 +42,7 @@ public class Game {
     
     // Initialise le jeu
     private void init() throws GameException, IOException {
-        joueur = new Player(200, 100);  // Crée un joueur avec 200 pièces d'or et 100 points de vie
+        joueur = new Player(50, 100);  // Crée un joueur avec 200 pièces d'or et 100 points de vie
         map = new Map("resources/maps/10-10.mtp");  // Charge la carte à partir du fichier 10-10.mtp
         ui = new UI(map);  // Crée l'interface utilisateur
     }

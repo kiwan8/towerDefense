@@ -1,32 +1,13 @@
 package src;
 
-public abstract class Ennemy extends Entite{
+public abstract class Ennemy extends Warrior{
 
-    private int recompense; // Récompense donnée à la mort de l'ennemi
-    private int vitesse;    // Vitesse de l'ennemi
+    private double MovingSpeed;
 
-    public Ennemy(int PV, int ATK, double ATKSpeed, int Range, Element element, Tile position, ModeAttaque modeAttaque, int vitesse, int recompense) { // Constructeur
+    public Ennemy(int PV, int ATK, double ATKSpeed, int Range, Element element, Tile position, ModeAttaque modeAttaque, double Movingspeed) { // Constructeur
         super(PV, ATK, ATKSpeed, Range, element, position, modeAttaque);
-        this.vitesse = vitesse;
-        this.recompense = recompense;
+        this.MovingSpeed = MovingSpeed;
     }
 
-    public int getRecompense() { // Getter
-        return recompense;
-    }
-
-    public void setRecompense(int recompense) { // Setter
-        this.recompense = recompense;
-    }
-
-    public int getVitesse() { // Getter
-        return vitesse;
-    }
-
-    public void setVitesse(int vitesse) { // Setter
-        this.vitesse = vitesse;
-    }
-
-    public void deplacer(int vitesse) { // Déplace l'ennemi
-    }
+    
 }

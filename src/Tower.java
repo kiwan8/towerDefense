@@ -1,6 +1,6 @@
 package src;
 
-public abstract class Tower extends Entite{
+public abstract class Tower extends Warrior{
 
     private int cout; // Coût de la tour
 
@@ -10,7 +10,7 @@ public abstract class Tower extends Entite{
     }
 
     @Override
-    public void attaquer(Entite cible) { // Attaque une entité
+    public void attaquer(Warrior cible) { // Attaque une entité
         if (cible instanceof Ennemy) {  // Si la cible est à portée et que c'est un ennemi
             super.attaquer(cible); 
         }
