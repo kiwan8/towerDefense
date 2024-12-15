@@ -67,4 +67,22 @@ public class GameExceptions {
             super(message);
         }
     }
+
+    /**
+     * Thrown when an enemy is unknown.
+     */
+    public static class UnknownEnemyException extends GameException {
+        public UnknownEnemyException(String message) {
+            super(message);
+        }
+    }
+
+    /**
+     * Thrown when the wave file is invalid.
+     */
+    public static class InvalidWaveFileException extends GameException {
+        public InvalidWaveFileException(String message) {
+            super(message);
+        }
+    }
 }
