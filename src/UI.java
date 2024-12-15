@@ -14,7 +14,7 @@ public class UI {
         this.map = Map;
         initCanvas();
         drawMapZone(map);
-        drawPlayerInfoZone(100, 100);
+        drawPlayerInfoZone(Game.getPlayer().getHP(), Game.getPlayer().getArgent());
         drawShopZone();
         drawGameInfoZone("1/3", "1/4");
         StdDraw.show();
@@ -267,25 +267,25 @@ public class UI {
      * Updates the UI by redrawing all dynamic components with current game data.
      */
     public void update() {
-        throw new UnsupportedOperationException("Not implemented yet");
-        // // Exemple : récupération des données dynamiques
-        // int currentLifeCount = Game.getLifeCount();
+        // throw new UnsupportedOperationException("Not implemented yet");
+        // Exemple : récupération des données dynamiques
+        int currentLifeCount = Game.getPlayer().getHP();
 
-        // int currentCoinCount = Game.getCoinCount();
-        // String currentLevel = Game.getCurrentLevel();
-        // String currentWave = Game.getCurrentWave();
+        int currentCoinCount = Game.getPlayer().getArgent();
+        //String currentLevel = Game.getCurrentLevel();
+        //String currentWave = Game.getCurrentWave();
 
-        // Tower[] currentTowers = Game.getShopTowers();
+        //Tower[] currentTowers = Game.getShopTowers();
 
-        // StdDraw.clear();
+        StdDraw.clear();
 
-        // drawMapZone();
-        // drawPlayerInfoZone(currentLifeCount, currentCoinCount);
-        // drawShopZone();
-        // drawGameInfoZone(currentLevel, currentWave);
+        drawMapZone(Game.getMap());
+        drawPlayerInfoZone(currentLifeCount, currentCoinCount);
+        drawShopZone();
+        //drawGameInfoZone(currentLevel, currentWave);
 
-        // // Montre le nouvel écran
-        // StdDraw.show();
+        // Montre le nouvel écran
+        StdDraw.show();
     }
 
     public static void main(String[] args) throws IOException, GameExceptions.GameException {
