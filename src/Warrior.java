@@ -5,35 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-enum Element { // Enumération des éléments
 
-    Neutre(Color.BLACK),
-    Feu(new Color(184, 22, 1)), // Element feu
-    Eau(new Color(6, 0, 160)), // Element eau
-    Terre(new Color(0, 167, 15)), // Element terre
-    Air(new Color(242, 211, 0)); // Element air
-
-    private Color color; // Couleur associée à l'élément
-
-    Element(Color color) { // Constructeur
-        this.color = color;
-    }
-
-    public Color getColor() { // Getter
-        return color;
-    }
-
-};
-
-enum ModeAttaque { // Enumération des modes d'attaque
-    SINGLE_TARGET, // Attaque une seule cible
-    MULTIPLE_TARGET, // Attaque plusieurs cibles
-    RANDOM, // Attaque une cible aléatoire
-    NEAREST, // Attaque la cible la plus proche
-    NEAREST_FROM_BASE, // Attaque la cible la plus proche de la base
-    STRONGEST_ATK, // Attaque la cible avec l'attaque la plus élevée
-    STRONGEST_PERCENT_PV; // Attaque la cible avec le pourcentage de PV le plus élevé
-};
 
 public abstract class Warrior { // Classe abstraite Entite (représente les entités du jeu : tours, ennemis)
 

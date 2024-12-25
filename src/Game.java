@@ -1,6 +1,9 @@
 package src;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import src.GameExceptions.GameException;
 import src.libraries.StdDraw;
@@ -39,6 +42,8 @@ public class Game {
     private boolean isGameRunning() {
         return joueur.isAlive();  // Le jeu est en cours tant que le joueur est en vie
     }
+
+   
     
     // Initialise le jeu
     private void init() throws GameException, IOException {
