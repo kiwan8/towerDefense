@@ -56,13 +56,11 @@ public class Game {
                 ui.handleClick(mouseX, mouseY);
     
                 StdDraw.show();
-                StdDraw.pause(100);
             }
     
             update(deltaTimeSec, elapsedTime); // Met à jour l'état du jeu
     
             // Synchronisation pour maintenir une fréquence d'images stable
-            StdDraw.pause(16); // Pause de 16 ms pour environ 60 FPS
             ui.render();
         }
     }

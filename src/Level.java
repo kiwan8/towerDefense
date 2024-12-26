@@ -14,7 +14,7 @@ public class Level {
      */
     public Level() throws GameExceptions.GameException, IOException{ // TODO : Ajouter un paramètre pour load avec un filePath 
         this.waves = new ArrayList<>();
-        loadLevel("resources/levels/level3.lvl");
+        loadLevel("resources/levels/level1.lvl");
     }
 
     /**

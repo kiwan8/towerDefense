@@ -164,7 +164,11 @@ public class Map {
                 }
             }
         }
-        path.add(new int[]{baseRow, baseCol});
+        path.add(new int[]{baseCol, baseRow});
+        System.out.println("Chemin calculé :");
+    for (int[] coordinates : path) {
+        System.out.println("(" + coordinates[0] + ", " + coordinates[1] + ")");
+    }
         return path;
     }
 }

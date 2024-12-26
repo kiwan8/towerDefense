@@ -47,12 +47,13 @@ public abstract class Ennemy extends Warrior {
     
         // Convertir la prochaine case du chemin en coordonnées en pixels
         int[] nextTile = path.get(currentStep);
-        System.out.println("le path :"+path.toString());
-        double targetX = convertToPixel(nextTile[1], map.getCols(), map); // Colonne -> X
-        double targetY = convertToPixel(nextTile[0], map.getRows(), map); // Ligne -> Y
+        
+        // Convertir les indices de la case en coordonnées pixels
+    double targetX = convertToPixel(nextTile[1], true, map);  // Colonne -> X
+    double targetY = convertToPixel(nextTile[0], false, map); // Ligne -> Y
     
         // Calculer la distance que l'ennemi peut parcourir pendant cette frame
-        double distanceToTravel = MovingSpeed * deltaTimeSec;
+        double distanceToTravel = MovingSpeed; //TODO : Pourquoi cela ne fonctionne pas ?? double distanceToTravel = MovingSpeed * deltaTimeSec;
     
         // Calculer le vecteur vers la prochaine case
         double dx = targetX - x;
@@ -71,13 +72,21 @@ public abstract class Ennemy extends Warrior {
         }
     }
 
-    private double convertToPixel(int tileIndex, int gridSize, Map map) {
-        double centerX = 350; // Centre de la carte
+    private double convertToPixel(int tileIndex, boolean isColumn, Map map) {
+        // Centre de la carte en pixels
+        double centerX = 350;
         double centerY = 350;
-        double halfLength = 350; // Taille visuelle de la carte
+        double halfLength = 350; // Taille visuelle de la carte (assumez qu'elle est carrée)
+    
+        // Taille d'une cellule (calculée dynamiquement en fonction des dimensions de la carte)
         double cellSize = Math.min(2 * halfLength / map.getRows(), 2 * halfLength / map.getCols());
     
-        return centerX - halfLength + tileIndex * cellSize + cellSize / 2;
+        // Calcul en fonction de si c'est une colonne (X) ou une ligne (Y)
+        if (isColumn) {
+            return centerX - halfLength + tileIndex * cellSize + cellSize / 2;
+        } else {
+            return centerY + halfLength - tileIndex * cellSize - cellSize / 2;
+        }
     }
     
     
