@@ -28,4 +28,11 @@ public class Player {
     public boolean isAlive() { // Vérifie si le joueur est encore en vie
         return HP > 0;
     }
+
+    public void takeDamage(int damage) {
+        this.HP -= damage;
+        if (this.HP  < 0) {
+            this.HP  = 0; 
+        }
+    }
 }

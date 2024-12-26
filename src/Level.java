@@ -2,7 +2,6 @@ package src;
 
 import java.io.*;
 import java.util.*;
-import src.Monsters.*;
 
 public class Level {
 
@@ -12,9 +11,9 @@ public class Level {
     /**
      * Constructeur de la classe Level.
      */
-    public Level() throws GameExceptions.GameException, IOException{ // TODO : Ajouter un paramètre pour load avec un filePath 
+    public Level(String filepath) throws GameExceptions.GameException, IOException{ // TODO : Ajouter un paramètre pour load avec un filePath 
         this.waves = new ArrayList<>();
-        loadLevel("resources/levels/level1.lvl");
+        loadLevel(filepath);
     }
 
     /**
@@ -70,8 +69,4 @@ public class Level {
         }
     }
 
-    public static void main(String[] args) throws IOException, GameExceptions.GameException {
-        Level leveltest = new Level();
-        leveltest.displayLevelInfo();
-    }
 }

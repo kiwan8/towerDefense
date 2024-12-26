@@ -49,7 +49,7 @@ public class Map {
                 colCount = Math.max(colCount, line.length());
             }
         }
-        return new int[]{rowCount, colCount};
+        return new int[] { rowCount, colCount };
     }
 
     /**
@@ -87,8 +87,6 @@ public class Map {
 
         validateMap(enemySpawns, playerBases);
 
-        
-
         return findPath(spawn, base);
     }
 
@@ -120,7 +118,7 @@ public class Map {
         return tiles[row][col];
     }
 
-    public List<int[]> getPath(){
+    public List<int[]> getPath() {
         return this.path;
     }
 
@@ -134,7 +132,7 @@ public class Map {
     private List<int[]> findPath(final Tile spawn, final Tile base) {
         final List<int[]> path = new ArrayList<>();
         final int[][] directions = {
-                {-1, 0}, {1, 0}, {0, -1}, {0, 1}
+                { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 }
         };
 
         int currentRow = spawn.getRow();
@@ -155,7 +153,7 @@ public class Map {
                 final boolean isNotBacktracking = testRow != lastVisitedRow || testCol != lastVisitedCol;
 
                 if (isRoadOrBase && isNotBacktracking) {
-                    path.add(new int[]{currentRow, currentCol});
+                    path.add(new int[] { currentRow, currentCol });
                     lastVisitedRow = currentRow;
                     lastVisitedCol = currentCol;
                     currentRow = testRow;
@@ -164,11 +162,11 @@ public class Map {
                 }
             }
         }
-        path.add(new int[]{baseCol, baseRow});
+        path.add(new int[] { baseRow, baseCol });
         System.out.println("Chemin calculé :");
-    for (int[] coordinates : path) {
-        System.out.println("(" + coordinates[0] + ", " + coordinates[1] + ")");
-    }
+        for (int[] coordinates : path) {
+            System.out.println("(" + coordinates[0] + ", " + coordinates[1] + ")");
+        }
         return path;
     }
 }

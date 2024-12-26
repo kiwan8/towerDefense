@@ -6,7 +6,7 @@ import java.util.*;
 
 public class Wave {
 
-    private List<Ennemy> enemies; // Liste des ennemis dans la vague
+    private Queue<Ennemy> spawnQueue = new LinkedList<>();
     private Level level;          // Référence au niveau auquel appartient la vague
 
     /**
@@ -16,7 +16,7 @@ public class Wave {
      */
     public Wave(Level level) {
         this.level = level;
-        this.enemies = new ArrayList<>();
+        this.spawnQueue = new LinkedList<>();
     }
 
     /**
@@ -50,7 +50,7 @@ public class Wave {
                 // Crée un ennemi avec le chemin de la carte
                 Ennemy enemy = createEnemy(enemyName, spawnTime, x, y);
                 enemy.setPath(level.getMap().getPath()); // Associe le chemin à l'ennemi
-                enemies.add(enemy);
+                spawnQueue.add(enemy);
             }
         }
     }
@@ -91,7 +91,7 @@ public class Wave {
      *
      * @return Liste des ennemis.
      */
-    public List<Ennemy> getEnemies() {
-        return enemies;
+    public Queue<Ennemy> getEnemies() {
+        return spawnQueue;
     }
 }

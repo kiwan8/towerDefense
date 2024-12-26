@@ -28,7 +28,7 @@ public class UI {
         drawMapZone(map);
         drawPlayerInfoZone(Game.getPlayer().getHP(), Game.getPlayer().getArgent());
         drawShopZone();
-        drawGameInfoZone("1/3", "1/4");
+        drawGameInfoZone();
         StdDraw.show();
     }
 
@@ -48,7 +48,7 @@ public class UI {
      * @param level The current level, e.g., "1/4".
      * @param wave  The current wave, e.g., "1/2".
      */
-    private static void drawGameInfoZone(String level, String wave) {
+    private static void drawGameInfoZone() {
         double centerX = 856;
         double centerY = 688;
         double halfWidth = 144;
@@ -63,6 +63,12 @@ public class UI {
         Font font = new Font("Arial", Font.BOLD, 23);
         StdDraw.setFont(font);
         StdDraw.setPenColor(StdDraw.BLACK);
+
+        String level = Game.getcptLevel()+1+"/"+Game.getLevels().size();
+        Level LevelCourant = Game.getLevels().get(Game.getcptLevel());
+
+        int nbTotalWavesduLevel = LevelCourant.getWaves().size();
+        String wave = Game.getcptWave()+1+"/"+nbTotalWavesduLevel;
 
         StdDraw.text(centerX - halfWidth / 2, centerY, "LVL: " + level);
         StdDraw.text(centerX + halfWidth / 2, centerY, "WAVE: " + wave);
@@ -358,8 +364,9 @@ public class UI {
         // Tower[] currentTowers = Game.getShopTowers();
 
         StdDraw.clear();
-
-        drawMapZone(Game.getCurrentMap());
+        
+        drawGameInfoZone();
+        drawMapZone(Game.getCurrentLevel().getMap());
         drawEnemies(Game.getActiveEnemies());
         drawTowers(Game.getActiveTower());
 
