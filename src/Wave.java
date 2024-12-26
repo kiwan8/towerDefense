@@ -35,18 +35,27 @@ public class Wave {
                 String enemyName = parts[1];
 
 
-                //TODO : Gérer le cas x et y 
-                // Récupérer les coordonnées x et y de la case de spawn
-                // Tile spawnTile = level.getMap().getSpawnTile();
-                // int x = spawnTile.getRow();
-                // int y = spawnTile.getCol();
+               // Récupérer les coordonnées de la case de spawn en tuiles (row, col)
+            int[] spawnTile = level.getMap().getPath().get(0);
+            int row = spawnTile[0];
+            int col = spawnTile[1];
+             // Calculer les coordonnées en pixels (x, y) pour le centre de la case
+             double cellSize = Math.min(700.0 / level.getMap().getRows(), 700.0 / level.getMap().getCols());
+             double x = 350 - 350 + col * cellSize + cellSize / 2; // Calcul pour X
+             double y = 350 + 350 - row * cellSize - cellSize / 2; // Calcul pour Y
+                
 
-                // Créer l'ennemi en fonction de son nom
-                Ennemy enemy = createEnemy(enemyName, spawnTime, 0, 0);
+                
+
+                // Crée un ennemi avec le chemin de la carte
+                Ennemy enemy = createEnemy(enemyName, spawnTime, x, y);
+                enemy.setPath(level.getMap().getPath()); // Associe le chemin à l'ennemi
                 enemies.add(enemy);
             }
         }
     }
+
+    
 
     /**
      * Crée un ennemi en fonction de son nom.
@@ -58,7 +67,7 @@ public class Wave {
      * @return Un objet Ennemy correspondant au nom.
      * @throws IllegalArgumentException Si le nom de l'ennemi est inconnu.
      */
-    private Ennemy createEnemy(String name, double spawnTime, int x, int y) {
+    private Ennemy createEnemy(String name, double spawnTime, double x, double y) {
         switch (name) {
             case "Minion":
                 return new Minion(spawnTime, x, y);

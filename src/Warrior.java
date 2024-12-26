@@ -7,19 +7,21 @@ import java.util.List;
 
 
 
-public abstract class Warrior { // Classe abstraite Entite (représente les entités du jeu : tours, ennemis)
+public abstract class Warrior { // Classe abstraite Warrior (représente les entités du jeu : tours, ennemis)
 
     private int PV; // Points de vie
+    private final int maxPV;
     private int ATK; // Points d'attaque
     private double ATKSpeed; // Vitesse d'attaque
-    private int Range; // Portée d'attaque
+    private double Range; // Portée d'attaque
     private Element element; // Element de l'entité
     private Tile position; // Position de l'entité
     private ModeAttaque modeAttaque; // Mode d'attaque
 
-    public Warrior(int PV, int ATK, double ATKSpeed, int Range, Element element, Tile position,
+    public Warrior(int PV, int ATK, double ATKSpeed, double Range, Element element, Tile position,
             ModeAttaque modeAttaque) { // Constructeur
         this.PV = PV;
+        this.maxPV = PV;
         this.ATK = ATK;
         this.ATKSpeed = ATKSpeed;
         this.Range = Range;
@@ -30,6 +32,10 @@ public abstract class Warrior { // Classe abstraite Entite (représente les enti
 
     public int getPV() { // Getter
         return PV;
+    }
+
+    public int getMaxPV(){
+        return maxPV;
     }
 
     public void setPV(int PV) { // Setter
@@ -52,13 +58,10 @@ public abstract class Warrior { // Classe abstraite Entite (représente les enti
         this.ATKSpeed = ATKSpeed;
     }
 
-    public int getRange() { // Getter
+    public double getRange() { // Getter
         return Range;
     }
 
-    public void setRange(int Range) { // Setter
-        this.Range = Range;
-    }
 
     public Element getElement() { // Getter
         return element;

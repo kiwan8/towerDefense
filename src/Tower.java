@@ -1,26 +1,30 @@
 package src;
 
-public abstract class Tower extends Warrior{
+import java.awt.Color;
 
-    private int cout; // Coût de la tour
+public abstract class Tower extends Warrior {
 
-    public Tower(int PV, int ATK, double ATKSpeed, int Range, Element element, Tile position, ModeAttaque modeAttaque, int cout) { // Constructeur
+    private final double cout; // Coût de la tour
+    private final Color color; // Couleur de la tour
+
+    public Tower(int PV, int ATK, double ATKSpeed, double Range, Element element, Tile position, ModeAttaque modeAttaque, double cout, Color color) {
         super(PV, ATK, ATKSpeed, Range, element, position, modeAttaque);
         this.cout = cout;
+        this.color = color;
     }
 
-    @Override
-    public void attaquer(Warrior cible) { // Attaque une entité
-        if (cible instanceof Ennemy) {  // Si la cible est à portée et que c'est un ennemi
-            super.attaquer(cible); 
-        }
-    }
-
-    public int getCout() { // Getter
+    public double getCout() {
         return cout;
     }
 
-    public void setCout(int cout) { // Setter
-        this.cout = cout;
+    public Color getColor() {
+        return color;
+    }
+
+    @Override
+    public void attaquer(Warrior cible) {
+        if (cible instanceof Ennemy) {
+            super.attaquer(cible);
+        }
     }
 }

@@ -4,7 +4,7 @@ public class Tile {
     private final int row;           
     private final int col;          
     private final TileType type;     // Type de la case (défini par l'enum)
-    private boolean occupied;        // Si la case est occupée (par défaut : false)
+    private boolean occupiedByTower;        // Si la case est occupée par une TOUR uniquement (par défaut : false)
 
     /**
      * Constructor of the class Tile.
@@ -17,7 +17,7 @@ public class Tile {
         this.row = row;
         this.col = col;
         this.type = type;
-        this.occupied = false; 
+        this.occupiedByTower = false; 
     }
 
     
@@ -33,13 +33,13 @@ public class Tile {
         return type;
     }
 
-    public boolean isOccupied() {
-        return occupied;
+    public boolean isOccupiedByTower() {
+        return occupiedByTower;
     }
 
     
-    public void setOccupied(boolean occupied) {
-        this.occupied = occupied;
+    public void setOccupiedByTower(boolean occupied) {
+        this.occupiedByTower = occupied;
     }
 
     /**
