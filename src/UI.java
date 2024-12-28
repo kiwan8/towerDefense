@@ -1,12 +1,9 @@
 package src;
 
 import java.awt.Font;
-import java.io.IOException;
 import java.util.List;
 import java.awt.Color;
 
-import src.Monsters.Boss;
-import src.Monsters.Minion;
 import src.Towers.Archer;
 import src.Towers.EarthCaster;
 import src.Towers.FireCaster;

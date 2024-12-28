@@ -3,7 +3,15 @@ package src.Monsters;
 import src.*;
 
 public class MerchantKing extends Ennemy {
-    public MerchantKing(double spawnTime, double x, double y) {
-        super(100, 0, 0.0, 0, Element.Terre, null, ModeAttaque.NEAREST, 2.0, spawnTime, x, y);
+    /**
+     * Constructeur pour Merchant King.
+     *
+     * @param spawnTime Temps d'apparition.
+     * @param x         Coordonnée X initiale (en pixels).
+     * @param y         Coordonnée Y initiale (en pixels).
+     * @param map       Référence à la carte associée.
+     */
+    public MerchantKing(double spawnTime, double x, double y, Map map) {
+        super(100, 0, 0.0, 0, Element.Terre, 2.0, spawnTime, x, y, map);
     }
 }

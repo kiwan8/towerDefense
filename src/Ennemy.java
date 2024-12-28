@@ -2,127 +2,170 @@ package src;
 
 import java.util.List;
 
+/**
+ * Abstract class representing a generic enemy in the game.
+ * Handles common attributes and behaviors for all enemies, such as movement
+ * and interaction with the game map.
+ */
 public abstract class Ennemy extends Warrior {
 
-    private final double MovingSpeed; // Vitesse de déplacement
-    private final double SpawnTime; // Temps d'apparition
-    private double x; // Coordonnée X (sert uniquement au mouvement sur la carte)
-    private double y; // Coordonnée Y (idem que x)
-    private List<int[]> path; // Chemin que suit l'ennemi
-    private int currentStep = 0; // Étape actuelle sur le chemin
+    // Immutable properties
+    private final double movingSpeed; // Movement speed of the enemy
+    private final double spawnTime;   // Spawn time in the wave
+    private final List<int[]> path;   // Path in tile coordinates
+    private final List<double[]> pixelPath; // Path in pixel coordinates
+    private final Map map;           // Reference to the game map
+
+    // Mutable properties
+    private double x; // Current X coordinate (in pixels)
+    private double y; // Current Y coordinate (in pixels)
+    private int currentStep; // Current step in the path
 
     /**
-     * Constructeur pour la classe Ennemy.
+     * Constructor for the Ennemy class.
      *
-     * @param PV          Points de vie.
-     * @param ATK         Points d'attaque.
-     * @param ATKSpeed    Vitesse d'attaque.
-     * @param Range       Portée.
-     * @param element     Élément de l'ennemi.
-     * @param position    Position initiale.
-     * @param modeAttaque Mode d'attaque.
-     * @param MovingSpeed Vitesse de déplacement.
-     * @param SpawnTime   Temps d'apparition.
-     * @param x           Coordonnée X initiale.
-     * @param y           Coordonnée Y initiale.
-     * 
+     * @param PV          Health points of the enemy.
+     * @param ATK         Attack points of the enemy.
+     * @param ATKSpeed    Attack speed of the enemy.
+     * @param range       Attack range of the enemy (in tiles).
+     * @param element     Element type of the enemy.
+     * @param movingSpeed Movement speed of the enemy.
+     * @param spawnTime   Time at which the enemy spawns in the wave.
+     * @param x           Initial X coordinate (in pixels).
+     * @param y           Initial Y coordinate (in pixels).
+     * @param map         Reference to the game map.
      */
-    public Ennemy(int PV, int ATK, double ATKSpeed, int Range, Element element, Tile position, ModeAttaque modeAttaque,
-            double MovingSpeed, double SpawnTime, double x, double y) {
-        super(PV, ATK, ATKSpeed, Range, element, position, modeAttaque);
-        this.MovingSpeed = MovingSpeed;
-        this.SpawnTime = SpawnTime;
+    public Ennemy(int PV, int ATK, double ATKSpeed, int range, Element element,
+                  double movingSpeed, double spawnTime, double x, double y, Map map) {
+        super(PV, ATK, ATKSpeed, range, element, null, ModeAttaque.NEAREST);
+        this.movingSpeed = movingSpeed;
+        this.spawnTime = spawnTime;
         this.x = x;
         this.y = y;
+        this.map = map;
+        this.pixelPath = map.getPixelPath();
+        this.path = map.getPath();
+        this.currentStep = 0;
     }
 
-    public void setPath(List<int[]> path) {
-        this.path = path;
-    }
-    //TODO : A fortement optimiser car hardcoder de fou
-    public void updatePosition(double deltaTimeSec, Map map) {
-        if (currentStep >= path.size()) {
-            return; // L'ennemi a atteint la fin du chemin
+        /**
+     * Met à jour la position de l'ennemi sur la carte en fonction de son
+     * déplacement.
+     * 
+     * Cette méthode gère le déplacement d'un ennemi sur son chemin défini
+     * (pixelPath)
+     * et met à jour ses coordonnées (x, y) ainsi que sa case actuelle (Tile)
+     * lorsque l'ennemi traverse une frontière de case.
+     * Elle prend en compte la vitesse de déplacement de l'ennemi et le temps écoulé
+     * depuis la dernière mise à jour pour calculer la progression.
+     *
+     * @param deltaTimeSec Le temps écoulé en secondes depuis la dernière mise à
+     *                     jour.
+     *
+     */
+    public void updatePosition(double deltaTimeSec) {
+        if (currentStep >= pixelPath.size()) {
+            return; // Ennemi a atteint la fin du chemin
         }
 
-        // Convertir la prochaine case du chemin en coordonnées en pixels
-        int[] nextTile = path.get(currentStep);
+        // Récupérer la prochaine position cible en pixels
+        double[] target = pixelPath.get(currentStep);
+        double targetX = target[0];
+        double targetY = target[1];
 
-        // Convertir les indices de la case en coordonnées pixels
-        double targetX = convertToPixel(nextTile[1], true, map); // Colonne -> X
-        double targetY = convertToPixel(nextTile[0], false, map); // Ligne -> Y
+        // Calcul de la distance que l'ennemi peut parcourir cette frame
+        double cellSize = Math.min(700.0 / map.getRows(), 700.0 / map.getCols()); // Taille d'un carreau en pixels
+        double distanceToTravel = movingSpeed * cellSize * deltaTimeSec; // Distance en pixels
 
-        // Calculer la distance que l'ennemi peut parcourir pendant cette frame
-        double distanceToTravel = MovingSpeed; // TODO : Pourquoi cela ne fonctionne pas ?? double distanceToTravel =
-                                               // MovingSpeed * deltaTimeSec;
-
-        // Calculer le vecteur vers la prochaine case
+        // Calcul du vecteur directionnel
         double dx = targetX - x;
         double dy = targetY - y;
         double distanceToTarget = Math.sqrt(dx * dx + dy * dy);
 
         if (distanceToTravel >= distanceToTarget) {
-            // Atteint la case suivante
+            // Atteint la prochaine étape
             x = targetX;
             y = targetY;
-            currentStep++; // Passe à la case suivante
+            currentStep++; // Avancer dans le chemin
         } else {
-            // Déplacement partiel vers la prochaine case
+            // Déplacement partiel
             x += distanceToTravel * dx / distanceToTarget;
             y += distanceToTravel * dy / distanceToTarget;
         }
-    }
+        // TODO : A optimiser en utilisant le path et en calculant qu'une valeur de
+        // moitié de case au début
+        // Calculer la case actuelle après mise à jour de la position
+        int currentRow = (int) ((350 + 350 - y) / cellSize);
+        int currentCol = (int) ((x - (350 - 350)) / cellSize);
 
-    private double convertToPixel(int tileIndex, boolean isColumn, Map map) {
-        // Centre de la carte en pixels
-        double centerX = 350;
-        double centerY = 350;
-        double halfLength = 350; // Taille visuelle de la carte (assumez qu'elle est carrée)
-
-        // Taille d'une cellule (calculée dynamiquement en fonction des dimensions de la
-        // carte)
-        double cellSize = Math.min(2 * halfLength / map.getRows(), 2 * halfLength / map.getCols());
-
-        // Calcul en fonction de si c'est une colonne (X) ou une ligne (Y)
-        if (isColumn) {
-            return centerX - halfLength + tileIndex * cellSize + cellSize / 2;
-        } else {
-            return centerY + halfLength - tileIndex * cellSize - cellSize / 2;
+        // Si l'ennemi change de case, mettre à jour sa position sur la carte
+        Tile currentTile = map.getTile(currentRow, currentCol);
+        if (!currentTile.equals(this.getPosition())) {
+            this.setPosition(currentTile);
         }
     }
 
-    // Getter pour MovingSpeed
-    public double getMovingSpeed() {
-        return MovingSpeed;
-    }
 
-    // Getter pour SpawnTime
-    public double getSpawnTime() {
-        return SpawnTime;
-    }
-
-    // Getter pour x
+    /**
+     * Gets the current X coordinate of the enemy.
+     *
+     * @return The X coordinate (in pixels).
+     */
     public double getX() {
         return x;
     }
 
-    // Setter pour x
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    // Getter pour y
+    /**
+     * Gets the current Y coordinate of the enemy.
+     *
+     * @return The Y coordinate (in pixels).
+     */
     public double getY() {
         return y;
     }
 
-    // Setter pour y
-    public void setY(int y) {
-        this.y = y;
+    /**
+     * Gets the movement speed of the enemy.
+     *
+     * @return The movement speed.
+     */
+    public double getMovingSpeed() {
+        return movingSpeed;
     }
 
-    // Vérifie si l'ennemi a atteint la fin du chemin
+    /**
+     * Gets the spawn time of the enemy.
+     *
+     * @return The spawn time.
+     */
+    public double getSpawnTime() {
+        return spawnTime;
+    }
+
+    /**
+     * Checks if the enemy has reached the end of its path.
+     *
+     * @return True if the enemy has completed its path, false otherwise.
+     */
     public boolean hasReachedEnd() {
-        return currentStep >= path.size();
+        return currentStep >= pixelPath.size();
+    }
+
+    /**
+     * Gets the tile path of the enemy.
+     *
+     * @return The list of tile coordinates representing the path.
+     */
+    public List<int[]> getPath() {
+        return path;
+    }
+
+    /**
+     * Gets the pixel path of the enemy.
+     *
+     * @return The list of pixel coordinates representing the path.
+     */
+    public List<double[]> getPixelPath() {
+        return pixelPath;
     }
 }

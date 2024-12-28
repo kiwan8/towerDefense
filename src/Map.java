@@ -15,6 +15,7 @@ public class Map {
     private final int cols;
     private final Tile[][] tiles;
     private final List<int[]> path;
+    private List<double[]> pixelPath;
 
     /**
      * Creates a map by loading it from a file.
@@ -29,6 +30,7 @@ public class Map {
         this.cols = dimensions[1];
         this.tiles = new Tile[rows][cols];
         this.path = loadMap(filePath);
+        this.pixelPath = setPixelPath();
     }
 
     /**
@@ -168,5 +170,23 @@ public class Map {
             System.out.println("(" + coordinates[0] + ", " + coordinates[1] + ")");
         }
         return path;
+    }
+
+    private List<double[]> setPixelPath() {
+        List<double[]> pixelPath = new ArrayList<>();
+        double cellSize = Math.min(700.0 / rows, 700.0 / cols); // Calcule la taille d'une cellule
+        double centerX = 350;
+        double centerY = 350;
+
+        for (int[] tile : path) {
+            double pixelX = centerX - 350 + tile[1] * cellSize + cellSize / 2;
+            double pixelY = centerY + 350 - tile[0] * cellSize - cellSize / 2;
+            pixelPath.add(new double[] { pixelX, pixelY });
+        }
+        return pixelPath;
+    }
+
+    public List<double[]> getPixelPath(){
+        return this.pixelPath;
     }
 }
