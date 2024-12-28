@@ -20,7 +20,6 @@ public class Tile {
         this.occupiedByTower = false; 
     }
 
-    
     public int getRow() {
         return row;
     }
@@ -37,7 +36,6 @@ public class Tile {
         return occupiedByTower;
     }
 
-    
     public void setOccupiedByTower(boolean occupied) {
         this.occupiedByTower = occupied;
     }
@@ -49,5 +47,17 @@ public class Tile {
      */
     public boolean isClickable() {
         return type.isClickable();
+    }
+
+    /**
+     * Check if the tile is constructible.
+     *
+     * A tile is considered constructible if it is of type CONSTRUCTIBLE
+     * and is not already occupied by a tower.
+     *
+     * @return True if the tile is constructible, else False.
+     */
+    public boolean isConstructible() {
+        return type == TileType.CONSTRUCTIBLE && !occupiedByTower;
     }
 }

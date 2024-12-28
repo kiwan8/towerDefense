@@ -12,6 +12,6 @@ public class Minion extends Ennemy {
      * @param map       Référence à la carte associée.
      */
     public Minion(double spawnTime, double x, double y, Map map) {
-        super(10, 3, 0.0, 0, Element.Neutre, 1.0, spawnTime, x, y, map);
+        super(10, 3, 0.0, 0, Element.Neutre, 1.0, spawnTime, x, y, map,1);
     }
 }

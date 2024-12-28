@@ -12,6 +12,6 @@ public class Boss extends Ennemy {
      * @param map       Référence à la carte associée.
      */
     public Boss(double spawnTime, double x, double y, Map map) {
-        super(150, 100, 10.0, 2, Element.Feu, 0.5, spawnTime, x, y, map);
+        super(150, 100, 10.0, 2, Element.Feu, 0.5, spawnTime, x, y, map,100);
     }
 }

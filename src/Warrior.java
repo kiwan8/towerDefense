@@ -4,8 +4,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-
-
 public abstract class Warrior { // Classe abstraite Warrior (représente les entités du jeu : tours, ennemis)
 
     private int PV; // Points de vie
@@ -16,6 +14,7 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
     private Element element; // Element de l'entité
     private Tile position; // Position de l'entité
     private ModeAttaque modeAttaque; // Mode d'attaque
+    private double attackCooldown;
 
     public Warrior(int PV, int ATK, double ATKSpeed, double Range, Element element, Tile position,
             ModeAttaque modeAttaque) { // Constructeur
@@ -33,12 +32,16 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
         return PV;
     }
 
-    public int getMaxPV(){
+    public int getMaxPV() {
         return maxPV;
     }
 
     public void setPV(int PV) { // Setter
-        this.PV = PV;
+
+        if (this.PV < 0) {
+            this.PV = 0;
+            this.PV = PV;
+        }
     }
 
     public int getATK() { // Getter
@@ -60,7 +63,6 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
     public double getRange() { // Getter
         return Range;
     }
-
 
     public Element getElement() { // Getter
         return element;
@@ -86,8 +88,9 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
         this.modeAttaque = modeAttaque;
     }
 
-    public double CalculateVulnerability(Element element) { // Méthode qui retourne le coefficient de vulnérabilité de l'entité
-                                                   // par rapport à un élément
+    public double CalculateVulnerability(Element element) { // Méthode qui retourne le coefficient de vulnérabilité de
+                                                            // l'entité
+        // par rapport à un élément
         if (this.element == Element.Feu) { // Si l'entité est de type feu
             if (element == Element.Eau) {
                 return 1.5;
@@ -118,6 +121,7 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
 
     public void attaquer(Warrior cible) { // Méthode qui permet à l'entité d'attaquer
         cible.PV -= (int) (this.ATK * cible.CalculateVulnerability(this.element));
+        if(cible.PV < 0) {cible.PV = 0;}
     }
 
     /**
@@ -181,8 +185,9 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
                 // .orElse(Collections.emptyList()) retourne une liste vide si aucun ennemi
                 // n'est trouvé.
                 return ennemis.stream()
-                        .min(Comparator.comparingInt(e -> calculateDistance(this, e))) // Compare les distances pour trouver le
-                                                                              // minimum
+                        .min(Comparator.comparingInt(e -> calculateDistance(this, e))) // Compare les distances pour
+                                                                                       // trouver le
+                        // minimum
                         .map(Collections::singletonList) // Transforme le résultat en une liste avec un seul élément
                         .orElse(Collections.emptyList()); // Si rien trouvé, renvoie une liste vide
             case MULTIPLE_TARGET:
@@ -204,6 +209,17 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
                 // Retourne le premier ennemi si présent, sinon une liste vide
                 return ennemis.isEmpty() ? Collections.emptyList() : List.of(ennemis.get(0));
         }
+    }
+
+    // Vérifie si la tour peut attaquer
+    public boolean canAttack(double deltaTime) {
+        attackCooldown -= deltaTime;
+        return attackCooldown <= 0;
+    }
+
+    // Réinitialise le cooldown après une attaque
+    public void resetAttackCooldown() {
+        this.attackCooldown = this.getATKSpeed();
     }
 
 }

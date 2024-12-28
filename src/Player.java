@@ -1,7 +1,7 @@
 package src;
 
 public class Player {
-    private int argent; // Argent du joueur
+    private static int argent; // Argent du joueur
     private int HP; // Vie du joueur
 
     public Player(int argent, int HP) { // Constructeur

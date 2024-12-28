@@ -12,6 +12,6 @@ public class WaterBrute extends Ennemy {
      * @param map       Référence à la carte associée.
      */
     public WaterBrute(double spawnTime, double x, double y, Map map) {
-        super(30, 5, 1.0, 3, Element.Eau, 1.0, spawnTime, x, y, map);
+        super(30, 5, 1.0, 3, Element.Eau, 1.0, spawnTime, x, y, map,3);
     }
 }

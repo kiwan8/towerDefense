@@ -57,32 +57,32 @@ public class Game {
         startTime = System.currentTimeMillis(); // Temps de début de la wave
         long previousTime = startTime;
         elapsedTime = 0;
-    
+
         final int TARGET_FPS = 60; // Objectif de 60 FPS
         final long FRAME_TIME = 1000 / TARGET_FPS; // Temps par frame en millisecondes
-    
+
         while (isGameRunning()) {
             long currentTime = System.currentTimeMillis();
             double deltaTimeSec = (double) (currentTime - previousTime) / 1000; // Temps écoulé depuis la dernière frame
             previousTime = currentTime;
-    
+
             // Met à jour le temps total écoulé
             elapsedTime = (long) (currentTime - startTime) / 1000; // Temps écoulé en secondes depuis le début
-    
+
             if (StdDraw.isMousePressed()) { // Si le bouton de la souris est pressé
                 double mouseX = StdDraw.mouseX();
                 double mouseY = StdDraw.mouseY();
                 ui.handleClick(mouseX, mouseY);
                 StdDraw.show();
             }
-    
+
             update(deltaTimeSec, elapsedTime); // Met à jour l'état du jeu
             ui.render();
-    
+
             // Synchroniser pour atteindre 60 FPS
             long frameEndTime = System.currentTimeMillis();
             long frameDuration = frameEndTime - currentTime;
-    
+
             if (frameDuration < FRAME_TIME) {
                 try {
                     Thread.sleep(FRAME_TIME - frameDuration); // Pause pour compléter le temps restant
@@ -93,7 +93,6 @@ public class Game {
         }
         youLose();
     }
-    
 
     // Vérifie si le jeu est encore en cours d'exécution
     private boolean isGameRunning() {
@@ -126,70 +125,114 @@ public class Game {
         this.ui = new UI(currentLevel.getMap());
     }
 
-
-
     // Met à jour l'état du jeu en fonction du temps écoulé
     private void update(double deltaTimeSec, long elapsedTime) throws GameException, IOException {
+        // Gestion du spawn des ennemis
+        handleEnemySpawning(elapsedTime);
 
-        // Définir des variables booléennes pour clarifier les conditions
-        boolean isEnemyReadyToSpawn = !currentWave.getEnemies().isEmpty() &&
-                currentWave.getEnemies().peek().getSpawnTime() <= elapsedTime;
+        // Mise à jour de la position des ennemis
+        updateEnemies(deltaTimeSec);
 
-        boolean areEnemiesRemaining = !currentWave.getEnemies().isEmpty() || !activeEnemies.isEmpty();
+        // Gestion des attaques des tours
+        updateTowers(deltaTimeSec);
 
-        // Spawn des ennemis si prêts
-        while (isEnemyReadyToSpawn) {
+        // Gestion des attaques des ennemis
+        updateEnemyAttacks(deltaTimeSec);
+
+        // Vérification de la fin de la vague
+        checkWaveCompletion();
+    }
+
+    private void handleEnemySpawning(long elapsedTime) {
+        while (!currentWave.getEnemies().isEmpty() &&
+                currentWave.getEnemies().peek().getSpawnTime() <= elapsedTime) {
             activeEnemies.add(currentWave.getEnemies().poll());
-
-
-            isEnemyReadyToSpawn = !currentWave.getEnemies().isEmpty() &&
-                    currentWave.getEnemies().peek().getSpawnTime() <= elapsedTime;
         }
+    }
 
-        // Met à jour les positions des ennemis actifs
+    private void updateEnemies(double deltaTimeSec) {
         Iterator<Ennemy> iterator = activeEnemies.iterator();
         while (iterator.hasNext()) {
             Ennemy enemy = iterator.next();
             enemy.updatePosition(deltaTimeSec);
-
-            // Vérifie si l'ennemi a atteint la base
+    
             if (enemy.hasReachedEnd()) {
-                joueur.takeDamage(enemy.getATK()); // Inflige des dégâts une seule fois
-                iterator.remove(); // Supprime immédiatement l'ennemi de la liste
+                joueur.takeDamage(enemy.getATK());
+                iterator.remove();
+                continue; // Passe à l'ennemi suivant
+            }
+    
+            if (enemy.getPV() <= 0) {
+                joueur.setArgent((int)joueur.getArgent()+enemy.getReward());
+                iterator.remove(); // Supprime l'ennemi mort
             }
         }
+    }
+    
 
+    private void updateEnemyAttacks(double deltaTimeSec) {
+        for (Ennemy enemy : activeEnemies) {
+            if (!enemy.canAttack(deltaTimeSec)) continue;
+    
+            List<Warrior> towersInRange = activeTower.stream()
+                .filter(tower -> enemy.calculateDistance(tower) <= enemy.getRange())
+                .collect(Collectors.toList());
+    
+            List<Warrior> targets = enemy.selectTargets(enemy.getModeAttaque(), towersInRange);
+            for (Warrior target : targets) {
+                enemy.attaquer(target);
+            }
 
+            
+    
+            enemy.resetAttackCooldown();
+        }
+    }
+    
 
-        // Vérifie si la vague est terminée et passe à la suivante
-        if (!areEnemiesRemaining) {
+    private void updateTowers(double deltaTimeSec) {
+        Iterator<Tower> iterator = activeTower.iterator();
+        while (iterator.hasNext()) {
+            Tower tower = iterator.next();
+            // Vérifie si la tour est morte
+            if (tower.getPV() <= 0) {
+                tower.getPosition().setOccupiedByTower(false);
+                iterator.remove(); // Supprime la tour morte
+                continue; // Passe à la tour suivante
+            }
+            
+    
+            // Vérifie le cooldown pour attaquer
+            if (!tower.canAttack(deltaTimeSec)) {
+                continue;
+            }
+    
+            // Récupère les ennemis dans la portée
+            List<Warrior> enemiesInRange = activeEnemies.stream()
+                    .filter(enemy -> tower.calculateDistance(enemy) <= tower.getRange())
+                    .collect(Collectors.toList());
+    
+            // Sélectionne les cibles selon le mode d'attaque
+            List<Warrior> targets = tower.selectTargets(tower.getModeAttaque(), enemiesInRange);
+    
+            // Attaque les cibles sélectionnées
+            for (Warrior target : targets) {
+                tower.attaquer(target);
+            }
+    
+            // Réinitialise le cooldown de la tour
+            tower.resetAttackCooldown();
+        }
+    }
+    
+    
+
+    private void checkWaveCompletion() throws GameException, IOException {
+        if (currentWave.getEnemies().isEmpty() && activeEnemies.isEmpty()) {
             nextWave();
         }
     }
-
-    private void updateTowerAttacks(double deltaTimeSec) {
-    for (Tower tower : Game.getActiveTower()) {
-        // Vérifier le cooldown
-        if (!tower.canAttack(deltaTimeSec)) continue;
-
-        // Récupérer les ennemis dans la portée
-        List<Warrior> enemiesInRange = Game.getActiveEnemies().stream()
-            .filter(enemy -> tower.calculateDistance(enemy) <= tower.getRange())
-            .collect(Collectors.toList());
-
-        // Sélectionner les cibles selon le ModeAttaque
-        List<Warrior> targets = tower.selectTargets(tower.getModeAttaque(), enemiesInRange);
-
-        // Attaquer les cibles sélectionnées
-        for (Warrior target : targets) {
-            tower.attaquer(target);
-        }
-
-        // Réinitialiser le cooldown de la tour
-        tower.resetAttackCooldown();
-    }
-}
-
+    
 
     private void nextWave() throws GameExceptions.GameException, IOException {
         int nbVagueDuLevel = currentLevel.getWaves().size();
@@ -209,6 +252,8 @@ public class Game {
             // Réinitialise les états
             joueur.setHP(10000);
             activeEnemies.clear(); // Vide les ennemis actifs
+            activeTower.clear();
+            ui.updateMap(currentLevel.getMap());
         } else {
             // Passe à la vague suivante
             cptWave++;

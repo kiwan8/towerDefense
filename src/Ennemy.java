@@ -15,6 +15,7 @@ public abstract class Ennemy extends Warrior {
     private final List<int[]> path;   // Path in tile coordinates
     private final List<double[]> pixelPath; // Path in pixel coordinates
     private final Map map;           // Reference to the game map
+    private final int reward;
 
     // Mutable properties
     private double x; // Current X coordinate (in pixels)
@@ -36,7 +37,7 @@ public abstract class Ennemy extends Warrior {
      * @param map         Reference to the game map.
      */
     public Ennemy(int PV, int ATK, double ATKSpeed, int range, Element element,
-                  double movingSpeed, double spawnTime, double x, double y, Map map) {
+                  double movingSpeed, double spawnTime, double x, double y, Map map, int reward) {
         super(PV, ATK, ATKSpeed, range, element, null, ModeAttaque.NEAREST);
         this.movingSpeed = movingSpeed;
         this.spawnTime = spawnTime;
@@ -46,6 +47,11 @@ public abstract class Ennemy extends Warrior {
         this.pixelPath = map.getPixelPath();
         this.path = map.getPath();
         this.currentStep = 0;
+        this.reward = reward;
+    }
+
+    public int getReward() {
+        return reward;
     }
 
         /**
