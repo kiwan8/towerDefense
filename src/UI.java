@@ -1,9 +1,9 @@
 package src;
 
-import java.awt.Font;
-import java.util.List;
 import java.awt.Color;
-
+import java.awt.Font;
+import java.util.ArrayList;
+import java.util.List;
 import src.Towers.Archer;
 import src.Towers.EarthCaster;
 import src.Towers.FireCaster;
@@ -190,6 +190,8 @@ public class UI {
         }
     }
 
+    private static List<TowerCard> towerCards = new ArrayList<>(); // Liste des cartes de tours
+
     /**
      * Draw the shop zone with a border.
      */
@@ -223,45 +225,72 @@ public class UI {
                 new Railgun(null)
         };
 
-        for (int i = 0; i < towers.length; i++) {
+        for (int i = 0; i < towers.length; i++) {  // Dessiner chaque carte de tour
             double yPosition = startY - i * cardHeight;
-            drawTowerCard(centerX, yPosition, cardWidth, cardHeight, towers[i]);
+            TowerCard carte = new TowerCard(centerX, yPosition, cardWidth, cardHeight, towers[i]);
+            carte.draw();
+            towerCards.add(carte);  // Ajouter la carte à la liste
         }
     }
 
-    /**
-     * Draw a single tower card in the shop zone.
-     *
-     * @param x      The center x position of the card.
-     * @param y      The center y position of the card.
-     * @param width  The width of the card.
-     * @param height The height of the card.
-     * @param tower  The tower to display.
-     */
-    private static void drawTowerCard(double x, double y, double width, double height, Tower tower) {
-        // Dessine le fond de la carte
-        StdDraw.setPenColor(StdDraw.WHITE);
-        StdDraw.filledRectangle(x, y, width / 2, height / 2);
+    private class TowerCard {
+        private double x;
+        private double y;
+        private double width;
+        private double height;
+        private Tower tower;
 
-        // Dessine la bordure
-        StdDraw.setPenColor(tower.getColor());
-        StdDraw.rectangle(x, y, width / 2, height / 2);
+        public TowerCard(double x, double y, double width, double height, Tower tower) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.tower = tower;
+        }
 
-        // Dessine le symbole de la tour
-        StdDraw.setPenColor(tower.getColor());
-        StdDraw.filledCircle(x - width / 2 + height / 2, y, height / 3);
+        public void draw() {
+            // Dessine le fond de la carte
+            StdDraw.setPenColor(StdDraw.WHITE);
+            StdDraw.filledRectangle(x, y, width / 2, height / 2);
 
-        // Affiche les détails de la tour
-        Font font = new Font("Arial", Font.PLAIN, 10);
-        StdDraw.setFont(font);
-        StdDraw.setPenColor(StdDraw.BLACK);
+            // Dessine la bordure
+            StdDraw.setPenColor(tower.getColor());
+            StdDraw.rectangle(x, y, width / 2, height / 2);
 
-        StdDraw.textLeft(x - width / 2 + height, y,
-                tower.getClass().getSimpleName() + " | PV: " + tower.getPV() +
-                        " | ATK: " + tower.getATK() +
-                        " | SPD: " + tower.getATKSpeed() +
-                        " | PO: " + tower.getRange() +
-                        " | Cost: " + tower.getCout());
+            // Dessine le symbole de la tour
+            StdDraw.setPenColor(tower.getColor());
+            StdDraw.filledCircle(x - width / 2 + height / 2, y, height / 3);
+
+            // Affiche les détails de la tour
+            Font font = new Font("Arial", Font.PLAIN, 10);
+            StdDraw.setFont(font);
+            StdDraw.setPenColor(StdDraw.BLACK);
+
+            StdDraw.textLeft(x - width / 2 + height, y,
+                    tower.getClass().getSimpleName() + " | PV: " + tower.getPV() +
+                            " | ATK: " + tower.getATK() +
+                            " | SPD: " + tower.getATKSpeed() +
+                            " | PO: " + tower.getRange() +
+                            " | Cost: " + tower.getCout());
+        }
+
+        public boolean contains(double x, double y) {
+            return x >= this.x - this.width / 2 && x <= this.x + this.width / 2 &&
+                   y >= this.y - this.height / 2 && y <= this.y + this.height / 2;
+        }
+
+        public Tower getTower() {
+            return this.tower;
+        }
+    }
+
+    public static Tower towerAtXY(double x, double y) { // Trouver la tour correspondant à une position XY
+        for (TowerCard carte : towerCards) {
+            if (carte.contains(x, y)) {
+                return carte.getTower();
+            }
+        }
+        return null; // Retourne null si aucune carte ne correspond
     }
 
     private void drawEnemies(List<Ennemy> enemies) {
@@ -415,6 +444,8 @@ public class UI {
     //////////////////// Gestion des clicks/////////////////////////////
     ///////////////////////////////////////////////////////////////////
 
+private static Tower selecTour = new Archer(null); // Tour sélectionnée par défaut
+
     /**
  * Vérifie si un clic est sur une case constructible et y place une tour.
  */
@@ -433,15 +464,58 @@ public void handleClick(double mouseX, double mouseY) {
         Tile clickedTile = map.getTile(row, col);
 
         // Vérifier si la case est constructible
-        if (clickedTile.isConstructible() && !clickedTile.isOccupiedByTower()) {
+        if (clickedTile.isConstructible() && !clickedTile.isOccupiedByTower() && Game.getPlayer().getArgent() >= selecTour.getCout()) {
             // Construire une tour par défaut (ex: Archer)
-            Tower newTower = new Archer(clickedTile);
+            Tower newTower = instanceTour(clickedTile);
             Game.getActiveTower().add(newTower);
+            
+            // Déduire le coût de la tour du solde du joueur
+            Game.getPlayer().setArgent(Game.getPlayer().getArgent() - selecTour.getCout());
 
             clickedTile.setOccupiedByTower(true); // Marquer la case comme occupée
         }
     }
+
+    // Vérifier si le clic est sur une carte de tour
+    Tower tower = towerAtXY(mouseX, mouseY);
+    if (tower != null) {
+        selecTour = tower;
+    }
 }
+
+    private Tower instanceTour(Tile clickedTile) {  // Instancier une tour en fonction de la tour sélectionnée
+        switch (selecTour.getClass().getSimpleName()) {
+            case "Archer":
+                return new Archer(clickedTile);
+
+            case "WindCaster":
+                return new WindCaster(clickedTile);
+
+            case "WaterCaster":
+                return new WaterCaster(clickedTile);
+
+            case "EarthCaster":
+                return new EarthCaster(clickedTile);
+
+            case "FireCaster":
+                return new FireCaster(clickedTile);
+
+            case "IceCaster":
+                return new IceCaster(clickedTile);
+
+            case "PoisonCaster":
+                return new PoisonCaster(clickedTile);
+
+            case "GoldDigger":
+                return new GoldDigger(clickedTile);
+
+            case "Railgun":
+                return new Railgun(clickedTile);
+
+            default:
+                return new Archer(clickedTile);
+        }
+    }
 
 
     private void drawCircleOnTile(int row, int col, double radius) {

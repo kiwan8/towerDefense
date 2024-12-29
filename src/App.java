@@ -1,7 +1,6 @@
 package src;
 
 import java.io.IOException;
-
 import src.GameExceptions.GameException;
 
 public class App
@@ -12,3 +11,4 @@ public class App
         g . launch () ;
     }
 }
+    
