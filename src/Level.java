@@ -10,12 +10,22 @@ public class Level {
 
     private Map map;               // Carte associée au niveau
     private List<Wave> waves;      // Liste des vagues du niveau
+    private final String LevelfilePath;
+
+
+
+    public String getLevelfilePath() {
+        return LevelfilePath;
+    }
+
+
 
     /**
      * Constructeur de la classe Level.
      */
-    public Level(String filepath) throws GameExceptions.GameException, IOException{ // TODO : Ajouter un paramètre pour load avec un filePath 
+    public Level(final String filepath) throws GameExceptions.GameException, IOException{ 
         this.waves = new ArrayList<>();
+        this.LevelfilePath = filepath;
         loadLevel(filepath);
     }
 
@@ -36,11 +46,13 @@ public class Level {
 
             // Lire les lignes suivantes pour charger les vagues
             while ((line = reader.readLine()) != null) {
-                Wave wave = new Wave(this);
-                wave.loadWave("resources/waves/" + line + ".wve");
+                String wavePath = "resources/waves/" + line + ".wve";
+                Wave wave = new Wave(this, wavePath);
+                wave.loadWave(wavePath);
                 waves.add(wave);
             }
         }
+        
     }
 
     /**

@@ -114,11 +114,7 @@ public class Game {
                 String levelPath = "resources/levels/" + levelName + ".lvl";
                 levels.add(new Level(levelPath));
             }
-        } catch (FileNotFoundException e) {
-            throw new GameException("Fichier de jeu introuvable : " + gameFilePath);
-        } catch (IOException e) {
-            throw new GameException("Erreur lors de la lecture du fichier : " + gameFilePath);
-        }
+        } 
     }
 
     // Initialise le jeu

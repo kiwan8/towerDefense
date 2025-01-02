@@ -54,7 +54,7 @@ public abstract class Ennemy extends Warrior {
         return reward;
     }
 
-        /**
+    /**
      * Met à jour la position de l'ennemi sur la carte en fonction de son
      * déplacement.
      * 
