@@ -3,6 +3,9 @@ package src;
 import java.io.*;
 import java.util.*;
 
+import src.GameExceptions.GameException;
+import src.GameExceptions.MultiplePlayerBaseException;
+
 public class Level {
 
     private Map map;               // Carte associée au niveau
@@ -28,7 +31,7 @@ public class Level {
 
             // Lire la première ligne pour charger la carte
             if ((line = reader.readLine()) != null) {
-                this.map = new Map("resources/maps/" + line + ".mtp");
+                this.map = new Map("resources/maps/" + line + ".mtp", filePath);
             }
 
             // Lire les lignes suivantes pour charger les vagues

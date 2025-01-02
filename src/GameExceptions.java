@@ -69,20 +69,47 @@ public class GameExceptions {
     }
 
     /**
-     * Thrown when an enemy is unknown.
+     * Thrown when no path exists from the spawn to the base.
      */
-    public static class UnknownEnemyException extends GameException {
-        public UnknownEnemyException(String message) {
+    public static class NoPathException extends InvalidMapPathException {
+        public NoPathException(String message) {
             super(message);
         }
     }
 
     /**
-     * Thrown when the wave file is invalid.
+     * Thrown when multiple paths are detected.
      */
-    public static class InvalidWaveFileException extends GameException {
-        public InvalidWaveFileException(String message) {
+    public static class MultiplePathsException extends InvalidMapPathException {
+        public MultiplePathsException(String message) {
             super(message);
+        }
+
+        /**
+         * Thrown when a loop is detected in the path.
+         */
+        public static class PathLoopException extends InvalidMapPathException {
+            public PathLoopException(String message) {
+                super(message);
+            }
+        }
+
+        /**
+         * Thrown when an enemy is unknown.
+         */
+        public static class UnknownEnemyException extends GameException {
+            public UnknownEnemyException(String message) {
+                super(message);
+            }
+        }
+
+        /**
+         * Thrown when the wave file is invalid.
+         */
+        public static class InvalidWaveFileException extends GameException {
+            public InvalidWaveFileException(String message) {
+                super(message);
+            }
         }
     }
 }

@@ -15,43 +15,25 @@ public class Map {
     private final int cols;
     private final Tile[][] tiles;
     private final List<int[]> path;
-    private List<double[]> pixelPath;
+    private final List<double[]> pixelPath;
+    private final String levelFilePath;
+    private final String mapFilePath;
 
     /**
      * Creates a map by loading it from a file.
      *
-     * @param filePath the path to the map file.
      * @throws IOException   if the file cannot be read.
      * @throws GameException if the map validation fails.
      */
-    public Map(final String filePath) throws GameException, IOException {
-        final int[] dimensions = FindDimensions(filePath);
+    public Map(String mapFilePath, String levelFilePath) throws GameException, IOException {
+        this.levelFilePath = levelFilePath;
+        this.mapFilePath = mapFilePath;
+        final int[] dimensions = FindDimensions(mapFilePath);
         this.rows = dimensions[0];
         this.cols = dimensions[1];
         this.tiles = new Tile[rows][cols];
-        this.path = loadMap(filePath);
+        this.path = loadMap(mapFilePath);
         this.pixelPath = setPixelPath();
-    }
-
-    /**
-     * Find the number of rows and columns in the map file.
-     *
-     * @param filePath the path to the map file.
-     * @return an array with the number of rows and columns.
-     * @throws IOException if the file cannot be read.
-     */
-    private int[] FindDimensions(final String filePath) throws IOException {
-        int rowCount = 0;
-        int colCount = 0;
-
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                rowCount++;
-                colCount = Math.max(colCount, line.length());
-            }
-        }
-        return new int[] { rowCount, colCount };
     }
 
     /**
@@ -87,25 +69,130 @@ public class Map {
             }
         }
 
-        validateMap(enemySpawns, playerBases);
+        validateMap();
 
         return findPath(spawn, base);
     }
 
-    /**
-     * Validates the map
-     *
-     * @param enemySpawns the list of spawn tiles.
-     * @param playerBases the list of base tiles.
-     * @throws GameException if validation fails.
-     */
-    private void validateMap(final List<Tile> enemySpawns, final List<Tile> playerBases) throws GameException {
+    public void validateMap() throws GameException, IOException {
+        List<Tile> enemySpawns = new ArrayList<>();
+        List<Tile> playerBases = new ArrayList<>();
+    
+        // Vérification de la hauteur et de la largeur constantes //TODO faire différenciation des erreurs
+        int expectedCols = this.getCols();
+        for (int row = 0; row < this.getRows(); row++) {
+            int actualCols = 0;
+    
+            for (int col = 0; col < expectedCols; col++) {
+                Tile tile;
+    
+                // Vérification des colonnes hors limites
+                if (col < this.getCols() && (tile = this.getTile(row, col)) != null) {
+                    actualCols++;
+    
+                    // Vérification des tuiles inconnues
+                    if (tile.getType() == TileType.UNKNOWN) {
+                        throw new MapException(
+                            "Error: Unknown tile detected!\n" +
+                            "Level file: " + levelFilePath + "\n" +
+                            "Map file: " + mapFilePath + "\n" +
+                            "Reason: Unknown tile at row " + row + ", column " + col + ".\n" +
+                            "The game will now terminate.");
+                    }
+    
+                    // Ajout des spawns et bases
+                    if (tile.getType() == TileType.SPAWN) {
+                        enemySpawns.add(tile);
+                    } else if (tile.getType() == TileType.BASE) {
+                        playerBases.add(tile);
+                    }
+                }
+            }
+    
+            // Vérification de la largeur constante
+            if (actualCols != expectedCols) {
+                throw new MapException(
+                    "Error: Inconsistent row width detected!\n" +
+                    "Level file: " + levelFilePath + "\n" +
+                    "Map file: " + mapFilePath + "\n" +
+                    "Reason: Row " + row + " has width " + actualCols + " instead of " + expectedCols + ".\n" +
+                    "The game will now terminate.");
+            }
+        }
+    
+        // Vérification des dimensions
+        if (this.getRows() == 0 || this.getCols() == 0) {
+            throw new MapException(
+                "Error: Invalid map dimensions!\n" +
+                "Level file: " + levelFilePath + "\n" +
+                "Map file: " + mapFilePath + "\n" +
+                "Reason: The map has invalid dimensions (zero height or width).\n" +
+                "The game will now terminate.");
+        }
+    
+        // Vérification des spawns et bases
         if (enemySpawns.isEmpty()) {
-            throw new NoEnemySpawnException("The map must contain at least one spawn tile.");
+            throw new NoEnemySpawnException(
+                "Error: No enemy spawns found!\n" +
+                "Level file: " + levelFilePath + "\n" +
+                "Map file: " + mapFilePath + "\n" +
+                "The game will now terminate.");
         }
+    
         if (playerBases.isEmpty()) {
-            throw new NoPlayerBaseException("The map must contain at least one base tile.");
+            throw new NoPlayerBaseException(
+                "Error: No player base found!\n" +
+                "Level file: " + levelFilePath + "\n" +
+                "Map file: " + mapFilePath + "\n" +
+                "The game will now terminate.");
         }
+    
+        if (playerBases.size() > 1) {
+            StringBuilder positions = new StringBuilder();
+            for (Tile base : playerBases) {
+                positions.append(" - Row: ").append(base.getRow()).append(", Column: ").append(base.getCol()).append("\n");
+            }
+            throw new MultiplePlayerBaseException(
+                "Error: Multiple player bases found!\n" +
+                "Level file: " + levelFilePath + "\n" +
+                "Map file: " + mapFilePath + "\n" +
+                "Positions of player bases:\n" + positions +
+                "The game will now terminate.");
+        }
+    
+        if (enemySpawns.size() > 1) {
+            StringBuilder positions = new StringBuilder();
+            for (Tile spawn : enemySpawns) {
+                positions.append(" - Row: ").append(spawn.getRow()).append(", Column: ").append(spawn.getCol()).append("\n");
+            }
+            throw new MultipleEnemySpawnException(
+                "Error: Multiple enemy spawns found!\n" +
+                "Level file: " + levelFilePath + "\n" +
+                "Map file: " + mapFilePath + "\n" +
+                "Positions of enemy spawns:\n" + positions +
+                "The game will now terminate.");
+        }
+    }
+    
+    /**
+     * Find the number of rows and columns in the map file.
+     *
+     * @param filePath the path to the map file.
+     * @return an array with the number of rows and columns.
+     * @throws IOException if the file cannot be read.
+     */
+    private int[] FindDimensions(final String filePath) throws IOException {
+        int rowCount = 0;
+        int colCount = 0;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                rowCount++;
+                colCount = Math.max(colCount, line.length());
+            }
+        }
+        return new int[] { rowCount, colCount };
     }
 
     public int getRows() {
@@ -131,46 +218,89 @@ public class Map {
      * @param base  the base tile.
      * @return the path as a list of coordinates.
      */
-    private List<int[]> findPath(final Tile spawn, final Tile base) {
+    private List<int[]> findPath(final Tile spawn, final Tile base) throws InvalidMapPathException {
         final List<int[]> path = new ArrayList<>();
         final int[][] directions = {
                 { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 }
         };
-
+    
+        boolean[][] visited = new boolean[rows][cols];
         int currentRow = spawn.getRow();
         int currentCol = spawn.getCol();
         int lastVisitedRow = currentRow;
         int lastVisitedCol = currentCol;
-
+    
         final int baseRow = base.getRow();
         final int baseCol = base.getCol();
-
+    
         while (currentRow != baseRow || currentCol != baseCol) {
+            boolean moved = false;
+    
             for (int[] dir : directions) {
                 final int testRow = currentRow + dir[0];
                 final int testCol = currentCol + dir[1];
-
-                final boolean isRoadOrBase = tiles[testRow][testCol].getType().equals(TileType.ROAD) ||
-                        tiles[testRow][testCol].getType().equals(TileType.BASE);
+    
+                if (testRow < 0 || testRow >= rows || testCol < 0 || testCol >= cols) {
+                    continue; // Ignore out-of-bounds tiles
+                }
+    
+                final Tile testTile = tiles[testRow][testCol];
+                final boolean isRoadOrBase = testTile.getType().equals(TileType.ROAD) ||
+                                             testTile.getType().equals(TileType.BASE);
                 final boolean isNotBacktracking = testRow != lastVisitedRow || testCol != lastVisitedCol;
-
+    
                 if (isRoadOrBase && isNotBacktracking) {
+                    if (visited[testRow][testCol]) {
+                        throw new InvalidMapPathException(
+                                "Error: Loop detected in path!\n" +
+                                "Level file: " + levelFilePath + "\n" +
+                                "Map file: " + mapFilePath + "\n" +
+                                "Reason: Path loops back on itself at row " + testRow + ", column " + testCol + ".\n" +
+                                "The game will now terminate.");
+                    }
+    
+                    visited[currentRow][currentCol] = true;
                     path.add(new int[] { currentRow, currentCol });
                     lastVisitedRow = currentRow;
                     lastVisitedCol = currentCol;
                     currentRow = testRow;
                     currentCol = testCol;
+                    moved = true;
                     break;
                 }
             }
+    
+            if (!moved) {
+                throw new InvalidMapPathException(
+                        "Error: No valid path found from spawn to base!\n" +
+                        "Level file: " + levelFilePath + "\n" +
+                        "Map file: " + mapFilePath + "\n" +
+                        "Reason: Dead end or disconnected tiles.\n" +
+                        "The game will now terminate.");
+            }
         }
+    
+        // Check for multiple paths (if visited tiles could lead to ambiguity)
+        for (int[] dir : directions) {
+            final int testRow = currentRow + dir[0];
+            final int testCol = currentCol + dir[1];
+    
+            if (testRow >= 0 && testRow < rows && testCol >= 0 && testCol < cols) {
+                if (tiles[testRow][testCol].getType().equals(TileType.ROAD) && !visited[testRow][testCol]) {
+                    throw new InvalidMapPathException(
+                            "Error: Multiple paths detected!\n" +
+                            "Level file: " + levelFilePath + "\n" +
+                            "Map file: " + mapFilePath + "\n" +
+                            "Reason: Ambiguous routes leading to the base.\n" +
+                            "The game will now terminate.");
+                }
+            }
+        }
+    
         path.add(new int[] { baseRow, baseCol });
-        System.out.println("Chemin calculé :");
-        for (int[] coordinates : path) {
-            System.out.println("(" + coordinates[0] + ", " + coordinates[1] + ")");
-        }
         return path;
     }
+    
 
     private List<double[]> setPixelPath() {
         List<double[]> pixelPath = new ArrayList<>();
@@ -186,7 +316,12 @@ public class Map {
         return pixelPath;
     }
 
-    public List<double[]> getPixelPath(){
+    public List<double[]> getPixelPath() {
         return this.pixelPath;
     }
+
+
+ public static void main(String[] args) throws GameException, IOException {
+    Map newMap = new Map("resources/maps/Error_Path_Loop_1.mtp", "null");
+ }
 }

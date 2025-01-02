@@ -73,37 +73,43 @@ public abstract class Ennemy extends Warrior {
         if (currentStep >= pixelPath.size()) {
             return; // Ennemi a atteint la fin du chemin
         }
-
-        // Récupérer la prochaine position cible en pixels
-        double[] target = pixelPath.get(currentStep);
-        double targetX = target[0];
-        double targetY = target[1];
-
-        // Calcul de la distance que l'ennemi peut parcourir cette frame
-        double cellSize = Math.min(700.0 / map.getRows(), 700.0 / map.getCols()); // Taille d'un carreau en pixels
+    
+        // Calcul de la taille d'un carreau en pixels
+        double cellSize = Math.min(700.0 / map.getRows(), 700.0 / map.getCols());
+    
+        // Distance totale que l'ennemi peut parcourir cette frame
         double distanceToTravel = movingSpeed * cellSize * deltaTimeSec; // Distance en pixels
-
-        // Calcul du vecteur directionnel
-        double dx = targetX - x;
-        double dy = targetY - y;
-        double distanceToTarget = Math.sqrt(dx * dx + dy * dy);
-
-        if (distanceToTravel >= distanceToTarget) {
-            // Atteint la prochaine étape
-            x = targetX;
-            y = targetY;
-            currentStep++; // Avancer dans le chemin
-        } else {
-            // Déplacement partiel
-            x += distanceToTravel * dx / distanceToTarget;
-            y += distanceToTravel * dy / distanceToTarget;
+    
+        // Tant qu'il reste de la distance à parcourir et des étapes à atteindre
+        while (distanceToTravel > 0 && currentStep < pixelPath.size()) {
+            // Récupérer la prochaine position cible en pixels
+            double[] target = pixelPath.get(currentStep);
+            double targetX = target[0];
+            double targetY = target[1];
+    
+            // Calcul du vecteur directionnel et de la distance à la cible
+            double dx = targetX - x;
+            double dy = targetY - y;
+            double distanceToTarget = Math.sqrt(dx * dx + dy * dy);
+    
+            if (distanceToTravel >= distanceToTarget) {
+                // Atteint la prochaine étape
+                x = targetX;
+                y = targetY;
+                currentStep++; // Avancer dans le chemin
+                distanceToTravel -= distanceToTarget; // Réduire la distance restante
+            } else {
+                // Déplacement partiel
+                x += distanceToTravel * dx / distanceToTarget;
+                y += distanceToTravel * dy / distanceToTarget;
+                distanceToTravel = 0; // Fin du déplacement pour cette frame
+            }
         }
-        // TODO : A optimiser en utilisant le path et en calculant qu'une valeur de
-        // moitié de case au début
+    
         // Calculer la case actuelle après mise à jour de la position
         int currentRow = (int) ((350 + 350 - y) / cellSize);
         int currentCol = (int) ((x - (350 - 350)) / cellSize);
-
+    
         // Si l'ennemi change de case, mettre à jour sa position sur la carte
         Tile currentTile = map.getTile(currentRow, currentCol);
         if (!currentTile.equals(this.getPosition())) {
