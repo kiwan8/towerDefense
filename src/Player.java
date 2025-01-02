@@ -1,8 +1,12 @@
 package src;
 
-public class Player {
-    private static int argent; // Argent du joueur
-    private int HP; // Vie du joueur
+import java.io.Serializable;
+
+public class Player implements Serializable {
+    private static final long serialVersionUID = 1L; 
+
+    private int argent; // Argent du joueur
+    private int HP;     // Points de vie du joueur
 
     public Player(int argent, int HP) { // Constructeur
         this.argent = argent;
@@ -31,8 +35,8 @@ public class Player {
 
     public void takeDamage(int damage) {
         this.HP -= damage;
-        if (this.HP  < 0) {
-            this.HP  = 0; 
+        if (this.HP < 0) {
+            this.HP = 0;
         }
     }
 }
