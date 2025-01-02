@@ -4,7 +4,7 @@ package src;
  * Contains all exceptions related to the game.
  */
 public class GameExceptions {
-
+    
     /**
      * Base class for all game-related exceptions.
      */
@@ -40,6 +40,7 @@ public class GameExceptions {
             super(message);
         }
     }
+    
 
     /**
      * Thrown when no player base is found on the map.
@@ -69,47 +70,33 @@ public class GameExceptions {
     }
 
     /**
-     * Thrown when no path exists from the spawn to the base.
+     * Thrown when an enemy is unknown.
      */
-    public static class NoPathException extends InvalidMapPathException {
-        public NoPathException(String message) {
+    public static class UnknownEnemyException extends GameException {
+        public UnknownEnemyException(String message) {
             super(message);
         }
     }
 
     /**
-     * Thrown when multiple paths are detected.
+     * Thrown when the wave file is invalid.
      */
-    public static class MultiplePathsException extends InvalidMapPathException {
-        public MultiplePathsException(String message) {
+    public static class InvalidWaveFileException extends GameException {
+        public InvalidWaveFileException(String message) {
             super(message);
         }
+    }
 
-        /**
-         * Thrown when a loop is detected in the path.
-         */
-        public static class PathLoopException extends InvalidMapPathException {
-            public PathLoopException(String message) {
-                super(message);
-            }
-        }
-
-        /**
-         * Thrown when an enemy is unknown.
-         */
-        public static class UnknownEnemyException extends GameException {
-            public UnknownEnemyException(String message) {
-                super(message);
-            }
-        }
-
-        /**
-         * Thrown when the wave file is invalid.
-         */
-        public static class InvalidWaveFileException extends GameException {
-            public InvalidWaveFileException(String message) {
-                super(message);
-            }
+    public static class NotEnoughMoneyException extends Exception {
+        public NotEnoughMoneyException(String message) {
+            super(message);
         }
     }
+    
+    public static class TileOccupiedException extends Exception {
+        public TileOccupiedException(String message) {
+            super(message);
+        }
+    }
+    
 }

@@ -225,11 +225,11 @@ public class UI {
                 new Railgun(null)
         };
 
-        for (int i = 0; i < towers.length; i++) {  // Dessiner chaque carte de tour
+        for (int i = 0; i < towers.length; i++) { // Dessiner chaque carte de tour
             double yPosition = startY - i * cardHeight;
             TowerCard carte = new TowerCard(centerX, yPosition, cardWidth, cardHeight, towers[i]);
             carte.draw();
-            towerCards.add(carte);  // Ajouter la carte à la liste
+            towerCards.add(carte); // Ajouter la carte à la liste
         }
     }
 
@@ -276,7 +276,7 @@ public class UI {
 
         public boolean contains(double x, double y) {
             return x >= this.x - this.width / 2 && x <= this.x + this.width / 2 &&
-                   y >= this.y - this.height / 2 && y <= this.y + this.height / 2;
+                    y >= this.y - this.height / 2 && y <= this.y + this.height / 2;
         }
 
         public Tower getTower() {
@@ -354,7 +354,7 @@ public class UI {
 
             // Définir la couleur spécifique à la tour
             StdDraw.setPenColor(tower.getColor());
-            
+
             // Dessiner le cercle représentant la tour
             drawCircleOnTile(row, col, 8); // Ajuster le rayon selon la taille des cellules
 
@@ -369,14 +369,13 @@ public class UI {
         double cellSize = Math.min(2 * halfLength / map.getRows(), 2 * halfLength / map.getCols());
         return centerX - halfLength + col * cellSize + cellSize / 2;
     }
-    
+
     private double getTileCenterY(int row) {
         double centerY = 350;
         double halfLength = 350;
         double cellSize = Math.min(2 * halfLength / map.getRows(), 2 * halfLength / map.getCols());
         return centerY + halfLength - row * cellSize - cellSize / 2;
     }
-    
 
     /**
      * Dessine une barre de vie pour une tour.
@@ -422,21 +421,19 @@ public class UI {
                 barHeight / 2);
     }
 
-   
-
     /**
      * Updates the UI by redrawing all dynamic components with current game data.
      */
     public void render() {
         StdDraw.clear();
-    
+
         drawGameInfoZone();
         drawMapZone(Game.getCurrentLevel().getMap());
         drawEnemies(Game.getActiveEnemies());
         drawTowers(Game.getActiveTower());
         drawPlayerInfoZone(Game.getPlayer().getHP(), Game.getPlayer().getArgent());
         drawShopZone();
-    
+
         StdDraw.show();
     }
 
@@ -444,46 +441,60 @@ public class UI {
     //////////////////// Gestion des clicks/////////////////////////////
     ///////////////////////////////////////////////////////////////////
 
-private static Tower selecTour = new Archer(null); // Tour sélectionnée par défaut
+    private static Tower selecTour = new Archer(null); // Tour sélectionnée par défaut
 
     /**
- * Vérifie si un clic est sur une case constructible et y place une tour.
- */
-public void handleClick(double mouseX, double mouseY) {
-    double centerX = 350;
-    double centerY = 350;
-    double halfLength = 350;
+     * Vérifie si un clic est sur une case constructible et y place une tour.
+     */
+    public void handleClick(double mouseX, double mouseY) {
+        double centerX = 350;
+        double centerY = 350;
+        double halfLength = 350;
 
-    double cellSize = Math.min(2 * halfLength / map.getRows(), 2 * halfLength / map.getCols());
+        double cellSize = Math.min(2 * halfLength / map.getRows(), 2 * halfLength / map.getCols());
 
-    // Détermination des indices de la case cliquée
-    int col = (int) ((mouseX - (centerX - halfLength)) / cellSize);
-    int row = (int) ((centerY + halfLength - mouseY) / cellSize);
+        // Détermination des indices de la case cliquée
+        int col = (int) ((mouseX - (centerX - halfLength)) / cellSize);
+        int row = (int) ((centerY + halfLength - mouseY) / cellSize);
 
-    if (row >= 0 && row < map.getRows() && col >= 0 && col < map.getCols()) {
-        Tile clickedTile = map.getTile(row, col);
+        if (row >= 0 && row < map.getRows() && col >= 0 && col < map.getCols()) {
+            Tile clickedTile = map.getTile(row, col);
 
-        // Vérifier si la case est constructible
-        if (clickedTile.isConstructible() && !clickedTile.isOccupiedByTower() && Game.getPlayer().getArgent() >= selecTour.getCout()) {
-            // Construire une tour par défaut (ex: Archer)
-            Tower newTower = instanceTour(clickedTile);
-            Game.getActiveTower().add(newTower);
-            
-            // Déduire le coût de la tour du solde du joueur
-            Game.getPlayer().setArgent(Game.getPlayer().getArgent() - selecTour.getCout());
+            try {
+                // Vérification des conditions
+                if (Game.getPlayer().getArgent() < selecTour.getCout()) {
+                    throw new GameExceptions.NotEnoughMoneyException("Not enough money to build this tower!");
+                }
+                if (clickedTile.isOccupiedByTower()) {
+                    throw new GameExceptions.TileOccupiedException(
+                            "Map tile already built ! Cannot place new Tower !");
+                }
+                if (clickedTile.isConstructible()) {
+                    // Construire une tour
+                    Tower newTower = instanceTour(clickedTile);
+                    Game.getActiveTower().add(newTower);
 
-            clickedTile.setOccupiedByTower(true); // Marquer la case comme occupée
+                    // Mise à jour du solde et état de la case
+                    Game.getPlayer().setArgent(Game.getPlayer().getArgent() - selecTour.getCout());
+                    clickedTile.setOccupiedByTower(true);
+
+                }
+
+            } catch (GameExceptions.NotEnoughMoneyException e) {
+                System.out.println(e.getMessage());
+            } catch (GameExceptions.TileOccupiedException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+
+        // Vérifier si le clic est sur une carte de tour
+        Tower tower = towerAtXY(mouseX, mouseY);
+        if (tower != null) {
+            selecTour = tower;
         }
     }
 
-    // Vérifier si le clic est sur une carte de tour
-    Tower tower = towerAtXY(mouseX, mouseY);
-    if (tower != null) {
-        selecTour = tower;
-    }
-}
-
-    private Tower instanceTour(Tile clickedTile) {  // Instancier une tour en fonction de la tour sélectionnée
+    private Tower instanceTour(Tile clickedTile) { // Instancier une tour en fonction de la tour sélectionnée
         switch (selecTour.getClass().getSimpleName()) {
             case "Archer":
                 return new Archer(clickedTile);
@@ -516,7 +527,6 @@ public void handleClick(double mouseX, double mouseY) {
                 return new Archer(clickedTile);
         }
     }
-
 
     private void drawCircleOnTile(int row, int col, double radius) {
         double centerX = 350;

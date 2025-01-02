@@ -51,38 +51,46 @@ public class Game {
     }
 
     Long startTime = System.currentTimeMillis();
+    private boolean mousePressedLastFrame = false; // Indique si la souris était déjà pressée lors de la dernière frame
+
 
     public void launch() throws GameException, IOException {
         init();
         startTime = System.currentTimeMillis(); // Temps de début de la wave
         long previousTime = startTime;
         elapsedTime = 0;
-
+    
         final int TARGET_FPS = 60; // Objectif de 60 FPS
         final long FRAME_TIME = 1000 / TARGET_FPS; // Temps par frame en millisecondes
-
+    
         while (isGameRunning()) {
             long currentTime = System.currentTimeMillis();
             double deltaTimeSec = (double) (currentTime - previousTime) / 1000; // Temps écoulé depuis la dernière frame
             previousTime = currentTime;
-
+    
             // Met à jour le temps total écoulé
             elapsedTime = (long) (currentTime - startTime) / 1000; // Temps écoulé en secondes depuis le début
-
-            if (StdDraw.isMousePressed()) { // Si le bouton de la souris est pressé
-                double mouseX = StdDraw.mouseX();
-                double mouseY = StdDraw.mouseY();
-                ui.handleClick(mouseX, mouseY);
-                StdDraw.show();
+    
+            // Gestion des clics de souris
+            if (StdDraw.isMousePressed()) {
+                if (!mousePressedLastFrame) { // Si la souris était relâchée avant ce clic
+                    double mouseX = StdDraw.mouseX();
+                    double mouseY = StdDraw.mouseY();
+                    ui.handleClick(mouseX, mouseY); // Gérer le clic
+                    StdDraw.show(); // Met à jour l'affichage
+                }
+                mousePressedLastFrame = true; // La souris est maintenant considérée comme pressée
+            } else {
+                mousePressedLastFrame = false; // Réinitialise l'état lorsque la souris est relâchée
             }
-
+    
             update(deltaTimeSec, elapsedTime); // Met à jour l'état du jeu
-            ui.render();
-
-            // Synchroniser pour atteindre 60 FPS
+            ui.render(); // Redessine l'interface utilisateur
+    
+            // Synchronisation pour atteindre 60 FPS
             long frameEndTime = System.currentTimeMillis();
             long frameDuration = frameEndTime - currentTime;
-
+    
             if (frameDuration < FRAME_TIME) {
                 try {
                     Thread.sleep(FRAME_TIME - frameDuration); // Pause pour compléter le temps restant
@@ -93,7 +101,7 @@ public class Game {
         }
         youLose();
     }
-
+    
     // Vérifie si le jeu est encore en cours d'exécution
     private boolean isGameRunning() {
         return joueur.isAlive(); // Le jeu est en cours tant que le joueur est en vie
@@ -115,7 +123,7 @@ public class Game {
 
     // Initialise le jeu
     private void init() throws GameException, IOException {
-        joueur = new Player(50, 10000); // Crée un joueur avec 200 pièces d'or et 100 points de vie
+        joueur = new Player(200, 10000); // Crée un joueur avec 200 pièces d'or et 100 points de vie
 
         initLevels("resources/games/game.g");
 
