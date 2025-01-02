@@ -3,6 +3,7 @@ package src;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class Warrior { // Classe abstraite Warrior (représente les entités du jeu : tours, ennemis)
 
@@ -35,14 +36,14 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
     public int getMaxPV() {
         return maxPV;
     }
-
     public void setPV(int PV) { // Setter
-
-        if (this.PV < 0) {
-            this.PV = 0;
-            this.PV = PV;
+        if (PV < 0) { // Vérifie si la nouvelle valeur est inférieure à 0
+            this.PV = 0; // Si oui, force PV à 0
+        } else {
+            this.PV = PV; // Sinon, assigne la nouvelle valeur
         }
     }
+    
 
     public int getATK() { // Getter
         return ATK;
@@ -88,6 +89,11 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
         this.modeAttaque = modeAttaque;
     }
 
+    public void takeDamage(int damage){
+        this.PV -= damage;
+        if (PV < 0) {PV = 0;}
+    }
+
     public double CalculateVulnerability(Element element) { // Méthode qui retourne le coefficient de vulnérabilité de
                                                             // l'entité
         // par rapport à un élément
@@ -121,7 +127,9 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
 
     public void attaquer(Warrior cible) { // Méthode qui permet à l'entité d'attaquer
         cible.PV -= (int) (this.ATK * cible.CalculateVulnerability(this.element));
-        if(cible.PV < 0) {cible.PV = 0;}
+        if (cible.PV < 0) {
+            cible.PV = 0;
+        }
     }
 
     /**
@@ -193,6 +201,29 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
             case MULTIPLE_TARGET:
                 // Retourne tous les ennemis sans transformation
                 return ennemis;
+            case NEAREST_FROM_BASE:
+                Ennemy ciblePrincipale = ennemis.stream()
+                        .map(e -> (Ennemy) e) // Cast vers Ennemy
+                        .filter(e -> this.calculateDistance(e) <= this.getRange()) // Ennemis dans la portée
+                        .max(Comparator.comparingInt(Ennemy::getCurrentStep)) // Le plus avancé dans son chemin
+                        .orElse(null);
+
+                if (ciblePrincipale == null) {
+                    return Collections.emptyList();
+                }
+
+                // Ennemis dans la zone d'effet autour de la cible principale
+                List<Warrior> ciblesAoE = ennemis.stream()
+                        .filter(e -> this.calculateDistance(ciblePrincipale) <= 1.0) // Ennemis dans la zone d'effet
+                                                                                     // (1.0 case)
+                        .collect(Collectors.toList());
+
+                // Ajouter la cible principale si elle n'est pas déjà dans la liste AoE
+                if (!ciblesAoE.contains(ciblePrincipale)) {
+                    ciblesAoE.add(ciblePrincipale);
+                }
+
+                return ciblesAoE;
             case STRONGEST_ATK:
                 // Cherche l'ennemi avec l'attaque la plus forte via stream().max().
                 // .max(Comparator.comparingInt(Entite::getATK)) compare les attaques pour

@@ -11,16 +11,20 @@ public abstract class Ennemy extends Warrior {
 
     // Immutable properties
     private final double movingSpeed; // Movement speed of the enemy
-    private final double spawnTime;   // Spawn time in the wave
-    private final List<int[]> path;   // Path in tile coordinates
+    private final double spawnTime; // Spawn time in the wave
+    private final List<int[]> path; // Path in tile coordinates
     private final List<double[]> pixelPath; // Path in pixel coordinates
-    private final Map map;           // Reference to the game map
+    private final Map map; // Reference to the game map
     private final int reward;
 
     // Mutable properties
     private double x; // Current X coordinate (in pixels)
     private double y; // Current Y coordinate (in pixels)
     private int currentStep; // Current step in the path
+
+    public int getCurrentStep() {
+        return currentStep;
+    }
 
     /**
      * Constructor for the Ennemy class.
@@ -37,7 +41,7 @@ public abstract class Ennemy extends Warrior {
      * @param map         Reference to the game map.
      */
     public Ennemy(int PV, int ATK, double ATKSpeed, int range, Element element,
-                  double movingSpeed, double spawnTime, double x, double y, Map map, int reward) {
+            double movingSpeed, double spawnTime, double x, double y, Map map, int reward) {
         super(PV, ATK, ATKSpeed, range, element, null, ModeAttaque.NEAREST);
         this.movingSpeed = movingSpeed;
         this.spawnTime = spawnTime;
@@ -73,25 +77,25 @@ public abstract class Ennemy extends Warrior {
         if (currentStep >= pixelPath.size()) {
             return; // Ennemi a atteint la fin du chemin
         }
-    
+
         // Calcul de la taille d'un carreau en pixels
         double cellSize = Math.min(700.0 / map.getRows(), 700.0 / map.getCols());
-    
+
         // Distance totale que l'ennemi peut parcourir cette frame
         double distanceToTravel = movingSpeed * cellSize * deltaTimeSec; // Distance en pixels
-    
+
         // Tant qu'il reste de la distance à parcourir et des étapes à atteindre
         while (distanceToTravel > 0 && currentStep < pixelPath.size()) {
             // Récupérer la prochaine position cible en pixels
             double[] target = pixelPath.get(currentStep);
             double targetX = target[0];
             double targetY = target[1];
-    
+
             // Calcul du vecteur directionnel et de la distance à la cible
             double dx = targetX - x;
             double dy = targetY - y;
             double distanceToTarget = Math.sqrt(dx * dx + dy * dy);
-    
+
             if (distanceToTravel >= distanceToTarget) {
                 // Atteint la prochaine étape
                 x = targetX;
@@ -105,18 +109,17 @@ public abstract class Ennemy extends Warrior {
                 distanceToTravel = 0; // Fin du déplacement pour cette frame
             }
         }
-    
+
         // Calculer la case actuelle après mise à jour de la position
         int currentRow = (int) ((350 + 350 - y) / cellSize);
         int currentCol = (int) ((x - (350 - 350)) / cellSize);
-    
+
         // Si l'ennemi change de case, mettre à jour sa position sur la carte
         Tile currentTile = map.getTile(currentRow, currentCol);
         if (!currentTile.equals(this.getPosition())) {
             this.setPosition(currentTile);
         }
     }
-
 
     /**
      * Gets the current X coordinate of the enemy.
@@ -180,4 +183,39 @@ public abstract class Ennemy extends Warrior {
     public List<double[]> getPixelPath() {
         return pixelPath;
     }
+
+    private boolean poisoned = false;
+    private double poisonCooldown = 0;
+    private double poisonTimer = 0; // Temps écoulé depuis la dernière application du poison
+    private int poisonDamage = 0; // Dégâts infligés par le poison
+
+    public boolean isPoisoned() {
+        return poisoned;
+    }
+
+    public void applyPoison(int damage, double interval) {
+        if (poisoned)
+            return;
+
+        poisoned = true;
+        poisonCooldown = interval;
+        poisonDamage = damage;
+    }
+
+    public void updatePoison(double deltaTime) {
+        if (!poisoned)
+            return;
+
+        poisonTimer += deltaTime;
+
+        if (poisonTimer >= poisonCooldown) {
+            this.takeDamage(poisonDamage);; // Inflige les dégâts
+            poisonTimer -= poisonCooldown; // Réinitialise le timer
+
+            if (this.getPV() <= 0) {
+                poisoned = false; // Arrête le poison si l'ennemi est mort
+            }
+        }
+    }
+
 }

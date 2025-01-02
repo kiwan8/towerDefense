@@ -321,7 +321,7 @@ public class Map {
     }
 
 
- public static void main(String[] args) throws GameException, IOException {
-    Map newMap = new Map("resources/maps/Error_Path_Loop_1.mtp", "null");
- }
+//  public static void main(String[] args) throws GameException, IOException {
+//     Map newMap = new Map("resources/maps/Error_Path_Loop_1.mtp", "null");
+//  }
 }

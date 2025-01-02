@@ -119,7 +119,6 @@ public class Game implements Serializable {
             String levelName;
             
             while ((levelName = reader.readLine()) != null) {
-                System.out.println(levelName);
                 String levelPath = "resources/levels/" + levelName + ".lvl";
                 levels.add(new Level(levelPath));
             }
@@ -173,6 +172,9 @@ public class Game implements Serializable {
         while (iterator.hasNext()) {
             Ennemy enemy = iterator.next();
             enemy.updatePosition(deltaTimeSec);
+
+            // Met à jour l'effet de poison
+            enemy.updatePoison(deltaTimeSec);
 
             if (enemy.hasReachedEnd()) {
                 joueur.takeDamage(enemy.getATK());
@@ -300,12 +302,6 @@ public class Game implements Serializable {
 
         saveGameState(); // Sauvegarde l'état actuel du jeu
 
-        try {
-            Thread.sleep(3000); // Pause pour afficher le message
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.exit(0); // Quitte le jeu
     }
 
     private void saveGameState() {

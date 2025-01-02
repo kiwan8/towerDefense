@@ -7,5 +7,6 @@ public enum ModeAttaque { // Enumération des modes d'attaque
     NEAREST, // Attaque la cible la plus proche
     NEAREST_FROM_BASE, // Attaque la cible la plus proche de la base
     STRONGEST_ATK, // Attaque la cible avec l'attaque la plus élevée
-    STRONGEST_PERCENT_PV; // Attaque la cible avec le pourcentage de PV le plus élevé
+    STRONGEST_PERCENT_PV, // Attaque la cible avec le pourcentage de PV le plus élevé
+    NEAREST_ADVANCED_UNPOISONED;
 };
