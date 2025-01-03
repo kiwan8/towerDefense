@@ -16,6 +16,24 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
     private Tile position; // Position de l'entité
     private ModeAttaque modeAttaque; // Mode d'attaque
     private double attackCooldown;
+    private double x;
+    private double y;
+
+    public double getX() {
+        return x;
+    }
+
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public void setY(double y) {
+        this.y = y;
+    }
 
     public Warrior(int PV, int ATK, double ATKSpeed, double Range, Element element, Tile position,
             ModeAttaque modeAttaque) { // Constructeur
@@ -36,6 +54,7 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
     public int getMaxPV() {
         return maxPV;
     }
+
     public void setPV(int PV) { // Setter
         if (PV < 0) { // Vérifie si la nouvelle valeur est inférieure à 0
             this.PV = 0; // Si oui, force PV à 0
@@ -43,7 +62,6 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
             this.PV = PV; // Sinon, assigne la nouvelle valeur
         }
     }
-    
 
     public int getATK() { // Getter
         return ATK;
@@ -89,9 +107,11 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
         this.modeAttaque = modeAttaque;
     }
 
-    public void takeDamage(int damage){
+    public void takeDamage(int damage) {
         this.PV -= damage;
-        if (PV < 0) {PV = 0;}
+        if (PV < 0) {
+            PV = 0;
+        }
     }
 
     public double CalculateVulnerability(Element element) { // Méthode qui retourne le coefficient de vulnérabilité de
@@ -166,6 +186,18 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
     }
 
     /**
+     * Calculates the Euclidean distance between two Warriors based on their pixel
+     * coordinates.
+     *
+     * @param target The target Warrior whose distance from the current Warrior is
+     *               calculated.
+     * @return The Euclidean distance.
+     */
+    public double calculatePixelDistance(Warrior target) {
+        return Math.sqrt(Math.pow(this.x - target.getX(), 2) + Math.pow(this.y - target.getY(), 2));
+    }
+
+    /**
      * Sélectionne des cibles pour une entité à attaquer en fonction du mode
      * d'attaque.
      *
@@ -184,20 +216,11 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
     public List<Warrior> selectTargets(ModeAttaque mode, List<Warrior> ennemis) {
         switch (mode) {
             case NEAREST:
-                // Cherche l'ennemi le plus proche via stream().min().
-                // .stream() transforme la liste en flux pour manipulations.
-                // .min(Comparator.comparingInt(e -> distance(this, e))) retourne l'ennemi le
-                // plus proche.
-                // .map(Collections::singletonList) met l'ennemi trouvé dans une liste
-                // (singleton).
-                // .orElse(Collections.emptyList()) retourne une liste vide si aucun ennemi
-                // n'est trouvé.
-                return ennemis.stream()
-                        .min(Comparator.comparingInt(e -> calculateDistance(this, e))) // Compare les distances pour
-                                                                                       // trouver le
-                        // minimum
-                        .map(Collections::singletonList) // Transforme le résultat en une liste avec un seul élément
-                        .orElse(Collections.emptyList()); // Si rien trouvé, renvoie une liste vide
+            // Trouver l'ennemi le plus proche en pixels
+            return ennemis.stream()
+                    .min(Comparator.comparingDouble(this::calculatePixelDistance)) // Compare les distances en pixels
+                    .map(Collections::singletonList) // Transforme en liste contenant un seul élément
+                    .orElse(Collections.emptyList()); // Si aucun ennemi trouvé, retourne une liste vide
             case MULTIPLE_TARGET:
                 // Retourne tous les ennemis sans transformation
                 return ennemis;
