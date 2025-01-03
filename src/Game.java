@@ -178,6 +178,9 @@ public class Game implements Serializable {
         youLose();
     }
 
+
+    
+
     /**
  * Gère les clics de souris pour le Railgun et attaque l'ennemi le plus proche de la position du clic.
  */
@@ -248,11 +251,11 @@ private void handleRailgunClick() {
      * @throws IOException   Si une erreur d'entrée/sortie se produit.
      */
     private void init() throws GameException, IOException {
-        String gameFilePath = "resources/games/game.g";
+        String gameFilePath = "resources/games/game2.g";
         originalGameFileName = new File(gameFilePath).getName(); // Récupère le nom du fichier d'origine
 
         if (!loadGameState()) { // Si aucune sauvegarde n'est trouvée, commencez une nouvelle partie
-            joueur = new Player(2000, 10); // Crée un joueur avec 200 pièces d'or et 100 points de vie
+            joueur = new Player(2000, 2000); // Crée un joueur avec 200 pièces d'or et 100 points de vie
 
             initLevels(gameFilePath); // Charge les niveaux du fichier de jeu spécifié
             cptLevel = 0;

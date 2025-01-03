@@ -40,8 +40,8 @@ public class EarthCaster extends Tower {
             }
 
             // Trouve tous les ennemis à moins de 1.0 case de la cible principale
-            List<Warrior> ciblesAoE = ennemis.stream()
-                    .filter(e -> this.calculateDistance(e) <= 1)
+            List<Warrior> ciblesAoE = Game.getActiveEnemies().stream()
+                    .filter(e -> calculatePixelDistance(e, ciblePrincipale) <= 1)
                     .collect(Collectors.toList());
 
             // Ajouter la cible principale si elle n'est pas déjà incluse

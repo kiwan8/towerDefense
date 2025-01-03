@@ -253,6 +253,17 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
                     return Collections.emptyList(); // Aucun ennemi trouvé
                 }
                 return List.of(ciblePrincipale); // Retourne une liste contenant uniquement la cible principale
+            case LEAST_HP_TOWER:
+                if (mode == ModeAttaque.LEAST_HP_TOWER) {
+                    // Trouve la tour ayant le moins de PV dans sa portée
+                    Warrior cible = ennemis.stream()
+                            .filter(t -> this.calculatePixelDistance(t) <= this.getRange()) // Vérifie que la tour est dans la portée
+                            .min((t1, t2) -> Integer.compare(t1.getPV(), t2.getPV())) // Compare les PV
+                            .orElse(null);
+
+                    return cible != null ? List.of(cible) : List.of(); // Retourne la cible ou une liste vide
+                }
+    
 
             default:
                 // Retourne le premier ennemi si présent, sinon une liste vide

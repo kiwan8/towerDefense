@@ -41,8 +41,8 @@ public abstract class Ennemy extends Warrior {
      * @param map         Reference to the game map.
      */
     public Ennemy(int PV, int ATK, double ATKSpeed, int range, Element element,
-            double movingSpeed, double spawnTime, double x, double y, Map map, int reward) {
-        super(PV, ATK, ATKSpeed, range, element, null, ModeAttaque.NEAREST);
+            double movingSpeed, double spawnTime, double x, double y, Map map, int reward, ModeAttaque modeAttaque) {
+        super(PV, ATK, ATKSpeed, range, element, null, modeAttaque);
         this.movingSpeed = movingSpeed;
         this.spawnTime = spawnTime;
         this.x = x;

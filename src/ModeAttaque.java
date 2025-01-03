@@ -39,12 +39,10 @@ public enum ModeAttaque {
      */
     STRONGEST_PERCENT_PV,
 
-    /**
-     * Attaque la cible la plus proche pour générer de l'or.
-     */
-    NEAREST_FOR_GOLD,
 
-    Railgun,
+    RAILGUN,
+    NOBODY,
+    LEAST_HP_TOWER,
 
     /**
      * Attaque l'ennemi le plus avancé qui n'est pas empoisonné.

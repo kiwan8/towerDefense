@@ -12,6 +12,6 @@ public class EarthBrute extends Ennemy {
      * @param map       Référence à la carte associée.
      */
     public EarthBrute(double spawnTime, double x, double y, Map map) {
-        super(30, 5, 1.0, 3, Element.Terre, 1.0, spawnTime, x, y, map,3);
+        super(30, 5, 1.0, 3, Element.Terre, 1.0, spawnTime, x, y, map,3, ModeAttaque.NEAREST);
     }
 }
