@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import src.GameExceptions.GameException;
+import src.Monsters.Bomb;
 import src.Monsters.Healer;
 import src.Towers.Railgun;
 import src.libraries.StdDraw;
@@ -141,75 +142,74 @@ public class Game implements Serializable {
      */
     private boolean mousePressedLastFrame = false;
     private boolean win = false;
-    
-        public void launch() throws GameException, IOException {
-            init();
-            startTime = System.currentTimeMillis(); // Temps de début de la wave
-            long previousTime = startTime;
-            elapsedTime = 0;
-        
-            while (isGameRunning()) {
-                long currentTime = System.currentTimeMillis();
-                double deltaTimeSec = (double) (currentTime - previousTime) / 1000; // Temps écoulé depuis la dernière frame
-                previousTime = currentTime;
-        
-                // Met à jour le temps total écoulé
-                double elapsedTime = (double) (currentTime - startTime) / 1000; // Temps écoulé en secondes depuis le début
-        
-                // Gérer les clics de souris pour le Railgun
-                handleRailgunClick();
-        
-                update(deltaTimeSec, elapsedTime); // Met à jour l'état du jeu
-                ui.render(); // Redessine l'interface utilisateur
-            }
-            if (win){
-                youWin();
-            }
-            else{
-                youLose();
-            }
+
+    public void launch() throws GameException, IOException {
+        init();
+        startTime = System.currentTimeMillis(); // Temps de début de la wave
+        long previousTime = startTime;
+        elapsedTime = 0;
+
+        while (isGameRunning()) {
+            long currentTime = System.currentTimeMillis();
+            double deltaTimeSec = (double) (currentTime - previousTime) / 1000; // Temps écoulé depuis la dernière frame
+            previousTime = currentTime;
+
+            // Met à jour le temps total écoulé
+            double elapsedTime = (double) (currentTime - startTime) / 1000; // Temps écoulé en secondes depuis le début
+
+            // Gérer les clics de souris pour le Railgun
+            handleRailgunClick();
+
+            update(deltaTimeSec, elapsedTime); // Met à jour l'état du jeu
+            ui.render(); // Redessine l'interface utilisateur
         }
-        
-        /**
-         * Gère les clics de souris pour le Railgun et attaque l'ennemi le plus proche
-         * de la position du clic.
-         */
-        private void handleRailgunClick() {
-            if (StdDraw.isMousePressed()) {
-                if (!mousePressedLastFrame) { // Si la souris était relâchée avant ce clic
-                    double mouseX = StdDraw.mouseX();
-                    double mouseY = StdDraw.mouseY();
-    
-                    // Chercher l'ennemi le plus proche de la position du clic
-                    Warrior cible = Game.getActiveEnemies().stream()
-                            .min((e1, e2) -> Double.compare(
-                                    Warrior.calculatePixelDistanceX(mouseX, mouseY, e1.getX(), e1.getY()),
-                                    Warrior.calculatePixelDistanceX(mouseX, mouseY, e2.getX(), e2.getY())))
-                            .orElse(null);
-    
-                    if (cible != null) {
-                        // Faire attaquer toutes les instances de Railgun
-                        Game.activeTower.stream()
-                                .filter(t -> t instanceof Railgun)
-                                .forEach(t -> t.attaquer(cible));
-                    }
-    
-                    ui.handleClick(mouseX, mouseY); // Gérer le clic pour d'autres interactions
-                    StdDraw.show(); // Met à jour l'affichage
+        if (win) {
+            youWin();
+        } else {
+            youLose();
+        }
+    }
+
+    /**
+     * Gère les clics de souris pour le Railgun et attaque l'ennemi le plus proche
+     * de la position du clic.
+     */
+    private void handleRailgunClick() {
+        if (StdDraw.isMousePressed()) {
+            if (!mousePressedLastFrame) { // Si la souris était relâchée avant ce clic
+                double mouseX = StdDraw.mouseX();
+                double mouseY = StdDraw.mouseY();
+
+                // Chercher l'ennemi le plus proche de la position du clic
+                Warrior cible = Game.getActiveEnemies().stream()
+                        .min((e1, e2) -> Double.compare(
+                                Warrior.calculatePixelDistanceX(mouseX, mouseY, e1.getX(), e1.getY()),
+                                Warrior.calculatePixelDistanceX(mouseX, mouseY, e2.getX(), e2.getY())))
+                        .orElse(null);
+
+                if (cible != null) {
+                    // Faire attaquer toutes les instances de Railgun
+                    Game.activeTower.stream()
+                            .filter(t -> t instanceof Railgun)
+                            .forEach(t -> t.attaquer(cible));
                 }
-                mousePressedLastFrame = true; // La souris est maintenant considérée comme pressée
-            } else {
-                mousePressedLastFrame = false; // Réinitialise l'état lorsque la souris est relâchée
+
+                ui.handleClick(mouseX, mouseY); // Gérer le clic pour d'autres interactions
+                StdDraw.show(); // Met à jour l'affichage
             }
+            mousePressedLastFrame = true; // La souris est maintenant considérée comme pressée
+        } else {
+            mousePressedLastFrame = false; // Réinitialise l'état lorsque la souris est relâchée
         }
-    
-        /**
-         * Vérifie si le jeu est encore en cours d'exécution.
-         *
-         * @return true si le joueur est en vie, false sinon.
-         */
-        private boolean isGameRunning() {
-            return joueur.isAlive() && !win; // Le jeu est en cours tant que le joueur est en vie
+    }
+
+    /**
+     * Vérifie si le jeu est encore en cours d'exécution.
+     *
+     * @return true si le joueur est en vie, false sinon.
+     */
+    private boolean isGameRunning() {
+        return joueur.isAlive() && !win; // Le jeu est en cours tant que le joueur est en vie
     }
 
     /**
@@ -319,6 +319,23 @@ public class Game implements Serializable {
             }
 
             if (enemy.getPV() <= 0) {
+                if (enemy instanceof Bomb) {
+                    Bomb bomb = (Bomb) enemy;
+
+                    // Zone d'effet de l'explosion
+                    double cellSize = getCurrentLevel().getMap().getCellSize();
+                    double maxDistanceInPixels = 1.5 * cellSize;
+
+                    // Trouver toutes les tours dans la zone d'effet
+                    List<Warrior> toursDansZone = activeTower.stream()
+                            .filter(t -> Warrior.calculatePixelDistance(t, bomb) <= maxDistanceInPixels)
+                            .collect(Collectors.toList());
+
+                    // Inflige des dégâts aux tours dans la zone
+                    for (Warrior tour : toursDansZone) {
+                        tour.takeDamage(bomb.getATK() * 10); // Inflige 10 fois les dégâts de la bombe
+                    }
+                }
                 joueur.setArgent((int) joueur.getArgent() + enemy.getReward());
                 iterator.remove(); // Supprime l'ennemi mort
             }

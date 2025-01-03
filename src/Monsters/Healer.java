@@ -48,7 +48,6 @@ public class Healer extends Ennemy {
 
         for (Warrior ennemi : ennemisProches) {
             ennemi.setPV(ennemi.getPV() + 5); // Soigne de 5 PV
-            System.out.println("Healer a soigné " + ennemi + " de 5 PV !");
         }
     }
 }
