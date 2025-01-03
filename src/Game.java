@@ -3,7 +3,6 @@ package src;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -11,56 +10,140 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.Iterator;
-
 import src.GameExceptions.GameException;
 import src.libraries.StdDraw;
 
+/**
+ * La classe Game représente le jeu principal.
+ * Elle gère les niveaux, les vagues, les ennemis actifs, les tours actives et le temps écoulé.
+ */
 public class Game implements Serializable {
     private static final long serialVersionUID = 1L;
     private String originalGameFileName;
-    // Méthode principale pour lancer le jeu
 
+    /**
+     * Le joueur du jeu.
+     */
     private static Player joueur;
+
+    /**
+     * L'interface utilisateur du jeu.
+     */
     private UI ui;
+
+    /**
+     * Le niveau actuel du jeu.
+     */
     private static Level currentLevel;
+
+    /**
+     * La vague actuelle du jeu.
+     */
     private static Wave currentWave;
+
+    /**
+     * Le compteur de niveaux.
+     */
     private static int cptLevel;
+
+    /**
+     * Le compteur de vagues.
+     */
     private static int cptWave;
+
+    /**
+     * La liste des niveaux du jeu.
+     */
     private static List<Level> levels = new ArrayList<>();
+
+    /**
+     * La liste des ennemis actifs dans le jeu.
+     */
     private static List<Ennemy> activeEnemies = new ArrayList<>();
+
+    /**
+     * La liste des tours actives dans le jeu.
+     */
     private static List<Tower> activeTower = new ArrayList<>();
+
+    /**
+     * Le temps écoulé depuis le début du jeu.
+     */
     private static double elapsedTime;
 
+    /**
+     * Retourne le niveau actuel du jeu.
+     *
+     * @return Le niveau actuel.
+     */
     public static Level getCurrentLevel() {
         return currentLevel;
     }
 
+    /**
+     * Retourne le compteur de niveaux.
+     *
+     * @return Le compteur de niveaux.
+     */
     public static int getcptLevel() {
         return cptLevel;
     }
 
+    /**
+     * Retourne le compteur de vagues.
+     *
+     * @return Le compteur de vagues.
+     */
     public static int getcptWave() {
         return cptWave;
     }
 
+    /**
+     * Retourne la liste des niveaux du jeu.
+     *
+     * @return La liste des niveaux.
+     */
     public static List<Level> getLevels() {
         return levels;
     }
 
+    /**
+     * Retourne la liste des ennemis actifs dans le jeu.
+     *
+     * @return La liste des ennemis actifs.
+     */
     public static List<Ennemy> getActiveEnemies() {
         return activeEnemies;
     }
 
+    /**
+     * Retourne la liste des tours actives dans le jeu.
+     *
+     * @return La liste des tours actives.
+     */
     public static List<Tower> getActiveTower() {
         return activeTower;
     }
 
+    /**
+     * Le temps de début du jeu.
+     */
     Long startTime = System.currentTimeMillis();
-    private boolean mousePressedLastFrame = false; // Indique si la souris était déjà pressée lors de la dernière frame
 
+    /**
+     * Indique si la souris était déjà pressée lors de la dernière frame.
+     */
+    private boolean mousePressedLastFrame = false;
+
+    /**
+     * Lance le jeu.
+     *
+     * @throws GameException Si une erreur de jeu se produit.
+     * @throws IOException Si une erreur d'entrée/sortie se produit.
+     */
     public void launch() throws GameException, IOException {
         init();
         startTime = System.currentTimeMillis(); // Temps de début de la wave
@@ -109,11 +192,22 @@ public class Game implements Serializable {
         youLose();
     }
 
-    // Vérifie si le jeu est encore en cours d'exécution
+    /**
+     * Vérifie si le jeu est encore en cours d'exécution.
+     *
+     * @return true si le joueur est en vie, false sinon.
+     */
     private boolean isGameRunning() {
         return joueur.isAlive(); // Le jeu est en cours tant que le joueur est en vie
     }
 
+    /**
+     * Initialise les niveaux du jeu à partir d'un fichier.
+     *
+     * @param gameFilePath Le chemin du fichier de jeu.
+     * @throws GameException Si une erreur de jeu se produit.
+     * @throws IOException Si une erreur d'entrée/sortie se produit.
+     */
     private void initLevels(String gameFilePath) throws GameException, IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(gameFilePath))) {
             String levelName;
@@ -125,6 +219,12 @@ public class Game implements Serializable {
         }
     }
 
+    /**
+     * Initialise le jeu.
+     *
+     * @throws GameException Si une erreur de jeu se produit.
+     * @throws IOException Si une erreur d'entrée/sortie se produit.
+     */
     private void init() throws GameException, IOException {
         String gameFilePath = "resources/games/game.g";
         originalGameFileName = new File(gameFilePath).getName(); // Récupère le nom du fichier d'origine
@@ -142,7 +242,14 @@ public class Game implements Serializable {
         this.ui = new UI(currentLevel.getMap());
     }
     
-    // Met à jour l'état du jeu en fonction du temps écoulé
+    /**
+     * Met à jour l'état du jeu en fonction du temps écoulé.
+     *
+     * @param deltaTimeSec Le temps écoulé depuis la dernière mise à jour en secondes.
+     * @param elapsedTime Le temps total écoulé depuis le début du jeu en secondes.
+     * @throws GameException Si une erreur de jeu se produit.
+     * @throws IOException Si une erreur d'entrée/sortie se produit.
+     */
     private void update(double deltaTimeSec, double elapsedTime) throws GameException, IOException {
         // Gestion du spawn des ennemis
         handleEnemySpawning(elapsedTime);
@@ -160,6 +267,11 @@ public class Game implements Serializable {
         checkWaveCompletion();
     }
 
+    /**
+     * Gère le spawn des ennemis en fonction du temps écoulé.
+     *
+     * @param elapsedTime Le temps total écoulé depuis le début du jeu en secondes.
+     */
     private void handleEnemySpawning(double elapsedTime) {
         while (!currentWave.getEnemies().isEmpty() &&
                 currentWave.getEnemies().peek().getSpawnTime() <= elapsedTime) {
@@ -167,6 +279,11 @@ public class Game implements Serializable {
         }
     }
 
+    /**
+     * Met à jour la position des ennemis en fonction du temps écoulé.
+     *
+     * @param deltaTimeSec Le temps écoulé depuis la dernière mise à jour en secondes.
+     */
     private void updateEnemies(double deltaTimeSec) {
         Iterator<Ennemy> iterator = activeEnemies.iterator();
         while (iterator.hasNext()) {
@@ -189,6 +306,11 @@ public class Game implements Serializable {
         }
     }
 
+    /**
+     * Met à jour les attaques des ennemis en fonction du temps écoulé.
+     *
+     * @param deltaTimeSec Le temps écoulé depuis la dernière mise à jour en secondes.
+     */
     private void updateEnemyAttacks(double deltaTimeSec) {
         for (Ennemy enemy : activeEnemies) {
             if (!enemy.canAttack(deltaTimeSec))
@@ -207,6 +329,11 @@ public class Game implements Serializable {
         }
     }
 
+    /**
+     * Met à jour les tours en fonction du temps écoulé.
+     *
+     * @param deltaTimeSec Le temps écoulé depuis la dernière mise à jour en secondes.
+     */
     private void updateTowers(double deltaTimeSec) {
         Iterator<Tower> iterator = activeTower.iterator();
         while (iterator.hasNext()) {
@@ -242,13 +369,25 @@ public class Game implements Serializable {
         }
     }
 
+    /**
+     * Vérifie si la vague actuelle est terminée et passe à la suivante si nécessaire.
+     *
+     * @throws GameException Si une erreur de jeu se produit.
+     * @throws IOException Si une erreur d'entrée/sortie se produit.
+     */
     private void checkWaveCompletion() throws GameException, IOException {
         if (currentWave.getEnemies().isEmpty() && activeEnemies.isEmpty()) {
             nextWave();
         }
     }
 
-    private void nextWave() throws GameExceptions.GameException, IOException {
+    /**
+     * Passe à la vague suivante ou au niveau suivant si toutes les vagues sont terminées.
+     *
+     * @throws GameException Si une erreur de jeu se produit.
+     * @throws IOException Si une erreur d'entrée/sortie se produit.
+     */
+    private void nextWave() throws GameException, IOException {
         int nbVagueDuLevel = currentLevel.getWaves().size();
 
         // Si on doit changer de niveau
@@ -263,19 +402,30 @@ public class Game implements Serializable {
             cptWave = 0;
             currentWave = currentLevel.getWaves().get(cptWave);
 
+            for(Tower tower : activeTower) { // Récupère l'argent des tours restantes
+                joueur.setArgent(joueur.getArgent() + (int)(tower.getArgentParPv()*tower.getPV()));
+            }
+
             activeEnemies.clear(); // Vide les ennemis actifs
             activeTower.clear();
             ui.updateMap(currentLevel.getMap());
+
+            saveGameState(); // Sauvegarde l'état actuel du jeu
         } else {
             // Passe à la vague suivante
             cptWave++;
             currentWave = currentLevel.getWaves().get(cptWave);
+
+            saveGameState(); // Sauvegarde l'état actuel du jeu
         }
         // Réinitialise le temps écoulé pour la nouvelle vague
         elapsedTime = 0;
         this.startTime = System.currentTimeMillis();
     }
 
+    /**
+     * Affiche l'écran de victoire et supprime le fichier de sauvegarde.
+     */
     private void youWin() {
         StdDraw.clear();
         StdDraw.setCanvasSize(1024, 720);
@@ -292,19 +442,20 @@ public class Game implements Serializable {
         }
     }
 
+    /**
+     * Affiche l'écran de défaite.
+     */
     private void youLose() {
         StdDraw.clear();
         StdDraw.setPenColor(StdDraw.RED);
         StdDraw.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 100));
         StdDraw.text(512, 360, "YOU LOSE");
         StdDraw.show();
-
-        joueur.setHP(200);
-
-        saveGameState(); // Sauvegarde l'état actuel du jeu
-
     }
 
+    /**
+     * Sauvegarde l'état actuel du jeu dans un fichier.
+     */
     private void saveGameState() {
         try {
             // Assurez-vous que le dossier existe
@@ -330,7 +481,11 @@ public class Game implements Serializable {
         }
     }
     
-
+    /**
+     * Charge l'état du jeu à partir d'un fichier de sauvegarde.
+     *
+     * @return true si l'état du jeu a été chargé avec succès, false sinon.
+     */
     private boolean loadGameState() {
         // Chemin du fichier de sauvegarde basé sur le fichier de jeu actuel
         String saveFileName = "resources/saved/" + originalGameFileName.replace(".g", ".sav");
@@ -359,8 +514,12 @@ public class Game implements Serializable {
         }
     }
     
-
-    public static Player getPlayer() { // Getter pour le joueur
+    /**
+     * Retourne le joueur du jeu.
+     *
+     * @return Le joueur.
+     */
+    public static Player getPlayer() {
         return joueur;
     }
 }

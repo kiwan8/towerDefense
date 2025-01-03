@@ -4,21 +4,18 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.List;
-import src.Towers.Archer;
-import src.Towers.EarthCaster;
-import src.Towers.FireCaster;
-import src.Towers.GoldDigger;
-import src.Towers.IceCaster;
-import src.Towers.PoisonCaster;
-import src.Towers.Railgun;
-import src.Towers.WaterCaster;
-import src.Towers.WindCaster;
+import src.Towers.*;
 import src.libraries.StdDraw;
 
+/**
+ * La classe UI gère l'interface utilisateur du jeu.
+ * Elle dessine la carte, les informations du joueur, la boutique et les éléments de jeu.
+ */
 public class UI {
 
     private Map map;
     private static double cellSize; // Taille des cases en pixels (calculée dynamiquement)
+
     /**
      * Getter pour la taille des cases.
      *
@@ -35,8 +32,13 @@ public class UI {
         cellSize = Math.min(700.0 / map.getRows(), 700.0 / map.getCols());
     }
 
-    public UI(Map Map) {
-        this.map = Map;
+    /**
+     * Constructeur de la classe UI.
+     *
+     * @param map La carte du jeu.
+     */
+    public UI(Map map) {
+        this.map = map;
         initCanvas();
         drawMapZone(map);
         drawPlayerInfoZone(Game.getPlayer().getHP(), Game.getPlayer().getArgent());
@@ -46,13 +48,18 @@ public class UI {
         StdDraw.show();
     }
 
+    /**
+     * Met à jour la carte affichée.
+     *
+     * @param newMap La nouvelle carte à afficher.
+     */
     public void updateMap(Map newMap) {
         this.map = newMap;
         render(); // Redessine l'interface avec la nouvelle carte
     }
 
     /**
-     * Initialize the canvas with specified dimensions and scaling.
+     * Initialise le canvas avec des dimensions et un échelle spécifiées.
      */
     private static void initCanvas() {
         StdDraw.setCanvasSize(1024, 720);
@@ -62,10 +69,7 @@ public class UI {
     }
 
     /**
-     * Draws the game info zone, including the level and wave indicators.
-     *
-     * @param level The current level, e.g., "1/4".
-     * @param wave  The current wave, e.g., "1/2".
+     * Dessine la zone d'information du jeu, y compris les indicateurs de niveau et de vague.
      */
     private static void drawGameInfoZone() {
         double centerX = 856;
@@ -94,10 +98,10 @@ public class UI {
     }
 
     /**
-     * Draw the player info zone with dynamic life and coin count.
+     * Dessine la zone d'information du joueur avec le nombre de vies et de pièces.
      *
-     * @param lifeCount Number of lives.
-     * @param coinCount Number of coins.
+     * @param lifeCount Nombre de vies.
+     * @param coinCount Nombre de pièces.
      */
     private static void drawPlayerInfoZone(int lifeCount, int coinCount) {
         double centerX = 856;
@@ -125,7 +129,6 @@ public class UI {
         StdDraw.text(centerX - 70, centerY, "" + coinCount);
 
         // partie coeur et santé
-
         StdDraw.setPenColor(StdDraw.RED);
         drawHeart(centerX + halfWidth - 25, centerY, 21);
 
@@ -133,11 +136,11 @@ public class UI {
     }
 
     /**
-     * Draws a heart shape at a specified location.
+     * Dessine un cœur à une position spécifiée.
      *
-     * @param centerX X-coordinate of the heart center.
-     * @param centerY Y-coordinate of the heart center.
-     * @param size    Size of the heart.
+     * @param centerX Coordonnée X du centre du cœur.
+     * @param centerY Coordonnée Y du centre du cœur.
+     * @param halfHeight Taille du cœur.
      */
     private static void drawHeart(double centerX, double centerY, double halfHeight) {
         double[] listX = new double[] {
@@ -171,7 +174,7 @@ public class UI {
     }
 
     /**
-     * Draw the map zone with a grid.
+     * Dessine la zone de la carte avec une grille.
      *
      * @param map L'objet Map à dessiner.
      */
@@ -180,8 +183,7 @@ public class UI {
         double centerY = 350;
         double halfLength = 350;
 
-        // Taille d'une cellule (dynamique selon les dimensions de la carte) //TODO: A
-        // optimiser
+        // Taille d'une cellule (dynamique selon les dimensions de la carte)
         double cellSize = Math.min(2 * halfLength / map.getRows(), 2 * halfLength / map.getCols());
 
         for (int row = 0; row < map.getRows(); row++) {
@@ -198,7 +200,8 @@ public class UI {
 
                 StdDraw.setPenColor(StdDraw.BLACK);
                 StdDraw.square(x, y, cellSize / 2);
-                // pour plus tard
+
+                // Indiquer si la cellule est occupée par une tour
                 if (tile.isOccupiedByTower()) {
                     StdDraw.setPenColor(Color.GRAY);
                     StdDraw.filledCircle(x, y, cellSize / 4);
@@ -210,7 +213,7 @@ public class UI {
     private static List<TowerCard> towerCards = new ArrayList<>(); // Liste des cartes de tours
 
     /**
-     * Draw the shop zone with a border.
+     * Dessine la zone de la boutique avec une bordure.
      */
     private void drawShopZone() {
         double centerX = 856;
@@ -250,6 +253,9 @@ public class UI {
         }
     }
 
+    /**
+     * Classe interne représentant une carte de tour dans la boutique.
+     */
     private class TowerCard {
         private double x;
         private double y;
@@ -257,6 +263,15 @@ public class UI {
         private double height;
         private Tower tower;
 
+        /**
+         * Constructeur de la classe TowerCard.
+         *
+         * @param x      Coordonnée X de la carte.
+         * @param y      Coordonnée Y de la carte.
+         * @param width  Largeur de la carte.
+         * @param height Hauteur de la carte.
+         * @param tower  La tour associée à la carte.
+         */
         public TowerCard(double x, double y, double width, double height, Tower tower) {
             this.x = x;
             this.y = y;
@@ -265,6 +280,9 @@ public class UI {
             this.tower = tower;
         }
 
+        /**
+         * Dessine la carte de tour.
+         */
         public void draw() {
             // Dessine le fond de la carte
             StdDraw.setPenColor(StdDraw.WHITE);
@@ -291,17 +309,36 @@ public class UI {
                             " | Cost: " + tower.getCout());
         }
 
+        /**
+         * Vérifie si un point (x, y) est contenu dans la carte.
+         *
+         * @param x Coordonnée X du point.
+         * @param y Coordonnée Y du point.
+         * @return true si le point est contenu dans la carte, false sinon.
+         */
         public boolean contains(double x, double y) {
             return x >= this.x - this.width / 2 && x <= this.x + this.width / 2 &&
                     y >= this.y - this.height / 2 && y <= this.y + this.height / 2;
         }
 
+        /**
+         * Retourne la tour associée à la carte.
+         *
+         * @return La tour associée.
+         */
         public Tower getTower() {
             return this.tower;
         }
     }
 
-    public static Tower towerAtXY(double x, double y) { // Trouver la tour correspondant à une position XY
+    /**
+     * Retourne la tour correspondant à une position (x, y) dans la boutique.
+     *
+     * @param x Coordonnée X.
+     * @param y Coordonnée Y.
+     * @return La tour correspondante ou null si aucune tour ne correspond.
+     */
+    public static Tower towerAtXY(double x, double y) {
         for (TowerCard carte : towerCards) {
             if (carte.contains(x, y)) {
                 return carte.getTower();
@@ -310,14 +347,15 @@ public class UI {
         return null; // Retourne null si aucune carte ne correspond
     }
 
+    /**
+     * Dessine les ennemis sur la carte.
+     *
+     * @param enemies La liste des ennemis à dessiner.
+     */
     private void drawEnemies(List<Ennemy> enemies) {
-
-
         for (Ennemy enemy : enemies) {
             double x = enemy.getX();
             double y = enemy.getY();
-
-            
 
             // Dessiner chaque ennemi en fonction de son type
             switch (enemy.getClass().getSimpleName()) {
@@ -384,6 +422,12 @@ public class UI {
         }
     }
 
+    /**
+     * Retourne la coordonnée X du centre d'une case.
+     *
+     * @param col La colonne de la case.
+     * @return La coordonnée X du centre de la case.
+     */
     private double getTileCenterX(int col) {
         double centerX = 350;
         double halfLength = 350;
@@ -391,6 +435,12 @@ public class UI {
         return centerX - halfLength + col * cellSize + cellSize / 2;
     }
 
+    /**
+     * Retourne la coordonnée Y du centre d'une case.
+     *
+     * @param row La ligne de la case.
+     * @return La coordonnée Y du centre de la case.
+     */
     private double getTileCenterY(int row) {
         double centerY = 350;
         double halfLength = 350;
@@ -458,122 +508,139 @@ public class UI {
         StdDraw.show();
     }
 
-    ///////////////////////////////////////////////////////////////////
-    //////////////////// Gestion des clicks/////////////////////////////
-    ///////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
+//////////////////// Gestion des clics /////////////////////////////
+///////////////////////////////////////////////////////////////////
 
-    private static Tower selecTour = new Archer(null); // Tour sélectionnée par défaut
+private static Tower selecTour = new Archer(null); // Tour sélectionnée par défaut
 
-    /**
-     * Vérifie si un clic est sur une case constructible et y place une tour.
-     */
-    public void handleClick(double mouseX, double mouseY) {
-        double centerX = 350;
-        double centerY = 350;
-        double halfLength = 350;
+/**
+ * Vérifie si un clic est sur une case constructible et y place une tour.
+ *
+ * @param mouseX Coordonnée X du clic de la souris.
+ * @param mouseY Coordonnée Y du clic de la souris.
+ */
+public void handleClick(double mouseX, double mouseY) {
+    double centerX = 350;
+    double centerY = 350;
+    double halfLength = 350;
 
-        double cellSize = Math.min(2 * halfLength / map.getRows(), 2 * halfLength / map.getCols());
+    double cellSize = Math.min(2 * halfLength / map.getRows(), 2 * halfLength / map.getCols());
 
-        // Détermination des indices de la case cliquée
-        int col = (int) ((mouseX - (centerX - halfLength)) / cellSize);
-        int row = (int) ((centerY + halfLength - mouseY) / cellSize);
+    // Détermination des indices de la case cliquée
+    int col = (int) ((mouseX - (centerX - halfLength)) / cellSize);
+    int row = (int) ((centerY + halfLength - mouseY) / cellSize);
 
-        if (row >= 0 && row < map.getRows() && col >= 0 && col < map.getCols()) {
-            Tile clickedTile = map.getTile(row, col);
+    if (row >= 0 && row < map.getRows() && col >= 0 && col < map.getCols()) {
+        Tile clickedTile = map.getTile(row, col);
 
-            try {
-                // Vérification des conditions
-                if (Game.getPlayer().getArgent() < selecTour.getCout()) {
-                    throw new GameExceptions.NotEnoughMoneyException("Not enough money to build this tower!");
-                }
-                if (clickedTile.isOccupiedByTower()) {
-                    throw new GameExceptions.TileOccupiedException(
-                            "Map tile already built ! Cannot place new Tower !");
-                }
-                if (clickedTile.isConstructible()) {
-                    // Construire une tour
-                    Tower newTower = instanceTour(clickedTile);
-                    Game.getActiveTower().add(newTower);
-
-                    // Mise à jour du solde et état de la case
-                    Game.getPlayer().setArgent(Game.getPlayer().getArgent() - selecTour.getCout());
-                    clickedTile.setOccupiedByTower(true);
-
-                }
-
-            } catch (GameExceptions.NotEnoughMoneyException e) {
-                System.out.println(e.getMessage());
-            } catch (GameExceptions.TileOccupiedException e) {
-                System.out.println(e.getMessage());
+        try {
+            // Vérification des conditions
+            if (Game.getPlayer().getArgent() < selecTour.getCout()) {
+                throw new GameExceptions.NotEnoughMoneyException("Not enough money to build this tower!");
             }
-        }
-
-        // Vérifier si le clic est sur une carte de tour
-        Tower tower = towerAtXY(mouseX, mouseY);
-        if (tower != null) {
-            selecTour = tower;
-        }
-    }
-
-    private Tower instanceTour(Tile clickedTile) { // Instancier une tour en fonction de la tour sélectionnée
-        switch (selecTour.getClass().getSimpleName()) {
-            case "Archer":
-                return new Archer(clickedTile);
-
-            case "WindCaster":
-                return new WindCaster(clickedTile);
-
-            case "WaterCaster":
-                return new WaterCaster(clickedTile);
-
-            case "EarthCaster":
-                return new EarthCaster(clickedTile);
-
-            case "FireCaster":
-                return new FireCaster(clickedTile);
-
-            case "IceCaster":
-                return new IceCaster(clickedTile);
-
-            case "PoisonCaster":
-                return new PoisonCaster(clickedTile);
-
-            case "GoldDigger":
-                return new GoldDigger(clickedTile);
-
-            case "Railgun":
-                return new Railgun(clickedTile);
-
-            default:
-                return new Archer(clickedTile);
-        }
-    }
-
-    private void drawCircleOnTile(int row, int col, double radius) {
-        double centerX = 350;
-        double centerY = 350;
-        double halfLength = 350;
-
-        double cellSize = Math.min(2 * halfLength / map.getRows(), 2 * halfLength / map.getCols());
-
-        double x = centerX - halfLength + col * cellSize + cellSize / 2;
-        double y = centerY + halfLength - row * cellSize - cellSize / 2;
-
-        StdDraw.filledCircle(x, y, radius);
-    }
-
-    public void listenForClicks() {
-        while (true) {
-            if (StdDraw.isMousePressed()) {
-                double mouseX = StdDraw.mouseX();
-                double mouseY = StdDraw.mouseY();
-
-                handleClick(mouseX, mouseY);
-
-                StdDraw.show();
-                StdDraw.pause(100);
+            if (clickedTile.isOccupiedByTower()) {
+                throw new GameExceptions.TileOccupiedException(
+                        "Map tile already built ! Cannot place new Tower !");
             }
+            if (clickedTile.isConstructible()) {
+                // Construire une tour
+                Tower newTower = instanceTour(clickedTile);
+                Game.getActiveTower().add(newTower);
+
+                // Mise à jour du solde et état de la case
+                Game.getPlayer().setArgent(Game.getPlayer().getArgent() - selecTour.getCout());
+                clickedTile.setOccupiedByTower(true);
+            }
+
+        } catch (GameExceptions.NotEnoughMoneyException e) {
+            System.out.println(e.getMessage());
+        } catch (GameExceptions.TileOccupiedException e) {
+            System.out.println(e.getMessage());
         }
     }
 
+    // Vérifier si le clic est sur une carte de tour
+    Tower tower = towerAtXY(mouseX, mouseY);
+    if (tower != null) {
+        selecTour = tower;
+    }
+}
+
+/**
+ * Instancie une tour en fonction de la tour sélectionnée.
+ *
+ * @param clickedTile La case cliquée où placer la tour.
+ * @return La nouvelle instance de la tour.
+ */
+private Tower instanceTour(Tile clickedTile) {
+    switch (selecTour.getClass().getSimpleName()) {
+        case "Archer":
+            return new Archer(clickedTile);
+
+        case "WindCaster":
+            return new WindCaster(clickedTile);
+
+        case "WaterCaster":
+            return new WaterCaster(clickedTile);
+
+        case "EarthCaster":
+            return new EarthCaster(clickedTile);
+
+        case "FireCaster":
+            return new FireCaster(clickedTile);
+
+        case "IceCaster":
+            return new IceCaster(clickedTile);
+
+        case "PoisonCaster":
+            return new PoisonCaster(clickedTile);
+
+        case "GoldDigger":
+            return new GoldDigger(clickedTile);
+
+        case "Railgun":
+            return new Railgun(clickedTile);
+
+        default:
+            return new Archer(clickedTile);
+    }
+}
+
+/**
+ * Dessine un cercle sur une case spécifiée.
+ *
+ * @param row La ligne de la case.
+ * @param col La colonne de la case.
+ * @param radius Le rayon du cercle.
+ */
+private void drawCircleOnTile(int row, int col, double radius) {
+    double centerX = 350;
+    double centerY = 350;
+    double halfLength = 350;
+
+    double cellSize = Math.min(2 * halfLength / map.getRows(), 2 * halfLength / map.getCols());
+
+    double x = centerX - halfLength + col * cellSize + cellSize / 2;
+    double y = centerY + halfLength - row * cellSize - cellSize / 2;
+
+    StdDraw.filledCircle(x, y, radius);
+}
+
+/**
+ * Écoute les clics de la souris et gère les actions correspondantes.
+ */
+public void listenForClicks() {
+    while (true) {
+        if (StdDraw.isMousePressed()) {
+            double mouseX = StdDraw.mouseX();
+            double mouseY = StdDraw.mouseY();
+
+            handleClick(mouseX, mouseY);
+
+            StdDraw.show();
+            StdDraw.pause(100);
+        }
+    }
+}
 }
