@@ -18,13 +18,13 @@ public abstract class Ennemy extends Warrior {
 
     // Mutable properties
     private double movingSpeed; // Movement speed of the enemy
+    
+
     private double x; // Current X coordinate (in pixels)
     private double y; // Current Y coordinate (in pixels)
     private int currentStep; // Current step in the path
 
-    public int getCurrentStep() {
-        return currentStep;
-    }
+    
 
     /**
      * Constructor for the Ennemy class.
@@ -54,9 +54,7 @@ public abstract class Ennemy extends Warrior {
         this.reward = reward;
     }
 
-    public int getReward() {
-        return reward;
-    }
+    
 
     /**
      * Met à jour la position de l'ennemi sur la carte en fonction de son
@@ -182,6 +180,17 @@ public abstract class Ennemy extends Warrior {
      */
     public List<double[]> getPixelPath() {
         return pixelPath;
+    }
+
+    public int getReward() {
+        return reward;
+    }
+
+    public int getCurrentStep() {
+        return currentStep;
+    }
+    public void setMovingSpeed(double movingSpeed) {
+        this.movingSpeed = movingSpeed;
     }
 
     private boolean poisoned = false;
