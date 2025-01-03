@@ -47,7 +47,7 @@ public class Wave {
                 int row = spawnTile[0];
                 int col = spawnTile[1];
     
-                double cellSize = UI.getCellSize();
+                double cellSize = Math.min(700.0 / level.getMap().getRows(), 700.0 / level.getMap().getCols());
                 double x = 350 - 350 + col * cellSize + cellSize / 2;
                 double y = 350 + 350 - row * cellSize - cellSize / 2;
     
