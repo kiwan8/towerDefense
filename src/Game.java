@@ -32,7 +32,7 @@ public class Game implements Serializable {
     private static List<Level> levels = new ArrayList<>();
     private static List<Ennemy> activeEnemies = new ArrayList<>();
     private static List<Tower> activeTower = new ArrayList<>();
-    private static long elapsedTime;
+    private static double elapsedTime;
 
     public static Level getCurrentLevel() {
         return currentLevel;
@@ -76,7 +76,7 @@ public class Game implements Serializable {
             previousTime = currentTime;
 
             // Met à jour le temps total écoulé
-            elapsedTime = (long) (currentTime - startTime) / 1000; // Temps écoulé en secondes depuis le début
+            double elapsedTime = (double) (currentTime - startTime) / 1000; // Temps écoulé en secondes depuis le début
 
             // Gestion des clics de souris
             if (StdDraw.isMousePressed()) {
@@ -143,7 +143,7 @@ public class Game implements Serializable {
     }
     
     // Met à jour l'état du jeu en fonction du temps écoulé
-    private void update(double deltaTimeSec, long elapsedTime) throws GameException, IOException {
+    private void update(double deltaTimeSec, double elapsedTime) throws GameException, IOException {
         // Gestion du spawn des ennemis
         handleEnemySpawning(elapsedTime);
 
@@ -160,7 +160,7 @@ public class Game implements Serializable {
         checkWaveCompletion();
     }
 
-    private void handleEnemySpawning(long elapsedTime) {
+    private void handleEnemySpawning(double elapsedTime) {
         while (!currentWave.getEnemies().isEmpty() &&
                 currentWave.getEnemies().peek().getSpawnTime() <= elapsedTime) {
             activeEnemies.add(currentWave.getEnemies().poll());
@@ -234,6 +234,7 @@ public class Game implements Serializable {
             // Attaque les cibles sélectionnées
             for (Warrior target : targets) {
                 tower.attaquer(target);
+                
             }
 
             // Réinitialise le cooldown de la tour

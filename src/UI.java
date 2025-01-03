@@ -18,6 +18,22 @@ import src.libraries.StdDraw;
 public class UI {
 
     private Map map;
+    private static double cellSize; // Taille des cases en pixels (calculée dynamiquement)
+    /**
+     * Getter pour la taille des cases.
+     *
+     * @return La taille des cases en pixels.
+     */
+    public static double getCellSize() {
+        return cellSize;
+    }
+
+    /**
+     * Calcule la taille des cases en fonction des dimensions de la carte.
+     */
+    private void calculateCellSize() {
+        cellSize = Math.min(700.0 / map.getRows(), 700.0 / map.getCols());
+    }
 
     public UI(Map Map) {
         this.map = Map;
@@ -26,6 +42,7 @@ public class UI {
         drawPlayerInfoZone(Game.getPlayer().getHP(), Game.getPlayer().getArgent());
         drawShopZone();
         drawGameInfoZone();
+        calculateCellSize();
         StdDraw.show();
     }
 
@@ -294,9 +311,13 @@ public class UI {
     }
 
     private void drawEnemies(List<Ennemy> enemies) {
+
+
         for (Ennemy enemy : enemies) {
             double x = enemy.getX();
             double y = enemy.getY();
+
+            
 
             // Dessiner chaque ennemi en fonction de son type
             switch (enemy.getClass().getSimpleName()) {
