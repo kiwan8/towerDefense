@@ -53,6 +53,5 @@ public class GoldDigger extends Tower {
 
         // Générer 1 pièce pour le joueur
         Game.getPlayer().setArgent(Game.getPlayer().getArgent() + 1);
-        System.out.println("Gold Digger génère 1 pièce pour le joueur !");
     }
 }

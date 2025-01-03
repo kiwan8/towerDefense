@@ -15,6 +15,6 @@ public class Archer extends Tower {
      * @param position La position de la tour sur la carte.
      */
     public Archer(Tile position) {
-        super(30, 5, 1.0, 2, Element.Neutre, position, ModeAttaque.NEAREST, 20, Color.BLACK);
+        super(30, 5, 1.0, 2, Element.Neutre, position, ModeAttaque.NEAREST_FROM_BASE, 20, Color.BLACK);
     }
 }

@@ -198,6 +198,21 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
     }
 
     /**
+     * Calculates the Euclidean distance between two Warriors based on their pixel
+     * coordinates.
+     *
+     * @param w1 The first Warrior.
+     * @param w2 The second Warrior.
+     * @return The Euclidean distance between the two Warriors.
+     */
+    public static double calculatePixelDistance(Warrior w1, Warrior w2) {
+        if (w1 == null || w2 == null) {
+            throw new IllegalArgumentException("Both warriors must be non-null.");
+        }
+        return Math.sqrt(Math.pow(w1.getX() - w2.getX(), 2) + Math.pow(w1.getY() - w2.getY(), 2));
+    }
+
+    /**
      * Sélectionne des cibles pour une entité à attaquer en fonction du mode
      * d'attaque.
      *
@@ -216,49 +231,25 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
     public List<Warrior> selectTargets(ModeAttaque mode, List<Warrior> ennemis) {
         switch (mode) {
             case NEAREST:
-            // Trouver l'ennemi le plus proche en pixels
-            return ennemis.stream()
-                    .min(Comparator.comparingDouble(this::calculatePixelDistance)) // Compare les distances en pixels
-                    .map(Collections::singletonList) // Transforme en liste contenant un seul élément
-                    .orElse(Collections.emptyList()); // Si aucun ennemi trouvé, retourne une liste vide
-            case MULTIPLE_TARGET:
-                // Retourne tous les ennemis sans transformation
-                return ennemis;
+                // Trouver l'ennemi le plus proche en pixels
+                return ennemis.stream()
+                        .min(Comparator.comparingDouble(this::calculatePixelDistance)) // Compare les distances en
+                                                                                       // pixels
+                        .map(Collections::singletonList) // Transforme en liste contenant un seul élément
+                        .orElse(Collections.emptyList()); // Si aucun ennemi trouvé, retourne une liste vide
             case NEAREST_FROM_BASE:
+                // Étape 1 : Filtrer les ennemis dans la portée
                 Ennemy ciblePrincipale = ennemis.stream()
                         .map(e -> (Ennemy) e) // Cast vers Ennemy
-                        .filter(e -> this.calculateDistance(e) <= this.getRange()) // Ennemis dans la portée
-                        .max(Comparator.comparingInt(Ennemy::getCurrentStep)) // Le plus avancé dans son chemin
+                        .max(Comparator.comparingInt(Ennemy::getCurrentStep)) // Étape 2 : Trouver le plus avancé
                         .orElse(null);
 
+                // Étape 3 : Vérifier si une cible principale est trouvée
                 if (ciblePrincipale == null) {
-                    return Collections.emptyList();
+                    return Collections.emptyList(); // Aucun ennemi trouvé
                 }
+                return List.of(ciblePrincipale); // Retourne une liste contenant uniquement la cible principale
 
-                // Ennemis dans la zone d'effet autour de la cible principale
-                List<Warrior> ciblesAoE = ennemis.stream()
-                        .filter(e -> this.calculateDistance(ciblePrincipale) <= 1.0) // Ennemis dans la zone d'effet
-                                                                                     // (1.0 case)
-                        .collect(Collectors.toList());
-
-                // Ajouter la cible principale si elle n'est pas déjà dans la liste AoE
-                if (!ciblesAoE.contains(ciblePrincipale)) {
-                    ciblesAoE.add(ciblePrincipale);
-                }
-
-                return ciblesAoE;
-            case STRONGEST_ATK:
-                // Cherche l'ennemi avec l'attaque la plus forte via stream().max().
-                // .max(Comparator.comparingInt(Entite::getATK)) compare les attaques pour
-                // trouver le maximum.
-                // .map(Collections::singletonList) met l'ennemi trouvé dans une liste
-                // (singleton).
-                // .orElse(Collections.emptyList()) retourne une liste vide si aucun ennemi
-                // n'est trouvé.
-                return ennemis.stream()
-                        .max(Comparator.comparingInt(Warrior::getATK)) // Compare les attaques pour trouver le maximum
-                        .map(Collections::singletonList) // Transforme le résultat en liste singleton
-                        .orElse(Collections.emptyList()); // Si rien trouvé, renvoie une liste vide
             default:
                 // Retourne le premier ennemi si présent, sinon une liste vide
                 return ennemis.isEmpty() ? Collections.emptyList() : List.of(ennemis.get(0));

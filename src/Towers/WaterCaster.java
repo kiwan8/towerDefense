@@ -15,6 +15,6 @@ public class WaterCaster extends Tower {
      * @param position La position de la tour sur la carte.
      */
     public WaterCaster(Tile position) {
-        super(30, 3, 1.0, 4, Element.Eau, position, ModeAttaque.NEAREST, 50, Color.BLUE);
+        super(30, 3, 1.0, 4, Element.Eau, position, ModeAttaque.NEAREST_FROM_BASE, 50, Color.BLUE);
     }
 }

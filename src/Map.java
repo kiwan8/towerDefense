@@ -18,23 +18,30 @@ public class Map {
     private final List<double[]> pixelPath;
     private final String levelFilePath;
     private final String mapFilePath;
-
-    /**
-     * Creates a map by loading it from a file.
-     *
-     * @throws IOException   if the file cannot be read.
-     * @throws GameException if the map validation fails.
-     */
-    public Map(String mapFilePath, String levelFilePath) throws GameException, IOException {
-        this.levelFilePath = levelFilePath;
-        this.mapFilePath = mapFilePath;
-        final int[] dimensions = FindDimensions(mapFilePath);
-        this.rows = dimensions[0];
-        this.cols = dimensions[1];
-        this.tiles = new Tile[rows][cols];
-        this.path = loadMap(mapFilePath);
-        this.pixelPath = setPixelPath();
+    private final double cellSize;
+    
+        /**
+         * Creates a map by loading it from a file.
+         *
+         * @throws IOException   if the file cannot be read.
+         * @throws GameException if the map validation fails.
+         */
+        public Map(String mapFilePath, String levelFilePath) throws GameException, IOException {
+            this.levelFilePath = levelFilePath;
+            this.mapFilePath = mapFilePath;
+            final int[] dimensions = FindDimensions(mapFilePath);
+            this.rows = dimensions[0];
+            this.cols = dimensions[1];
+            this.tiles = new Tile[rows][cols];
+            this.path = loadMap(mapFilePath);
+            this.pixelPath = setPixelPath();
+            this.cellSize = Math.min(700.0 / rows, 700.0 / cols);
     }
+
+    public double getCellSize() {
+        return cellSize;
+    }
+    
 
     /**
      * Loads the map and initializes tiles, spawn points, and base points.

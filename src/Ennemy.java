@@ -10,7 +10,6 @@ import java.util.List;
 public abstract class Ennemy extends Warrior {
 
     // Immutable properties
-    private final double movingSpeed; // Movement speed of the enemy
     private final double spawnTime; // Spawn time in the wave
     private final List<int[]> path; // Path in tile coordinates
     private final List<double[]> pixelPath; // Path in pixel coordinates
@@ -18,6 +17,7 @@ public abstract class Ennemy extends Warrior {
     private final int reward;
 
     // Mutable properties
+    private double movingSpeed; // Movement speed of the enemy
     private double x; // Current X coordinate (in pixels)
     private double y; // Current Y coordinate (in pixels)
     private int currentStep; // Current step in the path
