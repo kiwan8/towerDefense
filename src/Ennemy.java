@@ -79,7 +79,7 @@ public abstract class Ennemy extends Warrior {
         }
 
         // Calcul de la taille d'un carreau en pixels
-        double cellSize = Math.min(700.0 / map.getRows(), 700.0 / map.getCols());
+        double cellSize = map.getCellSize();
 
         // Distance totale que l'ennemi peut parcourir cette frame
         double distanceToTravel = movingSpeed * cellSize * deltaTimeSec; // Distance en pixels
