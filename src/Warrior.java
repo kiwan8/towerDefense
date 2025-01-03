@@ -197,6 +197,10 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
         return Math.sqrt(Math.pow(this.x - target.getX(), 2) + Math.pow(this.y - target.getY(), 2));
     }
 
+    public static double calculatePixelDistanceX(double x1, double y1, double x2, double y2) {
+        return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+    }
+
     /**
      * Calculates the Euclidean distance between two Warriors based on their pixel
      * coordinates.

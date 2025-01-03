@@ -44,6 +44,8 @@ public enum ModeAttaque {
      */
     NEAREST_FOR_GOLD,
 
+    Railgun,
+
     /**
      * Attaque l'ennemi le plus avancé qui n'est pas empoisonné.
      */

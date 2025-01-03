@@ -14,11 +14,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import src.GameExceptions.GameException;
+import src.Towers.Railgun;
 import src.libraries.StdDraw;
 
 /**
  * La classe Game représente le jeu principal.
- * Elle gère les niveaux, les vagues, les ennemis actifs, les tours actives et le temps écoulé.
+ * Elle gère les niveaux, les vagues, les ennemis actifs, les tours actives et
+ * le temps écoulé.
  */
 public class Game implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -138,12 +140,6 @@ public class Game implements Serializable {
      */
     private boolean mousePressedLastFrame = false;
 
-    /**
-     * Lance le jeu.
-     *
-     * @throws GameException Si une erreur de jeu se produit.
-     * @throws IOException Si une erreur d'entrée/sortie se produit.
-     */
     public void launch() throws GameException, IOException {
         init();
         startTime = System.currentTimeMillis(); // Temps de début de la wave
@@ -161,18 +157,8 @@ public class Game implements Serializable {
             // Met à jour le temps total écoulé
             double elapsedTime = (double) (currentTime - startTime) / 1000; // Temps écoulé en secondes depuis le début
 
-            // Gestion des clics de souris
-            if (StdDraw.isMousePressed()) {
-                if (!mousePressedLastFrame) { // Si la souris était relâchée avant ce clic
-                    double mouseX = StdDraw.mouseX();
-                    double mouseY = StdDraw.mouseY();
-                    ui.handleClick(mouseX, mouseY); // Gérer le clic
-                    StdDraw.show(); // Met à jour l'affichage
-                }
-                mousePressedLastFrame = true; // La souris est maintenant considérée comme pressée
-            } else {
-                mousePressedLastFrame = false; // Réinitialise l'état lorsque la souris est relâchée
-            }
+            // Gérer les clics de souris pour le Railgun
+            handleRailgunClick();
 
             update(deltaTimeSec, elapsedTime); // Met à jour l'état du jeu
             ui.render(); // Redessine l'interface utilisateur
@@ -193,6 +179,42 @@ public class Game implements Serializable {
     }
 
     /**
+ * Gère les clics de souris pour le Railgun et attaque l'ennemi le plus proche de la position du clic.
+ */
+private void handleRailgunClick() {
+    if (StdDraw.isMousePressed()) {
+        if (!mousePressedLastFrame) { // Si la souris était relâchée avant ce clic
+            double mouseX = StdDraw.mouseX();
+            double mouseY = StdDraw.mouseY();
+
+            // Chercher l'ennemi le plus proche de la position du clic
+            Warrior cible = Game.getActiveEnemies().stream()
+                    .min((e1, e2) -> Double.compare(
+                            Warrior.calculatePixelDistanceX(mouseX, mouseY, e1.getX(), e1.getY()),
+                            Warrior.calculatePixelDistanceX(mouseX, mouseY, e2.getX(), e2.getY())
+                    ))
+                    .orElse(null);
+
+            if (cible != null) {
+                // Faire attaquer toutes les instances de Railgun
+                Game.activeTower.stream()
+                        .filter(t -> t instanceof Railgun)
+                        .forEach(t -> t.attaquer(cible));
+            }
+
+            ui.handleClick(mouseX, mouseY); // Gérer le clic pour d'autres interactions
+            StdDraw.show(); // Met à jour l'affichage
+        }
+        mousePressedLastFrame = true; // La souris est maintenant considérée comme pressée
+    } else {
+        mousePressedLastFrame = false; // Réinitialise l'état lorsque la souris est relâchée
+    }
+}
+
+
+    
+
+    /**
      * Vérifie si le jeu est encore en cours d'exécution.
      *
      * @return true si le joueur est en vie, false sinon.
@@ -206,12 +228,12 @@ public class Game implements Serializable {
      *
      * @param gameFilePath Le chemin du fichier de jeu.
      * @throws GameException Si une erreur de jeu se produit.
-     * @throws IOException Si une erreur d'entrée/sortie se produit.
+     * @throws IOException   Si une erreur d'entrée/sortie se produit.
      */
     private void initLevels(String gameFilePath) throws GameException, IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(gameFilePath))) {
             String levelName;
-            
+
             while ((levelName = reader.readLine()) != null) {
                 String levelPath = "resources/levels/" + levelName + ".lvl";
                 levels.add(new Level(levelPath));
@@ -223,32 +245,33 @@ public class Game implements Serializable {
      * Initialise le jeu.
      *
      * @throws GameException Si une erreur de jeu se produit.
-     * @throws IOException Si une erreur d'entrée/sortie se produit.
+     * @throws IOException   Si une erreur d'entrée/sortie se produit.
      */
     private void init() throws GameException, IOException {
         String gameFilePath = "resources/games/game.g";
         originalGameFileName = new File(gameFilePath).getName(); // Récupère le nom du fichier d'origine
-    
+
         if (!loadGameState()) { // Si aucune sauvegarde n'est trouvée, commencez une nouvelle partie
-            joueur = new Player(200, 10); // Crée un joueur avec 200 pièces d'or et 100 points de vie
-    
+            joueur = new Player(2000, 10); // Crée un joueur avec 200 pièces d'or et 100 points de vie
+
             initLevels(gameFilePath); // Charge les niveaux du fichier de jeu spécifié
             cptLevel = 0;
             cptWave = 0;
             currentLevel = levels.get(cptLevel);
             currentWave = currentLevel.getWaves().get(cptWave);
         }
-    
+
         this.ui = new UI(currentLevel.getMap());
     }
-    
+
     /**
      * Met à jour l'état du jeu en fonction du temps écoulé.
      *
-     * @param deltaTimeSec Le temps écoulé depuis la dernière mise à jour en secondes.
-     * @param elapsedTime Le temps total écoulé depuis le début du jeu en secondes.
+     * @param deltaTimeSec Le temps écoulé depuis la dernière mise à jour en
+     *                     secondes.
+     * @param elapsedTime  Le temps total écoulé depuis le début du jeu en secondes.
      * @throws GameException Si une erreur de jeu se produit.
-     * @throws IOException Si une erreur d'entrée/sortie se produit.
+     * @throws IOException   Si une erreur d'entrée/sortie se produit.
      */
     private void update(double deltaTimeSec, double elapsedTime) throws GameException, IOException {
         // Gestion du spawn des ennemis
@@ -282,7 +305,8 @@ public class Game implements Serializable {
     /**
      * Met à jour la position des ennemis en fonction du temps écoulé.
      *
-     * @param deltaTimeSec Le temps écoulé depuis la dernière mise à jour en secondes.
+     * @param deltaTimeSec Le temps écoulé depuis la dernière mise à jour en
+     *                     secondes.
      */
     private void updateEnemies(double deltaTimeSec) {
         Iterator<Ennemy> iterator = activeEnemies.iterator();
@@ -309,7 +333,8 @@ public class Game implements Serializable {
     /**
      * Met à jour les attaques des ennemis en fonction du temps écoulé.
      *
-     * @param deltaTimeSec Le temps écoulé depuis la dernière mise à jour en secondes.
+     * @param deltaTimeSec Le temps écoulé depuis la dernière mise à jour en
+     *                     secondes.
      */
     private void updateEnemyAttacks(double deltaTimeSec) {
         for (Ennemy enemy : activeEnemies) {
@@ -332,7 +357,8 @@ public class Game implements Serializable {
     /**
      * Met à jour les tours en fonction du temps écoulé.
      *
-     * @param deltaTimeSec Le temps écoulé depuis la dernière mise à jour en secondes.
+     * @param deltaTimeSec Le temps écoulé depuis la dernière mise à jour en
+     *                     secondes.
      */
     private void updateTowers(double deltaTimeSec) {
         Iterator<Tower> iterator = activeTower.iterator();
@@ -361,7 +387,7 @@ public class Game implements Serializable {
             // Attaque les cibles sélectionnées
             for (Warrior target : targets) {
                 tower.attaquer(target);
-                
+
             }
 
             // Réinitialise le cooldown de la tour
@@ -370,10 +396,11 @@ public class Game implements Serializable {
     }
 
     /**
-     * Vérifie si la vague actuelle est terminée et passe à la suivante si nécessaire.
+     * Vérifie si la vague actuelle est terminée et passe à la suivante si
+     * nécessaire.
      *
      * @throws GameException Si une erreur de jeu se produit.
-     * @throws IOException Si une erreur d'entrée/sortie se produit.
+     * @throws IOException   Si une erreur d'entrée/sortie se produit.
      */
     private void checkWaveCompletion() throws GameException, IOException {
         if (currentWave.getEnemies().isEmpty() && activeEnemies.isEmpty()) {
@@ -382,10 +409,11 @@ public class Game implements Serializable {
     }
 
     /**
-     * Passe à la vague suivante ou au niveau suivant si toutes les vagues sont terminées.
+     * Passe à la vague suivante ou au niveau suivant si toutes les vagues sont
+     * terminées.
      *
      * @throws GameException Si une erreur de jeu se produit.
-     * @throws IOException Si une erreur d'entrée/sortie se produit.
+     * @throws IOException   Si une erreur d'entrée/sortie se produit.
      */
     private void nextWave() throws GameException, IOException {
         int nbVagueDuLevel = currentLevel.getWaves().size();
@@ -402,8 +430,8 @@ public class Game implements Serializable {
             cptWave = 0;
             currentWave = currentLevel.getWaves().get(cptWave);
 
-            for(Tower tower : activeTower) { // Récupère l'argent des tours restantes
-                joueur.setArgent(joueur.getArgent() + (int)(tower.getArgentParPv()*tower.getPV()));
+            for (Tower tower : activeTower) { // Récupère l'argent des tours restantes
+                joueur.setArgent(joueur.getArgent() + (int) (tower.getArgentParPv() * tower.getPV()));
             }
 
             activeEnemies.clear(); // Vide les ennemis actifs
@@ -463,15 +491,15 @@ public class Game implements Serializable {
             if (!savedDir.exists()) {
                 savedDir.mkdirs(); // Crée le dossier si nécessaire
             }
-    
+
             // Utilise le nom du fichier d'origine pour la sauvegarde
             String saveFileName = "resources/saved/" + originalGameFileName.replace(".g", ".sav");
-    
+
             // Sauvegarde l'état du jeu
             try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(saveFileName))) {
-                oos.writeObject(joueur);            // Sauvegarde l'état du joueur
-                oos.writeInt(cptLevel);            // Sauvegarde le niveau actuel
-                oos.writeInt(cptWave);             // Sauvegarde la vague actuelle
+                oos.writeObject(joueur); // Sauvegarde l'état du joueur
+                oos.writeInt(cptLevel); // Sauvegarde le niveau actuel
+                oos.writeInt(cptWave); // Sauvegarde la vague actuelle
                 oos.writeObject(originalGameFileName); // Sauvegarde le nom du fichier d'origine
                 System.out.println("Game state saved successfully in " + saveFileName);
             }
@@ -480,7 +508,7 @@ public class Game implements Serializable {
             System.err.println("Failed to save game state.");
         }
     }
-    
+
     /**
      * Charge l'état du jeu à partir d'un fichier de sauvegarde.
      *
@@ -489,18 +517,18 @@ public class Game implements Serializable {
     private boolean loadGameState() {
         // Chemin du fichier de sauvegarde basé sur le fichier de jeu actuel
         String saveFileName = "resources/saved/" + originalGameFileName.replace(".g", ".sav");
-    
+
         File saveFile = new File(saveFileName);
         if (!saveFile.exists()) {
             return false; // Aucun fichier de sauvegarde trouvé
         }
-    
+
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(saveFile))) {
-            joueur = (Player) ois.readObject();           // Charge l'état du joueur
-            cptLevel = ois.readInt();                    // Charge le niveau
-            cptWave = ois.readInt();                     // Charge la vague
+            joueur = (Player) ois.readObject(); // Charge l'état du joueur
+            cptLevel = ois.readInt(); // Charge le niveau
+            cptWave = ois.readInt(); // Charge la vague
             originalGameFileName = (String) ois.readObject(); // Charge le nom du fichier d'origine
-    
+
             initLevels("resources/games/" + originalGameFileName); // Dynamise les niveaux depuis le fichier
             currentLevel = levels.get(cptLevel);
             currentWave = currentLevel.getWaves().get(cptWave);
@@ -513,7 +541,7 @@ public class Game implements Serializable {
             return false;
         }
     }
-    
+
     /**
      * Retourne le joueur du jeu.
      *
