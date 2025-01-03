@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import src.GameExceptions.GameException;
+import src.Monsters.Healer;
 import src.Towers.Railgun;
 import src.libraries.StdDraw;
 
@@ -139,91 +140,76 @@ public class Game implements Serializable {
      * Indique si la souris était déjà pressée lors de la dernière frame.
      */
     private boolean mousePressedLastFrame = false;
-
-    public void launch() throws GameException, IOException {
-        init();
-        startTime = System.currentTimeMillis(); // Temps de début de la wave
-        long previousTime = startTime;
-        elapsedTime = 0;
-
-        final int TARGET_FPS = 60; // Objectif de 60 FPS
-        final long FRAME_TIME = 1000 / TARGET_FPS; // Temps par frame en millisecondes
-
-        while (isGameRunning()) {
-            long currentTime = System.currentTimeMillis();
-            double deltaTimeSec = (double) (currentTime - previousTime) / 1000; // Temps écoulé depuis la dernière frame
-            previousTime = currentTime;
-
-            // Met à jour le temps total écoulé
-            double elapsedTime = (double) (currentTime - startTime) / 1000; // Temps écoulé en secondes depuis le début
-
-            // Gérer les clics de souris pour le Railgun
-            handleRailgunClick();
-
-            update(deltaTimeSec, elapsedTime); // Met à jour l'état du jeu
-            ui.render(); // Redessine l'interface utilisateur
-
-            // Synchronisation pour atteindre 60 FPS
-            long frameEndTime = System.currentTimeMillis();
-            long frameDuration = frameEndTime - currentTime;
-
-            if (frameDuration < FRAME_TIME) {
-                try {
-                    Thread.sleep(FRAME_TIME - frameDuration); // Pause pour compléter le temps restant
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+    private boolean win = false;
+    
+        public void launch() throws GameException, IOException {
+            init();
+            startTime = System.currentTimeMillis(); // Temps de début de la wave
+            long previousTime = startTime;
+            elapsedTime = 0;
+        
+            while (isGameRunning()) {
+                long currentTime = System.currentTimeMillis();
+                double deltaTimeSec = (double) (currentTime - previousTime) / 1000; // Temps écoulé depuis la dernière frame
+                previousTime = currentTime;
+        
+                // Met à jour le temps total écoulé
+                double elapsedTime = (double) (currentTime - startTime) / 1000; // Temps écoulé en secondes depuis le début
+        
+                // Gérer les clics de souris pour le Railgun
+                handleRailgunClick();
+        
+                update(deltaTimeSec, elapsedTime); // Met à jour l'état du jeu
+                ui.render(); // Redessine l'interface utilisateur
+            }
+            if (win){
+                youWin();
+            }
+            else{
+                youLose();
+            }
+        }
+        
+        /**
+         * Gère les clics de souris pour le Railgun et attaque l'ennemi le plus proche
+         * de la position du clic.
+         */
+        private void handleRailgunClick() {
+            if (StdDraw.isMousePressed()) {
+                if (!mousePressedLastFrame) { // Si la souris était relâchée avant ce clic
+                    double mouseX = StdDraw.mouseX();
+                    double mouseY = StdDraw.mouseY();
+    
+                    // Chercher l'ennemi le plus proche de la position du clic
+                    Warrior cible = Game.getActiveEnemies().stream()
+                            .min((e1, e2) -> Double.compare(
+                                    Warrior.calculatePixelDistanceX(mouseX, mouseY, e1.getX(), e1.getY()),
+                                    Warrior.calculatePixelDistanceX(mouseX, mouseY, e2.getX(), e2.getY())))
+                            .orElse(null);
+    
+                    if (cible != null) {
+                        // Faire attaquer toutes les instances de Railgun
+                        Game.activeTower.stream()
+                                .filter(t -> t instanceof Railgun)
+                                .forEach(t -> t.attaquer(cible));
+                    }
+    
+                    ui.handleClick(mouseX, mouseY); // Gérer le clic pour d'autres interactions
+                    StdDraw.show(); // Met à jour l'affichage
                 }
+                mousePressedLastFrame = true; // La souris est maintenant considérée comme pressée
+            } else {
+                mousePressedLastFrame = false; // Réinitialise l'état lorsque la souris est relâchée
             }
         }
-        youLose();
-    }
-
-
     
-
-    /**
- * Gère les clics de souris pour le Railgun et attaque l'ennemi le plus proche de la position du clic.
- */
-private void handleRailgunClick() {
-    if (StdDraw.isMousePressed()) {
-        if (!mousePressedLastFrame) { // Si la souris était relâchée avant ce clic
-            double mouseX = StdDraw.mouseX();
-            double mouseY = StdDraw.mouseY();
-
-            // Chercher l'ennemi le plus proche de la position du clic
-            Warrior cible = Game.getActiveEnemies().stream()
-                    .min((e1, e2) -> Double.compare(
-                            Warrior.calculatePixelDistanceX(mouseX, mouseY, e1.getX(), e1.getY()),
-                            Warrior.calculatePixelDistanceX(mouseX, mouseY, e2.getX(), e2.getY())
-                    ))
-                    .orElse(null);
-
-            if (cible != null) {
-                // Faire attaquer toutes les instances de Railgun
-                Game.activeTower.stream()
-                        .filter(t -> t instanceof Railgun)
-                        .forEach(t -> t.attaquer(cible));
-            }
-
-            ui.handleClick(mouseX, mouseY); // Gérer le clic pour d'autres interactions
-            StdDraw.show(); // Met à jour l'affichage
-        }
-        mousePressedLastFrame = true; // La souris est maintenant considérée comme pressée
-    } else {
-        mousePressedLastFrame = false; // Réinitialise l'état lorsque la souris est relâchée
-    }
-}
-
-
-    
-
-    /**
-     * Vérifie si le jeu est encore en cours d'exécution.
-     *
-     * @return true si le joueur est en vie, false sinon.
-     */
-    private boolean isGameRunning() {
-        return joueur.isAlive(); // Le jeu est en cours tant que le joueur est en vie
+        /**
+         * Vérifie si le jeu est encore en cours d'exécution.
+         *
+         * @return true si le joueur est en vie, false sinon.
+         */
+        private boolean isGameRunning() {
+            return joueur.isAlive() && !win; // Le jeu est en cours tant que le joueur est en vie
     }
 
     /**
@@ -255,7 +241,7 @@ private void handleRailgunClick() {
         originalGameFileName = new File(gameFilePath).getName(); // Récupère le nom du fichier d'origine
 
         if (!loadGameState()) { // Si aucune sauvegarde n'est trouvée, commencez une nouvelle partie
-            joueur = new Player(2000, 2000); // Crée un joueur avec 200 pièces d'or et 100 points de vie
+            joueur = new Player(2000, 1); // Crée un joueur avec 200 pièces d'or et 100 points de vie
 
             initLevels(gameFilePath); // Charge les niveaux du fichier de jeu spécifié
             cptLevel = 0;
@@ -319,6 +305,12 @@ private void handleRailgunClick() {
 
             // Met à jour l'effet de poison
             enemy.updatePoison(deltaTimeSec);
+
+            // Vérifie si l'ennemi est un Healer et applique l'effet de soin
+            if (enemy instanceof Healer) {
+                Healer healer = (Healer) enemy;
+                healer.update(deltaTimeSec); // Appelle la méthode update pour le soin
+            }
 
             if (enemy.hasReachedEnd()) {
                 joueur.takeDamage(enemy.getATK());
@@ -424,7 +416,7 @@ private void handleRailgunClick() {
         // Si on doit changer de niveau
         if (cptWave == nbVagueDuLevel - 1) {
             if (cptLevel == levels.size() - 1) { // Si on a fini tous les niveaux
-                youWin();
+                win = true;
                 return;
             }
             // Passe au niveau suivant
@@ -459,7 +451,6 @@ private void handleRailgunClick() {
      */
     private void youWin() {
         StdDraw.clear();
-        StdDraw.setCanvasSize(1024, 720);
         StdDraw.setPenColor(StdDraw.GREEN);
         StdDraw.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 100));
         StdDraw.text(512, 360, "YOU WIN!");

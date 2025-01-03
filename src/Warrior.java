@@ -55,9 +55,18 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
         return maxPV;
     }
 
-    public void setPV(int PV) { // Setter
-        if (PV < 0) { // Vérifie si la nouvelle valeur est inférieure à 0
-            this.PV = 0; // Si oui, force PV à 0
+    /**
+     * Définit les points de vie (PV) de l'entité.
+     * Si la valeur est inférieure à 0, elle est forcée à 0.
+     * Si la valeur dépasse maxPV, elle est forcée à maxPV.
+     *
+     * @param PV La nouvelle valeur des points de vie.
+     */
+    public void setPV(int PV) {
+        if (PV < 0) {
+            this.PV = 0; // Si les PV sont inférieurs à 0, force à 0
+        } else if (PV > this.maxPV) {
+            this.PV = this.maxPV; // Si les PV dépassent maxPV, force à maxPV
         } else {
             this.PV = PV; // Sinon, assigne la nouvelle valeur
         }
@@ -257,13 +266,13 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
                 if (mode == ModeAttaque.LEAST_HP_TOWER) {
                     // Trouve la tour ayant le moins de PV dans sa portée
                     Warrior cible = ennemis.stream()
-                            .filter(t -> this.calculatePixelDistance(t) <= this.getRange()) // Vérifie que la tour est dans la portée
+                            .filter(t -> this.calculatePixelDistance(t) <= this.getRange()) // Vérifie que la tour est
+                                                                                            // dans la portée
                             .min((t1, t2) -> Integer.compare(t1.getPV(), t2.getPV())) // Compare les PV
                             .orElse(null);
 
                     return cible != null ? List.of(cible) : List.of(); // Retourne la cible ou une liste vide
                 }
-    
 
             default:
                 // Retourne le premier ennemi si présent, sinon une liste vide
