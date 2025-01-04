@@ -685,14 +685,14 @@ public class UI {
 
             try {
                 // Vérification des conditions
-                if (Game.getPlayer().getArgent() < selecTour.getCout()) {
+                if (Game.getPlayer().getArgent() < selecTour.getCout() && clickedTile.isConstructibleBis()) {
                     throw new GameExceptions.NotEnoughMoneyException("Not enough money to build this tower!");
                 }
                 if (clickedTile.isOccupiedByTower()) {
                     throw new GameExceptions.TileOccupiedException(
                             "Map tile already built ! Cannot place new Tower !");
                 }
-                if (clickedTile.isConstructible()) {
+                if (clickedTile.isConstructibleAndNotOccupied()) {
                     // Construire une tour
                     Tower newTower = instanceTour(clickedTile);
 

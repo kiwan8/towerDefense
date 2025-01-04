@@ -57,7 +57,19 @@ public class Tile {
      *
      * @return True if the tile is constructible, else False.
      */
-    public boolean isConstructible() {
+    public boolean isConstructibleAndNotOccupied() {
         return type == TileType.CONSTRUCTIBLE && !occupiedByTower;
+    }
+
+    /**
+     * Check if the tile is constructible.
+     *
+     * A tile is considered constructible if it is of type CONSTRUCTIBLE
+     *
+     *
+     * @return True if the tile is constructible, else False.
+     */
+    public boolean isConstructibleBis() {
+        return type == TileType.CONSTRUCTIBLE;
     }
 }

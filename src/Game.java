@@ -322,11 +322,11 @@ public class Game implements Serializable {
      * @throws IOException   Si une erreur d'entrée/sortie se produit.
      */
     private void init() throws GameException, IOException {
-        String gameFilePath = "resources/games/game2.g";
+        String gameFilePath = "resources/games/game.g";
         originalGameFileName = new File(gameFilePath).getName(); // Récupère le nom du fichier d'origine
 
         if (!loadGameState()) { // Si aucune sauvegarde n'est trouvée, commencez une nouvelle partie
-            joueur = new Player(2000, 1); // Crée un joueur avec 200 pièces d'or et 100 points de vie
+            joueur = new Player(5000, 100); // Crée un joueur avec 200 pièces d'or et 100 points de vie
 
             initLevels(gameFilePath); // Charge les niveaux du fichier de jeu spécifié
             cptLevel = 0;
@@ -580,13 +580,6 @@ public class Game implements Serializable {
         StdDraw.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 100));
         StdDraw.text(512, 360, "YOU WIN!");
         StdDraw.show();
-
-        // Supprime le fichier de sauvegarde associé
-        File saveFile = new File("resources/saved/gameState.sav");
-        if (saveFile.exists()) {
-            saveFile.delete();
-            System.out.println("Game save deleted as the game is finished.");
-        }
     }
 
     /**

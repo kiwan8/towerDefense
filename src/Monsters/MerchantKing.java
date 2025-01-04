@@ -15,7 +15,7 @@ public class MerchantKing extends Ennemy {
     public void onDeath(Player player) {
         // Le joueur perd des pièces lorsqu'il tue le Merchant King
         player.setArgent(player.getArgent() - 50); // Perte de 50 pièces par défaut
-        System.out.println("Le joueur a tué le Merchant King et perdu 50 pièces !");
+        //System.out.println("Le joueur a tué le Merchant King et perdu 50 pièces !");
     }
 
     /**

@@ -67,6 +67,5 @@ public class Termiernator extends Ennemy {
         Random random = new Random();
         Tower target = Game.getActiveTower().get(random.nextInt(Game.getActiveTower().size()));
         target.setPV(0); // Élimine la tour
-        System.out.println("Termiernator a détruit une tour !");
     }
 }

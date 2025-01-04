@@ -72,15 +72,5 @@ public class Level {
         return waves;
     }
 
-    /**
-     * Affiche les informations du niveau pour vérification.
-     */
-    public void displayLevelInfo() {
-        System.out.println("Carte du niveau : " + map);
-        System.out.println("Nombre de vagues : " + waves.size());
-        for (int i = 0; i < waves.size(); i++) {
-            System.out.println("Vague " + (i + 1) + " : " + waves.get(i).getEnemies().size() + " ennemis");
-        }
-    }
 
 }

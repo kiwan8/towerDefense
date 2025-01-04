@@ -41,7 +41,6 @@ public class IceCaster extends Tower {
                 Ennemy enemy = (Ennemy) ennemi;
                 enemy.setMovingSpeed(enemy.getMovingSpeed() * 0.7); // Réduit la vitesse de déplacement
                 enemy.setATKSpeed(enemy.getATKSpeed() * 1.3); // Réduit la vitesse d'attaque
-                System.out.println("ICE CASTER a FAIT EFFERT !");
         }
     }
 }

@@ -202,7 +202,7 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
      * @return The Euclidean distance.
      */
     public double calculatePixelDistance(Warrior target) {
-        return Math.sqrt(Math.pow(this.x - target.getX(), 2) + Math.pow(this.y - target.getY(), 2));
+        return Math.sqrt(Math.pow(this.getX() - target.getX(), 2) + Math.pow(this.getY() - target.getY(), 2));
     }
 
     public static double calculatePixelDistanceX(double x1, double y1, double x2, double y2) {
@@ -218,9 +218,6 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
      * @return The Euclidean distance between the two Warriors.
      */
     public static double calculatePixelDistance(Warrior w1, Warrior w2) {
-        if (w1 == null || w2 == null) {
-            throw new IllegalArgumentException("Both warriors must be non-null.");
-        }
         return Math.sqrt(Math.pow(w1.getX() - w2.getX(), 2) + Math.pow(w1.getY() - w2.getY(), 2));
     }
 
@@ -259,7 +256,7 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
                 if (mode == ModeAttaque.LEAST_HP_TOWER) {
                     // Trouve la tour ayant le moins de PV dans sa portée
                     Warrior cible = ennemis.stream()
-                            .filter(t -> this.calculatePixelDistance(t) <= this.getRange()) // Vérifie que la tour est
+                            .filter(t -> this.calculateDistance(t) <= this.getRange()) // Vérifie que la tour est
                                                                                             // dans la portée
                             .min((t1, t2) -> Integer.compare(t1.getPV(), t2.getPV())) // Compare les PV
                             .orElse(null);
