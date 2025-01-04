@@ -529,13 +529,13 @@ public void handleClick(double mouseX, double mouseY) {
             if (clickedTile.isConstructible()) {
                 // Construire une tour
                 Tower newTower = instanceTour(clickedTile);
-                
+
                 // Calculer et définir les coordonnées X et Y de la tour
                 double x = centerX - halfLength + col * cellSize + cellSize / 2;
                 double y = centerY + halfLength - row * cellSize - cellSize / 2;
                 newTower.setX(x);
-                newTower.setY(y);
-
+                newTower.setY(y);   
+                             
                 Game.getActiveTower().add(newTower);
 
                 // Mise à jour du solde et état de la case

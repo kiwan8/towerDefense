@@ -12,6 +12,6 @@ public class MerchantKing extends Ennemy {
      * @param map       Référence à la carte associée.
      */
     public MerchantKing(double spawnTime, double x, double y, Map map) {
-        super(100, 0, 0.0, 0, Element.Terre, 2.0, spawnTime, x, y, map);
+        super(100, 0, 0.0, 0, Element.Terre, 2.0, spawnTime, x, y, map,2,ModeAttaque.NOBODY);
     }
 }

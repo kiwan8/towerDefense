@@ -37,7 +37,6 @@ public class Bomb extends Ennemy {
             tour.takeDamage(this.getATK() * 10); // Inflige 10 fois les dégâts à chaque tour dans la portée
         }
 
-        /
     }
 
    

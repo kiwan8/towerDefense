@@ -3,7 +3,6 @@ package src;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public abstract class Warrior { // Classe abstraite Warrior (représente les entités du jeu : tours, ennemis)
 
