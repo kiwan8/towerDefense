@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import src.GameExceptions.GameException;
 import src.Monsters.Bomb;
 import src.Monsters.Healer;
+import src.Monsters.Termiernator;
 import src.Towers.Railgun;
 import src.libraries.StdDraw;
 
@@ -310,6 +311,11 @@ public class Game implements Serializable {
             if (enemy instanceof Healer) {
                 Healer healer = (Healer) enemy;
                 healer.update(deltaTimeSec); // Appelle la méthode update pour le soin
+            }
+
+            if (enemy instanceof Termiernator) {
+                Termiernator termi = (Termiernator) enemy;
+                termi.update(deltaTimeSec); // Appelle la méthode update pour le message
             }
 
             if (enemy.hasReachedEnd()) {
