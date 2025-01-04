@@ -11,11 +11,14 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.stream.Collectors;
 import src.GameExceptions.GameException;
 import src.Monsters.Bomb;
 import src.Monsters.Healer;
+import src.Monsters.MerchantKing;
 import src.Monsters.Termiernator;
 import src.Towers.Railgun;
 import src.libraries.StdDraw;
@@ -133,6 +136,39 @@ public class Game implements Serializable {
         return activeTower;
     }
 
+    private static Queue<MerchantKing> merchantKingQueue = new LinkedList<>(); // File d'attente des MerchantKings
+
+    public static MerchantKing PeekMerchantKingQueue() {
+        return Game.merchantKingQueue.peek();
+    }
+
+    /**
+     * Ajoute un MerchantKing à la file d'attente pour interaction.
+     *
+     * @param merchantKing Le MerchantKing ayant atteint la base.
+     */
+    private void enqueueMerchantKing(MerchantKing merchantKing) {
+        merchantKingQueue.add(merchantKing);
+    }
+
+    /**
+     * Retourne et retire le premier MerchantKing de la file d'attente.
+     *
+     * @return Le MerchantKing suivant ou null si la file est vide.
+     */
+    public MerchantKing dequeueMerchantKing() {
+        return merchantKingQueue.poll();
+    }
+
+    /**
+     * Vérifie si la file de MerchantKings est vide.
+     *
+     * @return true si la file est vide, sinon false.
+     */
+    public boolean hasPendingMerchantKings() {
+        return !merchantKingQueue.isEmpty();
+    }
+
     /**
      * Le temps de début du jeu.
      */
@@ -196,13 +232,61 @@ public class Game implements Serializable {
                 }
 
                 ui.handleClick(mouseX, mouseY); // Gérer le clic pour d'autres interactions
-                StdDraw.show(); // Met à jour l'affichage
             }
             mousePressedLastFrame = true; // La souris est maintenant considérée comme pressée
         } else {
             mousePressedLastFrame = false; // Réinitialise l'état lorsque la souris est relâchée
         }
     }
+
+    private static int merchantKingBonuses = 0; // Nombre de bonus cumulés via Merchant King
+
+    /**
+     * Retourne le nombre de bonus cumulés via Merchant King.
+     *
+     * @return Le nombre de bonus.
+     */
+    public static int getMerchantKingBonuses() {
+        return merchantKingBonuses;
+    }
+
+    public static void applyMerchantKingBonus(int bonusType) {
+        if (merchantKingBonuses >= 5) {
+            System.out.println("Le joueur a déjà cumulé le maximum de 5 bonus.");
+            merchantKingQueue.poll();
+            return;
+        }
+    
+        switch (bonusType) {
+            case 1:
+                // +10% de puissance d'attaque sur toutes les tours
+                Tower.setBaseAttackMultiplier(Tower.getBaseAttackMultiplier() * 1.1);
+                Game.getActiveTower().forEach(t -> t.setATK((int) (t.getATK() * 1.1)));
+                System.out.println("+10% puissance d'attaque appliqué !");
+                break;
+            case 2:
+                // -10% de vitesse de déplacement des ennemis
+                Ennemy.setBaseSpeedMultiplier(Ennemy.getBaseSpeedMultiplier() * 0.9);
+                Game.getActiveEnemies().forEach(e -> e.setMovingSpeed(e.getMovingSpeed() * 0.9));
+                System.out.println("-10% vitesse des ennemis appliqué !");
+                break;
+            case 3:
+                // +10% de vitesse d'attaque des tours
+                Tower.setBaseAttackSpeedMultiplier(Tower.getBaseAttackSpeedMultiplier() * 0.9);
+                Game.getActiveTower().forEach(t -> t.setATKSpeed((int) (t.getATKSpeed() * 0.9)));
+                System.out.println("+10% vitesse d'attaque appliqué !");
+                break;
+            case 4:
+                // Aucun bonus, +30 pièces
+                joueur.setArgent(joueur.getArgent() + 30);
+                System.out.println("+30 pièces ajoutées !");
+                break;
+        }
+    
+        merchantKingQueue.poll();
+        merchantKingBonuses++;
+    }
+    
 
     /**
      * Vérifie si le jeu est encore en cours d'exécution.
@@ -313,9 +397,27 @@ public class Game implements Serializable {
                 healer.updateHealerTime(deltaTimeSec); // Appelle la méthode update pour le soin
             }
 
-             if (enemy instanceof Termiernator) {
-            ((Termiernator) enemy).updateMessageState(deltaTimeSec); // Met à jour l'état du message
-        }
+
+
+            if (enemy instanceof Termiernator) {
+                ((Termiernator) enemy).updateMessageState(deltaTimeSec); // Met à jour l'état du message
+            }
+
+            if (enemy instanceof MerchantKing) {
+                MerchantKing king = (MerchantKing) enemy;
+            
+                if (king.hasReachedEnd()) {
+                    enqueueMerchantKing(king); // Ajoute à la file d'attente
+                    iterator.remove(); // Retire l'ennemi de la liste active
+                    continue;
+                }
+            
+                if (enemy.getPV() <= 0) {
+                    king.onDeath(joueur); // Applique les pénalités
+                    iterator.remove();
+                    continue;
+                }
+            }
 
             if (enemy.hasReachedEnd()) {
                 joueur.takeDamage(enemy.getATK());
@@ -438,7 +540,8 @@ public class Game implements Serializable {
         // Si on doit changer de niveau
         if (cptWave == nbVagueDuLevel - 1) {
             if (cptLevel == levels.size() - 1) { // Si on a fini tous les niveaux
-                if (joueur.getHP() > 0) win = true;
+                if (joueur.getHP() > 0)
+                    win = true;
                 return;
             }
             // Passe au niveau suivant

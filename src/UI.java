@@ -27,6 +27,7 @@ import src.libraries.StdDraw;
 public class UI {
 
     private Map map;
+    private List<MerchantKingCard> merchantKingCards; // Liste des cartes MerchantKing
 
     /**
      * Constructeur de la classe UI.
@@ -34,6 +35,7 @@ public class UI {
      * @param map La carte du jeu.
      */
     public UI(Map map) {
+        this.merchantKingCards = createMerchantKingCards();
         this.map = map;
         initCanvas();
         drawMapZone(map);
@@ -41,6 +43,56 @@ public class UI {
         drawShopZone();
         drawGameInfoZone();
         StdDraw.show();
+    }
+
+    /**
+     * Initialise la liste des cartes MerchantKing.
+     *
+     * @return La liste des cartes MerchantKing.
+     */
+    private List<MerchantKingCard> createMerchantKingCards() {
+        List<MerchantKingCard> cards = new ArrayList<>();
+
+        double popupX = 856;
+        double popupY = 200; // Ajusté pour afficher plusieurs options
+        double popupWidth = 200;
+        double popupHeight = 250;
+        double cardHeight = 40;
+        double startY = popupY + popupHeight / 2 - cardHeight;
+
+        // Ajouter les cartes avec des options prédéfinies
+        cards.add(new MerchantKingCard(popupX, startY, popupWidth - 20, cardHeight, "+10% ATK Tours (-200 pièces)", 1));
+        cards.add(new MerchantKingCard(popupX, startY - cardHeight, popupWidth - 20, cardHeight,
+                "-10% Vitesse ennemis (-300 pièces)", 2));
+        cards.add(new MerchantKingCard(popupX, startY - 2 * cardHeight, popupWidth - 20, cardHeight,
+                "+10% Vitesse ATK Tours (-200 pièces)", 3));
+        cards.add(new MerchantKingCard(popupX, startY - 3 * cardHeight, popupWidth - 20, cardHeight,
+                "Aucun bonus (+30 pièces)", 4));
+
+        return cards;
+    }
+
+    /**
+     * Retourne la liste des cartes MerchantKing.
+     *
+     * @return La liste des cartes MerchantKing.
+     */
+    public List<MerchantKingCard> getMerchantKingCards() {
+        return merchantKingCards;
+    }
+
+    /**
+     * Dessine les cartes MerchantKing.
+     */
+    public void drawMerchantKingCards() {
+
+        MerchantKing currentKing = Game.PeekMerchantKingQueue();
+        if (currentKing == null) {
+            return; // Aucun MerchantKing en attente
+        }
+        for (MerchantKingCard card : merchantKingCards) {
+            card.draw();
+        }
     }
 
     /**
@@ -292,16 +344,21 @@ public class UI {
             StdDraw.setPenColor(tower.getColor());
             StdDraw.filledCircle(x - width / 2 + height / 2, y, height / 3);
 
-            // Affiche les détails de la tour
-            Font font = new Font("Arial", Font.PLAIN, 10);
+            // Affiche les détails de la tour avec une taille de texte réduite
+            Font font = new Font("Arial", Font.PLAIN, 9); // Réduit la taille du texte de 25%
             StdDraw.setFont(font);
             StdDraw.setPenColor(StdDraw.BLACK);
 
+            // Arrondir les valeurs à un chiffre après la virgule
+            String atkSpeed = String.format("%.1f", tower.getATKSpeed());
+            String range = String.format("%.1f", tower.getRange());
+            String atk = String.format("%.1f", tower.getATK());
+
             StdDraw.textLeft(x - width / 2 + height, y,
                     tower.getClass().getSimpleName() + " | PV: " + tower.getPV() +
-                            " | ATK: " + tower.getATK() +
-                            " | SPD: " + tower.getATKSpeed() +
-                            " | PO: " + tower.getRange() +
+                            " | ATK: " + atk +
+                            " | SPD: " + atkSpeed +
+                            " | PO: " + range +
                             " | Cost: " + tower.getCout());
         }
 
@@ -382,13 +439,75 @@ public class UI {
                 StdDraw.filledCircle(x, y, 6);
             } else if (enemy instanceof MerchantKing) {
                 StdDraw.setPenColor(new Color(128, 128, 0)); // Vert olive pour MerchantKing
-                StdDraw.filledRectangle(x, y, 10, 10);
+                StdDraw.filledRectangle(x, y, 10, 10); // Rectangle pour MerchantKing
             } else if (enemy instanceof Termiernator) {
                 drawTermiernator((Termiernator) enemy); // Méthode spécifique pour Termiernator
             }
 
             // Dessiner une barre de vie au-dessus de l'ennemi
             drawHealthBar(enemy, x, y + 10);
+        }
+    }
+
+    private class MerchantKingCard {
+        private double x;
+        private double y;
+        private double width;
+        private double height;
+        private String description;
+        private int optionNumber;
+
+        /**
+         * Constructeur pour une carte `MerchantKing`.
+         *
+         * @param x            Coordonnée X de la carte.
+         * @param y            Coordonnée Y de la carte.
+         * @param width        Largeur de la carte.
+         * @param height       Hauteur de la carte.
+         * @param description  Texte de la carte.
+         * @param optionNumber Numéro de l’option.
+         */
+        public MerchantKingCard(double x, double y, double width, double height, String description, int optionNumber) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.description = description;
+            this.optionNumber = optionNumber;
+        }
+
+        /**
+         * Dessine la carte.
+         */
+        public void draw() {
+            StdDraw.setPenColor(StdDraw.WHITE);
+            StdDraw.filledRectangle(x, y, width / 2, height / 2);
+
+            StdDraw.setPenColor(StdDraw.BLACK);
+            StdDraw.rectangle(x, y, width / 2, height / 2);
+
+            StdDraw.textLeft(x - width / 2 + 10, y, optionNumber + ". " + description);
+        }
+
+        /**
+         * Vérifie si un point (x, y) est contenu dans la carte.
+         *
+         * @param mouseX Coordonnée X du clic.
+         * @param mouseY Coordonnée Y du clic.
+         * @return true si le clic est dans la carte, sinon false.
+         */
+        public boolean contains(double mouseX, double mouseY) {
+            return mouseX >= x - width / 2 && mouseX <= x + width / 2 &&
+                    mouseY >= y - height / 2 && mouseY <= y + height / 2;
+        }
+
+        /**
+         * Retourne le numéro de l’option.
+         *
+         * @return Le numéro de l’option.
+         */
+        public int getOptionNumber() {
+            return optionNumber;
         }
     }
 
@@ -516,6 +635,7 @@ public class UI {
         drawTowers(Game.getActiveTower());
         drawPlayerInfoZone(Game.getPlayer().getHP(), Game.getPlayer().getArgent());
         drawShopZone();
+        drawMerchantKingCards();
 
         StdDraw.show();
     }
@@ -525,6 +645,23 @@ public class UI {
     ///////////////////////////////////////////////////////////////////
 
     private static Tower selecTour = new Archer(null); // Tour sélectionnée par défaut
+
+    /**
+     * Gère les clics sur les cartes MerchantKing.
+     */
+    public void handleMerchantKingCardClick() {
+        if (StdDraw.isMousePressed()) {
+            double mouseX = StdDraw.mouseX();
+            double mouseY = StdDraw.mouseY();
+
+            for (MerchantKingCard card : merchantKingCards) {
+                if (card.contains(mouseX, mouseY)) {
+                    Game.applyMerchantKingBonus(card.getOptionNumber());
+                    return;
+                }
+            }
+        }
+    }
 
     /**
      * Vérifie si un clic est sur une case constructible et y place une tour.
@@ -577,6 +714,13 @@ public class UI {
             } catch (GameExceptions.TileOccupiedException e) {
                 System.out.println(e.getMessage());
             }
+        }
+
+        // Vérification de la file d'attente des MerchantKings
+        MerchantKing merchantKing = Game.PeekMerchantKingQueue();
+        if (merchantKing != null) {
+            // Afficher les options du MerchantKing
+            handleMerchantKingCardClick();
         }
 
         // Vérifier si le clic est sur une carte de tour
@@ -644,23 +788,6 @@ public class UI {
         double y = centerY + halfLength - row * cellSize - cellSize / 2;
 
         StdDraw.filledCircle(x, y, radius);
-    }
-
-    /**
-     * Écoute les clics de la souris et gère les actions correspondantes.
-     */
-    public void listenForClicks() {
-        while (true) {
-            if (StdDraw.isMousePressed()) {
-                double mouseX = StdDraw.mouseX();
-                double mouseY = StdDraw.mouseY();
-
-                handleClick(mouseX, mouseY);
-
-                StdDraw.show();
-                StdDraw.pause(100);
-            }
-        }
     }
 
 }

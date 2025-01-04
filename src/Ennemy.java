@@ -18,13 +18,12 @@ public abstract class Ennemy extends Warrior {
 
     // Mutable properties
     private double movingSpeed; // Movement speed of the enemy
-    
+    // Multiplicateurs statiques pour les bonus globaux
+    private static double baseSpeedMultiplier = 1.0; // Multiplicateur global pour la vitesse de déplacement
 
     private double x; // Current X coordinate (in pixels)
     private double y; // Current Y coordinate (in pixels)
     private int currentStep; // Current step in the path
-
-    
 
     /**
      * Constructor for the Ennemy class.
@@ -39,11 +38,13 @@ public abstract class Ennemy extends Warrior {
      * @param x           Initial X coordinate (in pixels).
      * @param y           Initial Y coordinate (in pixels).
      * @param map         Reference to the game map.
+     * @param reward      Reward for killing the enemy.
+     * @param modeAttaque Attack mode of the enemy.
      */
     public Ennemy(int PV, int ATK, double ATKSpeed, int range, Element element,
             double movingSpeed, double spawnTime, double x, double y, Map map, int reward, ModeAttaque modeAttaque) {
         super(PV, ATK, ATKSpeed, range, element, null, modeAttaque);
-        this.movingSpeed = movingSpeed;
+        this.movingSpeed = movingSpeed * baseSpeedMultiplier; // Applique le multiplicateur global
         this.spawnTime = spawnTime;
         this.x = x;
         this.y = y;
@@ -54,7 +55,23 @@ public abstract class Ennemy extends Warrior {
         this.reward = reward;
     }
 
-    
+    /**
+     * Définit un nouveau multiplicateur global pour la vitesse de déplacement.
+     *
+     * @param multiplier Le nouveau multiplicateur de vitesse.
+     */
+    public static void setBaseSpeedMultiplier(double multiplier) {
+        baseSpeedMultiplier = multiplier;
+    }
+
+    /**
+     * Retourne le multiplicateur global actuel pour la vitesse de déplacement.
+     *
+     * @return Le multiplicateur de vitesse.
+     */
+    public static double getBaseSpeedMultiplier() {
+        return baseSpeedMultiplier;
+    }
 
     /**
      * Met à jour la position de l'ennemi sur la carte en fonction de son
@@ -189,6 +206,7 @@ public abstract class Ennemy extends Warrior {
     public int getCurrentStep() {
         return currentStep;
     }
+
     public void setMovingSpeed(double movingSpeed) {
         this.movingSpeed = movingSpeed;
     }
@@ -196,13 +214,13 @@ public abstract class Ennemy extends Warrior {
     private boolean poisoned = false;
     private double poisonCooldown = 0;
     private double poisonTimer = 0; // Temps écoulé depuis la dernière application du poison
-    private int poisonDamage = 0; // Dégâts infligés par le poison
+    private double poisonDamage = 0; // Dégâts infligés par le poison
 
     public boolean isPoisoned() {
         return poisoned;
     }
 
-    public void applyPoison(int damage, double interval) {
+    public void applyPoison(double damage, double interval) {
         if (poisoned)
             return;
 
@@ -218,7 +236,8 @@ public abstract class Ennemy extends Warrior {
         poisonTimer += deltaTime;
 
         if (poisonTimer >= poisonCooldown) {
-            this.takeDamage(poisonDamage);; // Inflige les dégâts
+            this.takeDamage(poisonDamage);
+            ; // Inflige les dégâts
             poisonTimer -= poisonCooldown; // Réinitialise le timer
 
             if (this.getPV() <= 0) {

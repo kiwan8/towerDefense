@@ -8,6 +8,10 @@ import java.awt.Color;
  */
 public abstract class Tower extends Warrior {
 
+    // Multiplicateurs statiques pour les bonus globaux
+    private static double baseAttackMultiplier = 1.0; // Multiplicateur pour l'attaque
+    private static double baseAttackSpeedMultiplier = 1.0; // Multiplicateur pour la vitesse d'attaque
+
     /**
      * Le coût de la tour.
      */
@@ -36,9 +40,15 @@ public abstract class Tower extends Warrior {
      * @param cout Le coût de la tour.
      * @param color La couleur de la tour.
      */
-    public Tower(int PV, int ATK, double ATKSpeed, double Range, Element element, Tile position,
+    public Tower(int PV, double ATK, double ATKSpeed, double Range, Element element, Tile position,
             ModeAttaque modeAttaque, int cout, Color color) {
-        super(PV, ATK, ATKSpeed, Range, element, position, modeAttaque);
+        super(PV, 
+            (ATK * baseAttackMultiplier), // Applique le multiplicateur d'attaque
+              ATKSpeed * baseAttackSpeedMultiplier, // Applique le multiplicateur de vitesse d'attaque
+              Range, 
+              element, 
+              position, 
+              modeAttaque);
         this.cout = cout;
         this.color = color;
         this.argentParPv = (double) cout / (double) PV;
@@ -81,5 +91,43 @@ public abstract class Tower extends Warrior {
         if (cible instanceof Ennemy) {
             super.attaquer(cible);
         }
+    }
+
+    // Méthodes statiques pour gérer les multiplicateurs globaux
+
+    /**
+     * Définit un nouveau multiplicateur global pour l'attaque.
+     *
+     * @param multiplier Le nouveau multiplicateur d'attaque.
+     */
+    public static void setBaseAttackMultiplier(double multiplier) {
+        baseAttackMultiplier = multiplier;
+    }
+
+    /**
+     * Retourne le multiplicateur global actuel pour l'attaque.
+     *
+     * @return Le multiplicateur d'attaque.
+     */
+    public static double getBaseAttackMultiplier() {
+        return baseAttackMultiplier;
+    }
+
+    /**
+     * Définit un nouveau multiplicateur global pour la vitesse d'attaque.
+     *
+     * @param multiplier Le nouveau multiplicateur de vitesse d'attaque.
+     */
+    public static void setBaseAttackSpeedMultiplier(double multiplier) {
+        baseAttackSpeedMultiplier = multiplier;
+    }
+
+    /**
+     * Retourne le multiplicateur global actuel pour la vitesse d'attaque.
+     *
+     * @return Le multiplicateur de vitesse d'attaque.
+     */
+    public static double getBaseAttackSpeedMultiplier() {
+        return baseAttackSpeedMultiplier;
     }
 }

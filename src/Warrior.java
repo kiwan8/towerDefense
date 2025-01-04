@@ -8,7 +8,7 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
 
     private int PV; // Points de vie
     private final int maxPV;
-    private int ATK; // Points d'attaque
+    private double ATK; // Points d'attaque
     private double ATKSpeed; // Vitesse d'attaque
     private double Range; // Portée d'attaque
     private Element element; // Element de l'entité
@@ -34,7 +34,7 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
         this.y = y;
     }
 
-    public Warrior(int PV, int ATK, double ATKSpeed, double Range, Element element, Tile position,
+    public Warrior(int PV, double ATK, double ATKSpeed, double Range, Element element, Tile position,
             ModeAttaque modeAttaque) { // Constructeur
         this.PV = PV;
         this.maxPV = PV;
@@ -71,7 +71,7 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
         }
     }
 
-    public int getATK() { // Getter
+    public double getATK() { // Getter
         return ATK;
     }
 
@@ -115,8 +115,8 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
         this.modeAttaque = modeAttaque;
     }
 
-    public void takeDamage(int damage) {
-        this.PV -= damage;
+    public void takeDamage(double poisonDamage) {
+        this.PV -= poisonDamage;
         if (PV < 0) {
             PV = 0;
         }

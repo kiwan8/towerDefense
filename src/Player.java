@@ -46,6 +46,9 @@ public class Player implements Serializable {
      */
     public void setArgent(int argent) {
         this.argent = argent;
+        if (this.argent < 0) {
+            this.argent = 0;
+        }
     }
 
     /**
@@ -64,6 +67,9 @@ public class Player implements Serializable {
      */
     public void setHP(int HP) {
         this.HP = HP;
+        if (this.HP < 0) {
+            this.HP = 0;
+        }
     }
 
     /**
@@ -80,7 +86,7 @@ public class Player implements Serializable {
      *
      * @param damage Les dégâts à infliger.
      */
-    public void takeDamage(int damage) {
+    public void takeDamage(double damage) {
         this.HP -= damage;
         if (this.HP < 0) {
             this.HP = 0;
