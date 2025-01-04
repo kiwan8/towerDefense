@@ -4,17 +4,29 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.List;
+
+import src.Monsters.Bomb;
+import src.Monsters.Boss;
+import src.Monsters.Buffer;
+import src.Monsters.EarthBrute;
+import src.Monsters.FireGrognard;
+import src.Monsters.Healer;
+import src.Monsters.MerchantKing;
+import src.Monsters.Minion;
+import src.Monsters.Termiernator;
+import src.Monsters.WaterBrute;
+import src.Monsters.WindGrognard;
 import src.Towers.*;
 import src.libraries.StdDraw;
 
 /**
  * La classe UI gère l'interface utilisateur du jeu.
- * Elle dessine la carte, les informations du joueur, la boutique et les éléments de jeu.
+ * Elle dessine la carte, les informations du joueur, la boutique et les
+ * éléments de jeu.
  */
 public class UI {
 
     private Map map;
-
 
     /**
      * Constructeur de la classe UI.
@@ -52,7 +64,8 @@ public class UI {
     }
 
     /**
-     * Dessine la zone d'information du jeu, y compris les indicateurs de niveau et de vague.
+     * Dessine la zone d'information du jeu, y compris les indicateurs de niveau et
+     * de vague.
      */
     private static void drawGameInfoZone() {
         double centerX = 856;
@@ -121,8 +134,8 @@ public class UI {
     /**
      * Dessine un cœur à une position spécifiée.
      *
-     * @param centerX Coordonnée X du centre du cœur.
-     * @param centerY Coordonnée Y du centre du cœur.
+     * @param centerX    Coordonnée X du centre du cœur.
+     * @param centerY    Coordonnée Y du centre du cœur.
      * @param halfHeight Taille du cœur.
      */
     private static void drawHeart(double centerX, double centerY, double halfHeight) {
@@ -331,7 +344,7 @@ public class UI {
     }
 
     /**
-     * Dessine les ennemis sur la carte.
+     * Dessine les ennemis sur la carte avec leurs spécificités.
      *
      * @param enemies La liste des ennemis à dessiner.
      */
@@ -340,47 +353,63 @@ public class UI {
             double x = enemy.getX();
             double y = enemy.getY();
 
-            // Dessiner chaque ennemi en fonction de son type
-            switch (enemy.getClass().getSimpleName()) {
-                case "Minion":
-                    StdDraw.setPenColor(StdDraw.YELLOW);
-                    StdDraw.filledCircle(x, y, 5); // Cercle jaune pour Minion
-                    break;
-
-                case "WindGrognard":
-                    StdDraw.setPenColor(new Color(242, 211, 0)); // Jaune foncé pour Wind Grognard
-                    StdDraw.filledCircle(x, y, 7); // Cercle légèrement plus grand
-                    break;
-
-                case "FireGrognard":
-                    StdDraw.setPenColor(new Color(184, 22, 1)); // Rouge pour Fire Grognard
-                    StdDraw.filledCircle(x, y, 7);
-                    break;
-
-                case "WaterBrute":
-                    StdDraw.setPenColor(new Color(6, 0, 160)); // Bleu pour Water Brute
-                    StdDraw.filledRectangle(x, y, 8, 8); // Rectangle moyen
-                    break;
-
-                case "EarthBrute":
-                    StdDraw.setPenColor(new Color(0, 167, 15)); // Vert pour Earth Brute
-                    StdDraw.filledRectangle(x, y, 8, 8); // Rectangle moyen
-                    break;
-
-                case "Boss":
-                    StdDraw.setPenColor(StdDraw.RED);
-                    StdDraw.filledRectangle(x, y, 15, 15); // Rectangle plus grand pour Boss
-                    break;
-
-                default:
-                    // Couleur grise par défaut si le type d'ennemi n'est pas spécifié
-                    StdDraw.setPenColor(StdDraw.GRAY);
-                    StdDraw.filledCircle(x, y, 5);
-                    break;
+            if (enemy instanceof Minion) {
+                StdDraw.setPenColor(StdDraw.YELLOW);
+                StdDraw.filledCircle(x, y, 5); // Cercle jaune pour Minion
+            } else if (enemy instanceof WindGrognard) {
+                StdDraw.setPenColor(new Color(242, 211, 0)); // Jaune foncé pour Wind Grognard
+                StdDraw.filledCircle(x, y, 7);
+            } else if (enemy instanceof FireGrognard) {
+                StdDraw.setPenColor(new Color(184, 22, 1)); // Rouge pour Fire Grognard
+                StdDraw.filledCircle(x, y, 7);
+            } else if (enemy instanceof WaterBrute) {
+                StdDraw.setPenColor(new Color(6, 0, 160)); // Bleu pour Water Brute
+                StdDraw.filledRectangle(x, y, 8, 8);
+            } else if (enemy instanceof EarthBrute) {
+                StdDraw.setPenColor(new Color(0, 167, 15)); // Vert pour Earth Brute
+                StdDraw.filledRectangle(x, y, 8, 8);
+            } else if (enemy instanceof Boss) {
+                StdDraw.setPenColor(StdDraw.RED);
+                StdDraw.filledRectangle(x, y, 15, 15); // Rectangle plus grand pour Boss
+            } else if (enemy instanceof Bomb) {
+                StdDraw.setPenColor(new Color(128, 0, 0)); // Marron foncé pour Bomb
+                StdDraw.filledCircle(x, y, 6); // Bombe
+            } else if (enemy instanceof Healer) {
+                StdDraw.setPenColor(new Color(0, 255, 127)); // Vert clair pour Healer
+                StdDraw.filledCircle(x, y, 6);
+            } else if (enemy instanceof Buffer) {
+                StdDraw.setPenColor(new Color(255, 140, 0)); // Orange pour Buffer
+                StdDraw.filledCircle(x, y, 6);
+            } else if (enemy instanceof MerchantKing) {
+                StdDraw.setPenColor(new Color(128, 128, 0)); // Vert olive pour MerchantKing
+                StdDraw.filledRectangle(x, y, 10, 10);
+            } else if (enemy instanceof Termiernator) {
+                drawTermiernator((Termiernator) enemy); // Méthode spécifique pour Termiernator
             }
 
             // Dessiner une barre de vie au-dessus de l'ennemi
             drawHealthBar(enemy, x, y + 10);
+        }
+    }
+
+    /**
+     * Dessine un Termiernator avec son message s'il est actif.
+     *
+     * @param termiernator L'instance de Termiernator à dessiner.
+     */
+    private void drawTermiernator(Termiernator termiernator) {
+        double x = termiernator.getX();
+        double y = termiernator.getY();
+
+        StdDraw.setPenColor(Color.GRAY); // Couleur spécifique au Termiernator
+        StdDraw.filledCircle(x, y, 12); // Cercle plus grand pour Termiernator
+
+        // Vérifie si le message doit être affiché
+        if (termiernator.shouldDisplayMessage()) {
+            Font font = new Font("Arial", Font.BOLD, 10);
+            StdDraw.setFont(font);
+            StdDraw.setPenColor(Color.BLACK);
+            StdDraw.text(x, y + 20, "L'examen final se rapproche"); // Message au-dessus de l'ennemi
         }
     }
 
@@ -491,146 +520,147 @@ public class UI {
         StdDraw.show();
     }
 
-///////////////////////////////////////////////////////////////////
-//////////////////// Gestion des clics /////////////////////////////
-///////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
+    //////////////////// Gestion des clics /////////////////////////////
+    ///////////////////////////////////////////////////////////////////
 
-private static Tower selecTour = new Archer(null); // Tour sélectionnée par défaut
+    private static Tower selecTour = new Archer(null); // Tour sélectionnée par défaut
 
-/**
- * Vérifie si un clic est sur une case constructible et y place une tour.
- *
- * @param mouseX Coordonnée X du clic de la souris.
- * @param mouseY Coordonnée Y du clic de la souris.
- */
-public void handleClick(double mouseX, double mouseY) {
-    double centerX = 350;
-    double centerY = 350;
-    double halfLength = 350;
+    /**
+     * Vérifie si un clic est sur une case constructible et y place une tour.
+     *
+     * @param mouseX Coordonnée X du clic de la souris.
+     * @param mouseY Coordonnée Y du clic de la souris.
+     */
+    public void handleClick(double mouseX, double mouseY) {
+        double centerX = 350;
+        double centerY = 350;
+        double halfLength = 350;
 
-    double cellSize = Math.min(2 * halfLength / map.getRows(), 2 * halfLength / map.getCols());
+        double cellSize = Math.min(2 * halfLength / map.getRows(), 2 * halfLength / map.getCols());
 
-    // Détermination des indices de la case cliquée
-    int col = (int) ((mouseX - (centerX - halfLength)) / cellSize);
-    int row = (int) ((centerY + halfLength - mouseY) / cellSize);
+        // Détermination des indices de la case cliquée
+        int col = (int) ((mouseX - (centerX - halfLength)) / cellSize);
+        int row = (int) ((centerY + halfLength - mouseY) / cellSize);
 
-    if (row >= 0 && row < map.getRows() && col >= 0 && col < map.getCols()) {
-        Tile clickedTile = map.getTile(row, col);
+        if (row >= 0 && row < map.getRows() && col >= 0 && col < map.getCols()) {
+            Tile clickedTile = map.getTile(row, col);
 
-        try {
-            // Vérification des conditions
-            if (Game.getPlayer().getArgent() < selecTour.getCout()) {
-                throw new GameExceptions.NotEnoughMoneyException("Not enough money to build this tower!");
+            try {
+                // Vérification des conditions
+                if (Game.getPlayer().getArgent() < selecTour.getCout()) {
+                    throw new GameExceptions.NotEnoughMoneyException("Not enough money to build this tower!");
+                }
+                if (clickedTile.isOccupiedByTower()) {
+                    throw new GameExceptions.TileOccupiedException(
+                            "Map tile already built ! Cannot place new Tower !");
+                }
+                if (clickedTile.isConstructible()) {
+                    // Construire une tour
+                    Tower newTower = instanceTour(clickedTile);
+
+                    // Calculer et définir les coordonnées X et Y de la tour
+                    double x = centerX - halfLength + col * cellSize + cellSize / 2;
+                    double y = centerY + halfLength - row * cellSize - cellSize / 2;
+                    newTower.setX(x);
+                    newTower.setY(y);
+
+                    Game.getActiveTower().add(newTower);
+
+                    // Mise à jour du solde et état de la case
+                    Game.getPlayer().setArgent(Game.getPlayer().getArgent() - selecTour.getCout());
+                    clickedTile.setOccupiedByTower(true);
+                }
+
+            } catch (GameExceptions.NotEnoughMoneyException e) {
+                System.out.println(e.getMessage());
+            } catch (GameExceptions.TileOccupiedException e) {
+                System.out.println(e.getMessage());
             }
-            if (clickedTile.isOccupiedByTower()) {
-                throw new GameExceptions.TileOccupiedException(
-                        "Map tile already built ! Cannot place new Tower !");
-            }
-            if (clickedTile.isConstructible()) {
-                // Construire une tour
-                Tower newTower = instanceTour(clickedTile);
+        }
 
-                // Calculer et définir les coordonnées X et Y de la tour
-                double x = centerX - halfLength + col * cellSize + cellSize / 2;
-                double y = centerY + halfLength - row * cellSize - cellSize / 2;
-                newTower.setX(x);
-                newTower.setY(y);   
-                             
-                Game.getActiveTower().add(newTower);
-
-                // Mise à jour du solde et état de la case
-                Game.getPlayer().setArgent(Game.getPlayer().getArgent() - selecTour.getCout());
-                clickedTile.setOccupiedByTower(true);
-            }
-
-        } catch (GameExceptions.NotEnoughMoneyException e) {
-            System.out.println(e.getMessage());
-        } catch (GameExceptions.TileOccupiedException e) {
-            System.out.println(e.getMessage());
+        // Vérifier si le clic est sur une carte de tour
+        Tower tower = towerAtXY(mouseX, mouseY);
+        if (tower != null) {
+            selecTour = tower;
         }
     }
 
-    // Vérifier si le clic est sur une carte de tour
-    Tower tower = towerAtXY(mouseX, mouseY);
-    if (tower != null) {
-        selecTour = tower;
-    }
-}
+    /**
+     * Instancie une tour en fonction de la tour sélectionnée.
+     *
+     * @param clickedTile La case cliquée où placer la tour.
+     * @return La nouvelle instance de la tour.
+     */
+    private Tower instanceTour(Tile clickedTile) {
+        switch (selecTour.getClass().getSimpleName()) {
+            case "Archer":
+                return new Archer(clickedTile);
 
-/**
- * Instancie une tour en fonction de la tour sélectionnée.
- *
- * @param clickedTile La case cliquée où placer la tour.
- * @return La nouvelle instance de la tour.
- */
-private Tower instanceTour(Tile clickedTile) {
-    switch (selecTour.getClass().getSimpleName()) {
-        case "Archer":
-            return new Archer(clickedTile);
+            case "WindCaster":
+                return new WindCaster(clickedTile);
 
-        case "WindCaster":
-            return new WindCaster(clickedTile);
+            case "WaterCaster":
+                return new WaterCaster(clickedTile);
 
-        case "WaterCaster":
-            return new WaterCaster(clickedTile);
+            case "EarthCaster":
+                return new EarthCaster(clickedTile);
 
-        case "EarthCaster":
-            return new EarthCaster(clickedTile);
+            case "FireCaster":
+                return new FireCaster(clickedTile);
 
-        case "FireCaster":
-            return new FireCaster(clickedTile);
+            case "IceCaster":
+                return new IceCaster(clickedTile);
 
-        case "IceCaster":
-            return new IceCaster(clickedTile);
+            case "PoisonCaster":
+                return new PoisonCaster(clickedTile);
 
-        case "PoisonCaster":
-            return new PoisonCaster(clickedTile);
+            case "GoldDigger":
+                return new GoldDigger(clickedTile);
 
-        case "GoldDigger":
-            return new GoldDigger(clickedTile);
+            case "Railgun":
+                return new Railgun(clickedTile);
 
-        case "Railgun":
-            return new Railgun(clickedTile);
-
-        default:
-            return new Archer(clickedTile);
-    }
-}
-
-/**
- * Dessine un cercle sur une case spécifiée.
- *
- * @param row La ligne de la case.
- * @param col La colonne de la case.
- * @param radius Le rayon du cercle.
- */
-private void drawCircleOnTile(int row, int col, double radius) {
-    double centerX = 350;
-    double centerY = 350;
-    double halfLength = 350;
-
-    double cellSize = Math.min(2 * halfLength / map.getRows(), 2 * halfLength / map.getCols());
-
-    double x = centerX - halfLength + col * cellSize + cellSize / 2;
-    double y = centerY + halfLength - row * cellSize - cellSize / 2;
-
-    StdDraw.filledCircle(x, y, radius);
-}
-
-/**
- * Écoute les clics de la souris et gère les actions correspondantes.
- */
-public void listenForClicks() {
-    while (true) {
-        if (StdDraw.isMousePressed()) {
-            double mouseX = StdDraw.mouseX();
-            double mouseY = StdDraw.mouseY();
-
-            handleClick(mouseX, mouseY);
-
-            StdDraw.show();
-            StdDraw.pause(100);
+            default:
+                return new Archer(clickedTile);
         }
     }
-}
+
+    /**
+     * Dessine un cercle sur une case spécifiée.
+     *
+     * @param row    La ligne de la case.
+     * @param col    La colonne de la case.
+     * @param radius Le rayon du cercle.
+     */
+    private void drawCircleOnTile(int row, int col, double radius) {
+        double centerX = 350;
+        double centerY = 350;
+        double halfLength = 350;
+
+        double cellSize = Math.min(2 * halfLength / map.getRows(), 2 * halfLength / map.getCols());
+
+        double x = centerX - halfLength + col * cellSize + cellSize / 2;
+        double y = centerY + halfLength - row * cellSize - cellSize / 2;
+
+        StdDraw.filledCircle(x, y, radius);
+    }
+
+    /**
+     * Écoute les clics de la souris et gère les actions correspondantes.
+     */
+    public void listenForClicks() {
+        while (true) {
+            if (StdDraw.isMousePressed()) {
+                double mouseX = StdDraw.mouseX();
+                double mouseY = StdDraw.mouseY();
+
+                handleClick(mouseX, mouseY);
+
+                StdDraw.show();
+                StdDraw.pause(100);
+            }
+        }
+    }
+
 }

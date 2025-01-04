@@ -230,12 +230,6 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
      *
      * @param mode    Le mode d'attaque de l'entité qui détermine la logique de
      *                sélection des cibles.
-     *                - NEAREST : cible l'ennemi le plus proche en distance.
-     *                - MULTIPLE_TARGET : cible tous les ennemis à portée.
-     *                - STRONGEST_ATK : cible l'ennemi avec l'attaque la plus
-     *                élevée.
-     *                - DEFAULT : cible le premier ennemi ou aucune cible si la
-     *                liste est vide.
      * @param ennemis La liste des ennemis à portée.
      * @return Une liste contenant les cibles sélectionnées. Si aucune cible n'est
      *         trouvée, retourne une liste vide.

@@ -310,13 +310,12 @@ public class Game implements Serializable {
             // Vérifie si l'ennemi est un Healer et applique l'effet de soin
             if (enemy instanceof Healer) {
                 Healer healer = (Healer) enemy;
-                healer.update(deltaTimeSec); // Appelle la méthode update pour le soin
+                healer.updateHealerTime(deltaTimeSec); // Appelle la méthode update pour le soin
             }
 
-            if (enemy instanceof Termiernator) {
-                Termiernator termi = (Termiernator) enemy;
-                termi.update(deltaTimeSec); // Appelle la méthode update pour le message
-            }
+             if (enemy instanceof Termiernator) {
+            ((Termiernator) enemy).updateMessageState(deltaTimeSec); // Met à jour l'état du message
+        }
 
             if (enemy.hasReachedEnd()) {
                 joueur.takeDamage(enemy.getATK());
@@ -439,7 +438,7 @@ public class Game implements Serializable {
         // Si on doit changer de niveau
         if (cptWave == nbVagueDuLevel - 1) {
             if (cptLevel == levels.size() - 1) { // Si on a fini tous les niveaux
-                win = true;
+                if (joueur.getHP() > 0) win = true;
                 return;
             }
             // Passe au niveau suivant

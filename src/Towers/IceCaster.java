@@ -38,11 +38,10 @@ public class IceCaster extends Tower {
         // Réduction de la vitesse d'attaque et de déplacement de 30 % pour tous les ennemis proches
         for (Warrior ennemi : ennemisProches) {
             super.attaquer(ennemi); // Inflige les mêmes dégâts qu'à la cible principale
-            if (ennemi instanceof Ennemy) {
                 Ennemy enemy = (Ennemy) ennemi;
                 enemy.setMovingSpeed(enemy.getMovingSpeed() * 0.7); // Réduit la vitesse de déplacement
-                enemy.setATKSpeed(enemy.getATKSpeed() * 0.7); // Réduit la vitesse d'attaque
-            }
+                enemy.setATKSpeed(enemy.getATKSpeed() * 1.3); // Réduit la vitesse d'attaque
+                System.out.println("ICE CASTER a FAIT EFFERT !");
         }
     }
 }

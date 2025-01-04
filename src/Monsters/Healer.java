@@ -25,7 +25,7 @@ public class Healer extends Ennemy {
      *
      * @param deltaTime Temps écoulé depuis la dernière mise à jour (en secondes).
      */
-    public void update(double deltaTime) {
+    public void updateHealerTime(double deltaTime) {
         healCooldown -= deltaTime;
 
         if (healCooldown <= 0) {
