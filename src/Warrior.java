@@ -75,7 +75,7 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
         return ATK;
     }
 
-    public void setATK(int ATK) { // Setter
+    public void setATK(double ATK) { // Setter
         this.ATK = ATK;
     }
 

@@ -1,6 +1,6 @@
 ## Utilisation des IA génératives
 
-Dans ce projet, nous avons utilisé **ChatGPT** et **Copilot** pour nous accompagner dans le développement et garantir une meilleure structuration et efficacité. Voici les différentes étapes où les IA génératives ont été intégrées :
+Dans ce projet, nous avons utilisé **ChatGPT** et **Copilot**. Voici les différentes étapes où les IA génératives ont été utilisées :
 
 ---
 
@@ -51,7 +51,5 @@ Nous avons utilisé les IA pour générer des **docstrings** dans toutes les cla
 
 ### Génération des constructeurs
 
-Pour les classes concrètes d’ennemis et de tours, nous avons utilisé les IA pour :
-- **Générer la majorité des constructeurs** : Basés sur les tableaux d’attributs définis dans la documentation du projet.
-- **Automatiser les paramètres** : Associer automatiquement les attributs aux bonnes propriétés des classes.
+Pour les classes concrètes d’ennemis et de tours, nous avons utilisé les IA pour générer la majorité des constructeurs Basés sur les tableaux d’attributs définis dans la documentation du projet.
 

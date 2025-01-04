@@ -30,17 +30,10 @@ import src.libraries.StdDraw;
  */
 public class Game implements Serializable {
     private static final long serialVersionUID = 1L;
-    private String originalGameFileName;
-
     /**
      * Le joueur du jeu.
      */
     private static Player joueur;
-
-    /**
-     * L'interface utilisateur du jeu.
-     */
-    private UI ui;
 
     /**
      * Le niveau actuel du jeu.
@@ -81,6 +74,16 @@ public class Game implements Serializable {
      * Le temps écoulé depuis le début du jeu.
      */
     private static double elapsedTime;
+
+    /**
+     * File d'attente des MerchantKings en attente.
+     */
+    private static Queue<MerchantKing> merchantKingQueue = new LinkedList<>();
+
+    /**
+     * Nombre de bonus cumulés via Merchant King.
+     */
+    private static int merchantKingBonuses = 0;
 
     /**
      * Retourne le niveau actuel du jeu.
@@ -136,20 +139,83 @@ public class Game implements Serializable {
         return activeTower;
     }
 
-    private static Queue<MerchantKing> merchantKingQueue = new LinkedList<>(); // File d'attente des MerchantKings
-
     public static MerchantKing PeekMerchantKingQueue() {
         return Game.merchantKingQueue.peek();
     }
 
     /**
-     * Ajoute un MerchantKing à la file d'attente pour interaction.
+     * Retourne le nombre de bonus cumulés via Merchant King.
      *
-     * @param merchantKing Le MerchantKing ayant atteint la base.
+     * @return Le nombre de bonus.
      */
-    private void enqueueMerchantKing(MerchantKing merchantKing) {
-        merchantKingQueue.add(merchantKing);
+    public static int getMerchantKingBonuses() {
+        return merchantKingBonuses;
     }
+
+    /**
+     * Applique un bonus en fonction de celui choisi par le joueur 
+     *
+     * @param bonusType Le type de bonus à appliquer (1: ATK Tours, 2: Vitesse
+     *                  ennemis, 3: Vitesse ATK Tours, 4: Pièces).
+     */
+    public static void applyMerchantKingBonus(int bonusType) {
+        if (merchantKingBonuses >= 5) {
+            merchantKingQueue.poll();
+            return;
+        }
+
+        switch (bonusType) {
+            case 1:
+                // +10% de puissance d'attaque sur toutes les tours
+                Tower.setBaseAttackMultiplier(Tower.getBaseAttackMultiplier() * 1.1);
+                Game.getActiveTower().forEach(t -> t.setATK((t.getATK() * 1.1)));
+                break;
+            case 2:
+                // -10% de vitesse de déplacement des ennemis
+                Ennemy.setBaseSpeedMultiplier(Ennemy.getBaseSpeedMultiplier() * 0.9);
+                Game.getActiveEnemies().forEach(e -> e.setMovingSpeed(e.getMovingSpeed() * 0.9));
+                break;
+            case 3:
+                // +10% de vitesse d'attaque des tours
+                Tower.setBaseAttackSpeedMultiplier(Tower.getBaseAttackSpeedMultiplier() * 0.9);
+                Game.getActiveTower().forEach(t -> t.setATKSpeed((t.getATKSpeed() * 0.9)));
+                break;
+            case 4:
+                // Aucun bonus, +30 pièces
+                joueur.setArgent(joueur.getArgent() + 30);
+                break;
+        }
+
+        merchantKingQueue.poll();
+        merchantKingBonuses++;
+    }
+
+    /**
+     * Retourne le joueur du jeu.
+     *
+     * @return Le joueur.
+     */
+    public static Player getPlayer() {
+        return joueur;
+    }
+
+    private String originalGameFileName;
+
+    /**
+     * L'interface utilisateur du jeu.
+     */
+    private UI ui;
+
+    /**
+     * Le temps de début du jeu.
+     */
+    Long startTime = System.currentTimeMillis();
+    /**
+     * Indique si la souris était déjà pressée lors de la dernière frame.
+     */
+    private boolean mousePressedLastFrame = false;
+
+    private boolean win = false;
 
     /**
      * Retourne et retire le premier MerchantKing de la file d'attente.
@@ -168,17 +234,6 @@ public class Game implements Serializable {
     public boolean hasPendingMerchantKings() {
         return !merchantKingQueue.isEmpty();
     }
-
-    /**
-     * Le temps de début du jeu.
-     */
-    Long startTime = System.currentTimeMillis();
-
-    /**
-     * Indique si la souris était déjà pressée lors de la dernière frame.
-     */
-    private boolean mousePressedLastFrame = false;
-    private boolean win = false;
 
     public void launch() throws GameException, IOException {
         init();
@@ -205,6 +260,15 @@ public class Game implements Serializable {
         } else {
             youLose();
         }
+    }
+
+    /**
+     * Ajoute un MerchantKing à la file d'attente pour interaction.
+     *
+     * @param merchantKing Le MerchantKing ayant atteint la base.
+     */
+    private void enqueueMerchantKing(MerchantKing merchantKing) {
+        merchantKingQueue.add(merchantKing);
     }
 
     /**
@@ -238,55 +302,6 @@ public class Game implements Serializable {
             mousePressedLastFrame = false; // Réinitialise l'état lorsque la souris est relâchée
         }
     }
-
-    private static int merchantKingBonuses = 0; // Nombre de bonus cumulés via Merchant King
-
-    /**
-     * Retourne le nombre de bonus cumulés via Merchant King.
-     *
-     * @return Le nombre de bonus.
-     */
-    public static int getMerchantKingBonuses() {
-        return merchantKingBonuses;
-    }
-
-    public static void applyMerchantKingBonus(int bonusType) {
-        if (merchantKingBonuses >= 5) {
-            System.out.println("Le joueur a déjà cumulé le maximum de 5 bonus.");
-            merchantKingQueue.poll();
-            return;
-        }
-    
-        switch (bonusType) {
-            case 1:
-                // +10% de puissance d'attaque sur toutes les tours
-                Tower.setBaseAttackMultiplier(Tower.getBaseAttackMultiplier() * 1.1);
-                Game.getActiveTower().forEach(t -> t.setATK((int) (t.getATK() * 1.1)));
-                System.out.println("+10% puissance d'attaque appliqué !");
-                break;
-            case 2:
-                // -10% de vitesse de déplacement des ennemis
-                Ennemy.setBaseSpeedMultiplier(Ennemy.getBaseSpeedMultiplier() * 0.9);
-                Game.getActiveEnemies().forEach(e -> e.setMovingSpeed(e.getMovingSpeed() * 0.9));
-                System.out.println("-10% vitesse des ennemis appliqué !");
-                break;
-            case 3:
-                // +10% de vitesse d'attaque des tours
-                Tower.setBaseAttackSpeedMultiplier(Tower.getBaseAttackSpeedMultiplier() * 0.9);
-                Game.getActiveTower().forEach(t -> t.setATKSpeed((int) (t.getATKSpeed() * 0.9)));
-                System.out.println("+10% vitesse d'attaque appliqué !");
-                break;
-            case 4:
-                // Aucun bonus, +30 pièces
-                joueur.setArgent(joueur.getArgent() + 30);
-                System.out.println("+30 pièces ajoutées !");
-                break;
-        }
-    
-        merchantKingQueue.poll();
-        merchantKingBonuses++;
-    }
-    
 
     /**
      * Vérifie si le jeu est encore en cours d'exécution.
@@ -397,21 +412,19 @@ public class Game implements Serializable {
                 healer.updateHealerTime(deltaTimeSec); // Appelle la méthode update pour le soin
             }
 
-
-
             if (enemy instanceof Termiernator) {
                 ((Termiernator) enemy).updateMessageState(deltaTimeSec); // Met à jour l'état du message
             }
 
             if (enemy instanceof MerchantKing) {
                 MerchantKing king = (MerchantKing) enemy;
-            
+
                 if (king.hasReachedEnd()) {
                     enqueueMerchantKing(king); // Ajoute à la file d'attente
                     iterator.remove(); // Retire l'ennemi de la liste active
                     continue;
                 }
-            
+
                 if (enemy.getPV() <= 0) {
                     king.onDeath(joueur); // Applique les pénalités
                     iterator.remove();
@@ -652,14 +665,5 @@ public class Game implements Serializable {
             System.err.println("Failed to load game state.");
             return false;
         }
-    }
-
-    /**
-     * Retourne le joueur du jeu.
-     *
-     * @return Le joueur.
-     */
-    public static Player getPlayer() {
-        return joueur;
     }
 }

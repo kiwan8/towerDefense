@@ -12,6 +12,14 @@ public class Termiernator extends Ennemy {
     private boolean messageDisplayed = false; // Indique si le message est actuellement affiché
     private double messageCD; // Cooldown pour l'affichage du message
 
+    /**
+     * Constructeur pour Minion.
+     *
+     * @param spawnTime Temps d'apparition.
+     * @param x         Coordonnée X initiale (en pixels).
+     * @param y         Coordonnée Y initiale (en pixels).
+     * @param map       Référence à la carte associée.
+     */
     public Termiernator(double spawnTime, double x, double y, Map map) {
         super(999, 999, 15.0, 0, Element.Neutre, 0.5, spawnTime, x, y, map, 100, ModeAttaque.NOBODY);
         this.messageCD = MESSAGE_INTERVAL;

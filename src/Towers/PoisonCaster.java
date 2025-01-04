@@ -34,7 +34,7 @@ public class PoisonCaster extends Tower {
             case NEAREST_ADVANCED_UNPOISONED:
                 // Trouve l'ennemi le plus avancé dans son chemin qui n'est pas empoisonné
                 Ennemy cible = ennemis.stream()
-                        .filter(e -> e instanceof Ennemy && !((Ennemy) e).isPoisoned()) // Filtre les ennemis non empoisonnés
+                        .filter(e -> !((Ennemy) e).isPoisoned()) // Filtre les ennemis non empoisonnés
                         .map(e -> (Ennemy) e)
                         .filter(e -> this.calculateDistance(e) <= this.getRange()) // Ennemis dans la portée
                         .max(Comparator.comparingInt(Ennemy::getCurrentStep)) // Le plus avancé dans son chemin
