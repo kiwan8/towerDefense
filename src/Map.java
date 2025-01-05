@@ -311,7 +311,6 @@ public class Map {
         int baseRow = base.getRow();
         int baseCol = base.getCol();
 
-        // On lance la DFS : si dfs(...) renvoie true, un chemin a été trouvé
         boolean found = dfs(spawnRow, spawnCol, -1, -1, baseRow, baseCol);
         if (!found) {
             // Si DFS n'a rien trouvé, c'est qu'il n'y a pas de chemin
@@ -323,11 +322,12 @@ public class Map {
                             "The game will now terminate.");
         }
 
-        // 'path' contient le chemin dans l'ordre spawn -> base
+        //chemin complet
         return path;
     }
 
     /**
+     * Debug avec l'IA  
      * DFS récursive pour chercher un chemin unique de (r,c) vers (baseR, baseC).
      *
      * @param r       ligne courante.
@@ -404,7 +404,7 @@ public class Map {
         // On marque (r,c) comme NOIR (exploration terminée)
         color[r][c] = 2;
 
-        // Et on retourne false => ce chemin ne mène pas à la base
+        // ce chemin ne mène pas à la base
         return false;
     }
 
@@ -435,16 +435,4 @@ public class Map {
     public List<double[]> getPixelPath() {
         return this.pixelPath;
     }
-
-    /**
-     * Méthode récursive de recherche en profondeur (DFS) pour trouver un chemin unique.
-     * 
-     * @param spawnRow ligne de spawn
-     * @param spawnCol colonne de spawn
-     * @param baseRow  ligne de la base
-     * @param baseCol  colonne de la base
-     * @return true si un chemin est trouvé, false sinon
-     * @throws InvalidMapPathException si un cycle ou un embranchement est détecté
-     */
-    // Cette méthode est déjà documentée dans findPath, donc elle est omise ici pour éviter la redondance
 }

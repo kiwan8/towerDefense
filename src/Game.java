@@ -608,6 +608,7 @@ public class Game implements Serializable {
 
     /**
      * Sauvegarde l'état actuel du jeu dans un fichier.
+     * Générer en partie avec l'IA
      */
     private void saveGameState() {
         try {
@@ -638,6 +639,7 @@ public class Game implements Serializable {
      * Charge l'état du jeu à partir d'un fichier de sauvegarde.
      *
      * @return true si l'état du jeu a été chargé avec succès, false sinon.
+     * Générer en partie avec l'IA
      */
     private boolean loadGameState() {
         // Chemin du fichier de sauvegarde basé sur le fichier de jeu actuel

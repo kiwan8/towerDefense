@@ -133,14 +133,15 @@ public abstract class Ennemy extends Warrior {
     }
 
     /**
+     * Générer en partie avec l'IA
      * Met à jour la position de l'ennemi sur la carte en fonction de son déplacement.
-     * <p>
+     * 
      * Cette méthode gère le déplacement d'un ennemi sur son chemin défini (pixelPath)
      * et met à jour ses coordonnées (x, y) ainsi que sa case actuelle (Tile)
      * lorsque l'ennemi traverse une frontière de case.
      * Elle prend en compte la vitesse de déplacement de l'ennemi et le temps écoulé
      * depuis la dernière mise à jour pour calculer la progression.
-     * </p>
+     * 
      *
      * @param deltaTimeSec Le temps écoulé en secondes depuis la dernière mise à jour.
      */

@@ -379,6 +379,7 @@ public abstract class Warrior {
     }
 
     /**
+     * Cette méthode nous a été suggéré par l'IA, ainsi que l'utilisation des streams.
      * Sélectionne des cibles pour une entité à attaquer en fonction du mode d'attaque.
      *
      * @param mode    Le mode d'attaque de l'entité qui détermine la logique de sélection des cibles.

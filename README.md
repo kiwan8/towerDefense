@@ -31,9 +31,6 @@ Le projet repose sur une **séparation claire entre le backend et le frontend** 
      - `NON_CONSTRUCTIBLE` : Zone inaccessible pour les constructions.
      - `UNKNOWN` : Case inconnue utilisée pour les erreurs.
 
-3. **Chargement des cartes :**
-   - Les cartes sont chargées à partir de fichiers `.mtp`, qui définissent la structure de la matrice (cases et chemins). La validation est effectuée pour vérifier les erreurs (ex. cases mal formées, chemins invalides).
-
 ---
 
 ### Gestion des niveaux et vagues
@@ -101,7 +98,7 @@ Pour une question **d'équilibrage**, nous avons ajouté une mécanique où, lor
 1. **Compiler le projet :**
    - Compilez tous les fichiers Java :
      ```bash
-     javac -d bin src/**/*.java
+     javac -d bin src/*.java src/Towers/*.java src/Monsters/*.java src/libraries/*.java
      ```
 
 2. **Exécuter le projet :**
@@ -109,7 +106,6 @@ Pour une question **d'équilibrage**, nous avons ajouté une mécanique où, lor
      ```bash
      java -cp bin src.App
      ```
-
 
 
 ## Description de l'interface

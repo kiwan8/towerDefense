@@ -357,6 +357,7 @@ public class UI {
             StdDraw.setPenColor(StdDraw.BLACK);
 
             // Arrondir les valeurs à un chiffre après la virgule
+            // Générer par l'IA
             String atkSpeed = String.format("%.1f", tower.getATKSpeed());
             String range = String.format("%.1f", tower.getRange());
             String atk = String.format("%.1f", tower.getATK());
