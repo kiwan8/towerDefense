@@ -9,30 +9,93 @@ import java.util.List;
  */
 public abstract class Warrior {
 
+    /**
+     * Points de vie de l'entité.
+     */
     private int PV; // Points de vie
+
+    /**
+     * Points de vie maximum de l'entité.
+     */
     private final int maxPV;
+
+    /**
+     * Points d'attaque de l'entité.
+     */
     private double ATK; // Points d'attaque
+
+    /**
+     * Vitesse d'attaque de l'entité.
+     */
     private double ATKSpeed; // Vitesse d'attaque
+
+    /**
+     * Portée d'attaque de l'entité.
+     */
     private double Range; // Portée d'attaque
+
+    /**
+     * Élément de l'entité.
+     */
     private Element element; // Element de l'entité
+
+    /**
+     * Position actuelle de l'entité sur la carte.
+     */
     private Tile position; // Position de l'entité
+
+    /**
+     * Mode d'attaque de l'entité.
+     */
     private ModeAttaque modeAttaque; // Mode d'attaque
+
+    /**
+     * Temps restant avant la prochaine attaque.
+     */
     private double attackCooldown;
+
+    /**
+     * Coordonnée X en pixels de l'entité.
+     */
     private double x;
+
+    /**
+     * Coordonnée Y en pixels de l'entité.
+     */
     private double y;
 
+    /**
+     * Retourne la coordonnée X en pixels de l'entité.
+     *
+     * @return La coordonnée X.
+     */
     public double getX() {
         return x;
     }
 
+    /**
+     * Définit la coordonnée X en pixels de l'entité.
+     *
+     * @param x La nouvelle coordonnée X.
+     */
     public void setX(double x) {
         this.x = x;
     }
 
+    /**
+     * Retourne la coordonnée Y en pixels de l'entité.
+     *
+     * @return La coordonnée Y.
+     */
     public double getY() {
         return y;
     }
 
+    /**
+     * Définit la coordonnée Y en pixels de l'entité.
+     *
+     * @param y La nouvelle coordonnée Y.
+     */
     public void setY(double y) {
         this.y = y;
     }
@@ -49,7 +112,7 @@ public abstract class Warrior {
      * @param modeAttaque Mode d'attaque de l'entité.
      */
     public Warrior(int PV, double ATK, double ATKSpeed, double Range, Element element, Tile position,
-            ModeAttaque modeAttaque) {
+                  ModeAttaque modeAttaque) {
         this.PV = PV;
         this.maxPV = PV;
         this.ATK = ATK;
@@ -60,10 +123,20 @@ public abstract class Warrior {
         this.modeAttaque = modeAttaque;
     }
 
+    /**
+     * Retourne les points de vie actuels de l'entité.
+     *
+     * @return Les points de vie.
+     */
     public int getPV() {
         return PV;
     }
 
+    /**
+     * Retourne les points de vie maximum de l'entité.
+     *
+     * @return Les points de vie maximum.
+     */
     public int getMaxPV() {
         return maxPV;
     }
@@ -85,46 +158,101 @@ public abstract class Warrior {
         }
     }
 
+    /**
+     * Retourne les points d'attaque de l'entité.
+     *
+     * @return Les points d'attaque.
+     */
     public double getATK() {
         return ATK;
     }
 
+    /**
+     * Définit les points d'attaque de l'entité.
+     *
+     * @param ATK Les nouveaux points d'attaque.
+     */
     public void setATK(double ATK) {
         this.ATK = ATK;
     }
 
+    /**
+     * Retourne la vitesse d'attaque de l'entité.
+     *
+     * @return La vitesse d'attaque.
+     */
     public double getATKSpeed() {
         return ATKSpeed;
     }
 
+    /**
+     * Définit la vitesse d'attaque de l'entité.
+     *
+     * @param ATKSpeed La nouvelle vitesse d'attaque.
+     */
     public void setATKSpeed(double ATKSpeed) {
         this.ATKSpeed = ATKSpeed;
     }
 
+    /**
+     * Retourne la portée d'attaque de l'entité.
+     *
+     * @return La portée d'attaque.
+     */
     public double getRange() {
         return Range;
     }
 
+    /**
+     * Retourne l'élément de l'entité.
+     *
+     * @return L'élément.
+     */
     public Element getElement() {
         return element;
     }
 
+    /**
+     * Définit l'élément de l'entité.
+     *
+     * @param element Le nouvel élément.
+     */
     public void setElement(Element element) {
         this.element = element;
     }
 
+    /**
+     * Retourne la position de l'entité sur la carte.
+     *
+     * @return La position.
+     */
     public Tile getPosition() {
         return position;
     }
 
+    /**
+     * Définit la position de l'entité sur la carte.
+     *
+     * @param position La nouvelle position.
+     */
     public void setPosition(Tile position) {
         this.position = position;
     }
 
+    /**
+     * Retourne le mode d'attaque de l'entité.
+     *
+     * @return Le mode d'attaque.
+     */
     public ModeAttaque getModeAttaque() {
         return modeAttaque;
     }
 
+    /**
+     * Définit le mode d'attaque de l'entité.
+     *
+     * @param modeAttaque Le nouveau mode d'attaque.
+     */
     public void setModeAttaque(ModeAttaque modeAttaque) {
         this.modeAttaque = modeAttaque;
     }
@@ -226,6 +354,15 @@ public abstract class Warrior {
         return Math.sqrt(Math.pow(this.getX() - target.getX(), 2) + Math.pow(this.getY() - target.getY(), 2));
     }
 
+    /**
+     * Calcule la distance euclidienne entre deux points en coordonnées pixels.
+     *
+     * @param x1 Coordonnée X du premier point.
+     * @param y1 Coordonnée Y du premier point.
+     * @param x2 Coordonnée X du deuxième point.
+     * @param y2 Coordonnée Y du deuxième point.
+     * @return La distance euclidienne entre les deux points.
+     */
     public static double calculatePixelDistanceX(double x1, double y1, double x2, double y2) {
         return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
     }
@@ -283,10 +420,10 @@ public abstract class Warrior {
     }
 
     /**
-     * Vérifie si la tour peut attaquer.
+     * Vérifie si l'entité peut attaquer en fonction du temps écoulé.
      *
      * @param deltaTime Le temps écoulé depuis la dernière mise à jour.
-     * @return True si la tour peut attaquer, sinon False.
+     * @return True si l'entité peut attaquer, sinon False.
      */
     public boolean canAttack(double deltaTime) {
         attackCooldown -= deltaTime;

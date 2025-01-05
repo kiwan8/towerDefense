@@ -1,10 +1,31 @@
 package src;
 
+/**
+ * Classe représentant une case (tile) sur la carte du jeu.
+ */
 public class Tile {
+
+    /**
+     * Ligne de la case sur la carte.
+     */
     private final int row;           
+
+    /**
+     * Colonne de la case sur la carte.
+     */
     private final int col;          
-    private final TileType type;     // Type de la case (défini par l'enum)
-    private boolean occupiedByTower; // Si la case est occupée par une TOUR uniquement (par défaut : false)
+
+    /**
+     * Type de la case, défini par l'énumération {@link TileType}.
+     */
+    private final TileType type;     
+
+    /**
+     * Indique si la case est occupée par une tour.
+
+     * Par défaut, cette valeur est {@code false}.
+     */
+    private boolean occupiedByTower; 
 
     /**
      * Constructeur de la classe Tile.

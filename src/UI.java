@@ -26,8 +26,15 @@ import src.libraries.StdDraw;
  */
 public class UI {
 
+    /**
+     * Carte de jeu du level en cours
+     */
     private Map map;
-    private List<MerchantKingCard> merchantKingCards; // Liste des cartes MerchantKing
+
+    /**
+     * Liste des cartes MerchantKing
+     */
+    private List<MerchantKingCard> merchantKingCards;
 
     /**
      * Constructeur de la classe UI.

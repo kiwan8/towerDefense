@@ -7,7 +7,7 @@ import java.io.Serializable;
  * Elle gère l'argent et les points de vie du joueur.
  */
 public class Player implements Serializable {
-    private static final long serialVersionUID = 1L; 
+    private static final long serialVersionUID = 1L;
 
     /**
      * L'argent du joueur.
@@ -23,7 +23,7 @@ public class Player implements Serializable {
      * Constructeur de la classe Player.
      *
      * @param argent L'argent initial du joueur.
-     * @param HP Les points de vie initiaux du joueur.
+     * @param HP     Les points de vie initiaux du joueur.
      */
     public Player(int argent, int HP) {
         this.argent = argent;

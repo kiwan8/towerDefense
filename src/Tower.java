@@ -8,9 +8,18 @@ import java.awt.Color;
  */
 public abstract class Tower extends Warrior {
 
-    // Multiplicateurs statiques pour les bonus globaux
+     /**
+     * Multiplicateur de base pour les bonus d'attaque globaux.
+     * Ce multiplicateur affecte la puissance d'attaque de toutes les tours.
+     */
     private static double baseAttackMultiplier = 1.0; // Multiplicateur pour l'attaque
+
+    /**
+     * Multiplicateur de base pour les bonus de vitesse d'attaque globaux.
+     * Ce multiplicateur affecte la vitesse d'attaque de toutes les tours.
+     */
     private static double baseAttackSpeedMultiplier = 1.0; // Multiplicateur pour la vitesse d'attaque
+
 
     /**
      * Le coût de la tour.

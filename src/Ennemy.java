@@ -10,20 +10,79 @@ import java.util.List;
 public abstract class Ennemy extends Warrior {
 
     // Propriétés immuables
+
+    /**
+     * Temps d'apparition de l'ennemi dans la vague.
+     */
     private final double spawnTime; // Temps d'apparition dans la vague
+
+    /**
+     * Chemin de l'ennemi en coordonnées de tuiles.
+     */
     private final List<int[]> path; // Chemin en coordonnées de tuiles
+
+    /**
+     * Chemin de l'ennemi en coordonnées de pixels pour l'affichage graphique.
+     */
     private final List<double[]> pixelPath; // Chemin en coordonnées de pixels
+
+    /**
+     * Référence à la carte du jeu.
+     */
     private final Map map; // Référence à la carte du jeu
+
+    /**
+     * Récompense accordée au joueur pour avoir tué cet ennemi.
+     */
     private final int reward; // Récompense pour avoir tué l'ennemi
 
     // Propriétés mutables
+
+    /**
+     * Vitesse de déplacement de l'ennemi.
+     */
     private double movingSpeed; // Vitesse de déplacement de l'ennemi
-    // Multiplicateurs statiques pour les bonus globaux
+
+    /**
+     * Multiplicateur global pour la vitesse de déplacement des ennemis.
+     * Ce multiplicateur affecte la vitesse de déplacement de toutes les instances d'Ennemy.
+     */
     private static double baseSpeedMultiplier = 1.0; // Multiplicateur global pour la vitesse de déplacement
 
+    /**
+     * Coordonnée X actuelle de l'ennemi en pixels.
+     */
     private double x; // Coordonnée X actuelle (en pixels)
+
+    /**
+     * Coordonnée Y actuelle de l'ennemi en pixels.
+     */
     private double y; // Coordonnée Y actuelle (en pixels)
+
+    /**
+     * Étape actuelle dans le chemin de l'ennemi.
+     */
     private int currentStep; // Étape actuelle dans le chemin
+
+    /**
+     * Indique si l'ennemi est actuellement empoisonné.
+     */
+    private boolean poisoned = false;
+
+    /**
+     * Temps restant avant la prochaine application des dégâts de poison.
+     */
+    private double poisonCooldown = 0;
+
+    /**
+     * Temps écoulé depuis la dernière application des dégâts de poison.
+     */
+    private double poisonTimer = 0; // Temps écoulé depuis la dernière application du poison
+
+    /**
+     * Dégâts infligés par le poison à chaque intervalle.
+     */
+    private double poisonDamage = 0; // Dégâts infligés par le poison
 
     /**
      * Constructeur de la classe Ennemy.
@@ -42,7 +101,7 @@ public abstract class Ennemy extends Warrior {
      * @param modeAttaque Mode d'attaque de l'ennemi.
      */
     public Ennemy(int PV, int ATK, double ATKSpeed, int range, Element element,
-            double movingSpeed, double spawnTime, double x, double y, Map map, int reward, ModeAttaque modeAttaque) {
+                 double movingSpeed, double spawnTime, double x, double y, Map map, int reward, ModeAttaque modeAttaque) {
         super(PV, ATK, ATKSpeed, range, element, null, modeAttaque);
         this.movingSpeed = movingSpeed * baseSpeedMultiplier; // Applique le multiplicateur global
         this.spawnTime = spawnTime;
@@ -56,7 +115,7 @@ public abstract class Ennemy extends Warrior {
     }
 
     /**
-     * Définit un nouveau multiplicateur global pour la vitesse de déplacement.
+     * Définit un nouveau multiplicateur global pour la vitesse de déplacement des ennemis.
      *
      * @param multiplier Le nouveau multiplicateur de vitesse.
      */
@@ -65,7 +124,7 @@ public abstract class Ennemy extends Warrior {
     }
 
     /**
-     * Retourne le multiplicateur global actuel pour la vitesse de déplacement.
+     * Retourne le multiplicateur global actuel pour la vitesse de déplacement des ennemis.
      *
      * @return Le multiplicateur de vitesse.
      */
@@ -75,12 +134,13 @@ public abstract class Ennemy extends Warrior {
 
     /**
      * Met à jour la position de l'ennemi sur la carte en fonction de son déplacement.
-     * 
+     * <p>
      * Cette méthode gère le déplacement d'un ennemi sur son chemin défini (pixelPath)
      * et met à jour ses coordonnées (x, y) ainsi que sa case actuelle (Tile)
      * lorsque l'ennemi traverse une frontière de case.
      * Elle prend en compte la vitesse de déplacement de l'ennemi et le temps écoulé
      * depuis la dernière mise à jour pour calculer la progression.
+     * </p>
      *
      * @param deltaTimeSec Le temps écoulé en secondes depuis la dernière mise à jour.
      */
@@ -160,7 +220,7 @@ public abstract class Ennemy extends Warrior {
     }
 
     /**
-     * Retourne le temps d'apparition de l'ennemi.
+     * Retourne le temps d'apparition de l'ennemi dans la vague.
      *
      * @return Le temps d'apparition.
      */
@@ -222,13 +282,8 @@ public abstract class Ennemy extends Warrior {
         this.movingSpeed = movingSpeed;
     }
 
-    private boolean poisoned = false;
-    private double poisonCooldown = 0;
-    private double poisonTimer = 0; // Temps écoulé depuis la dernière application du poison
-    private double poisonDamage = 0; // Dégâts infligés par le poison
-
     /**
-     * Vérifie si l'ennemi est empoisonné.
+     * Vérifie si l'ennemi est actuellement empoisonné.
      *
      * @return True si l'ennemi est empoisonné, sinon false.
      */
