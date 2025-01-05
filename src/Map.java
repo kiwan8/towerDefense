@@ -4,27 +4,64 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+
 import src.GameExceptions.*;
 
 /**
- * Represents a game map loaded from a file, with tiles and paths.
+ * Représente une carte de jeu chargée à partir d'un fichier, avec des tuiles et des chemins.
  */
 public class Map {
+    /**
+     * Nombre de lignes de la carte.
+     */
     private final int rows;
+
+    /**
+     * Nombre de colonnes de la carte.
+     */
     private final int cols;
+
+    /**
+     * Tableau 2D de tuiles représentant la carte.
+     */
     private final Tile[][] tiles;
-    private final List<int[]> path;
+
+    /**
+     * Liste des coordonnées représentant le chemin sur la carte.
+     */
+    private List<int[]> path;
+
+    /**
+     * Liste des coordonnées en pixels représentant le chemin pour l'affichage.
+     */
     private final List<double[]> pixelPath;
+
+    /**
+     * Chemin du fichier de niveau.
+     */
     private final String levelFilePath;
+
+    /**
+     * Chemin du fichier de la carte.
+     */
     private final String mapFilePath;
+
+    /**
+     * Taille d'une cellule en pixels.
+     */
     private final double cellSize;
 
     /**
-     * Creates a map by loading it from a file.
+     * Crée une carte en la chargeant depuis un fichier.
      *
-     * @throws IOException   if the file cannot be read.
-     * @throws GameException if the map validation fails.
+     * @param mapFilePath   le chemin vers le fichier de la carte.
+     * @param levelFilePath le chemin vers le fichier de niveau.
+     * @throws IOException     si le fichier ne peut pas être lu.
+     * @throws GameException   si la validation de la carte échoue.
      */
     public Map(String mapFilePath, String levelFilePath) throws GameException, IOException {
         this.levelFilePath = levelFilePath;
@@ -38,17 +75,22 @@ public class Map {
         this.cellSize = Math.min(700.0 / rows, 700.0 / cols);
     }
 
+    /**
+     * Retourne la taille d'une cellule en pixels.
+     *
+     * @return la taille de la cellule.
+     */
     public double getCellSize() {
         return cellSize;
     }
 
     /**
-     * Loads the map and initializes tiles, spawn points, and base points.
+     * Charge la carte et initialise les tuiles, les points de spawn et les bases.
      *
-     * @param filePath the path to the map file.
-     * @return a path from spawn to base.
-     * @throws IOException   if the file cannot be read.
-     * @throws GameException if the map is invalid.
+     * @param filePath le chemin vers le fichier de la carte.
+     * @return un chemin allant du spawn à la base.
+     * @throws IOException     si le fichier ne peut pas être lu.
+     * @throws GameException   si la carte est invalide.
      */
     private List<int[]> loadMap(final String filePath) throws IOException, GameException {
         final List<Tile> enemySpawns = new ArrayList<>();
@@ -80,6 +122,12 @@ public class Map {
         return findPath(spawn, base);
     }
 
+    /**
+     * Valide la carte en vérifiant sa cohérence et la présence des éléments nécessaires.
+     *
+     * @throws GameException si la carte est invalide.
+     * @throws IOException   si une erreur de lecture de fichier survient.
+     */
     public void validateMap() throws GameException, IOException {
         List<Tile> enemySpawns = new ArrayList<>();
         List<Tile> playerBases = new ArrayList<>();
@@ -100,11 +148,11 @@ public class Map {
                     // Vérification des tuiles inconnues
                     if (tile.getType() == TileType.UNKNOWN) {
                         throw new MapException(
-                                "Error: Unknown tile detected!\n" +
-                                        "Level file: " + levelFilePath + "\n" +
-                                        "Map file: " + mapFilePath + "\n" +
-                                        "Reason: Unknown tile at row " + row + ", column " + col + ".\n" +
-                                        "The game will now terminate.");
+                                "Erreur : Tuile inconnue détectée!\n" +
+                                        "Fichier de niveau : " + levelFilePath + "\n" +
+                                        "Fichier de carte : " + mapFilePath + "\n" +
+                                        "Raison : Tuile inconnue à la ligne " + row + ", colonne " + col + ".\n" +
+                                        "Le jeu va maintenant se terminer.");
                     }
 
                     // Ajout des spawns et bases
@@ -119,77 +167,77 @@ public class Map {
             // Vérification de la largeur constante
             if (actualCols != expectedCols) {
                 throw new MapException(
-                        "Error: Inconsistent row width detected!\n" +
-                                "Level file: " + levelFilePath + "\n" +
-                                "Map file: " + mapFilePath + "\n" +
-                                "Reason: Row " + row + " has width " + actualCols + " instead of " + expectedCols
+                        "Erreur : Largeur de ligne incohérente détectée!\n" +
+                                "Fichier de niveau : " + levelFilePath + "\n" +
+                                "Fichier de carte : " + mapFilePath + "\n" +
+                                "Raison : La ligne " + row + " a une largeur de " + actualCols + " au lieu de " + expectedCols
                                 + ".\n" +
-                                "The game will now terminate.");
+                                "Le jeu va maintenant se terminer.");
             }
         }
 
         // Vérification des dimensions
         if (this.getRows() == 0 || this.getCols() == 0) {
             throw new MapException(
-                    "Error: Invalid map dimensions!\n" +
-                            "Level file: " + levelFilePath + "\n" +
-                            "Map file: " + mapFilePath + "\n" +
-                            "Reason: The map has invalid dimensions (zero height or width).\n" +
-                            "The game will now terminate.");
+                    "Erreur : Dimensions de carte invalides!\n" +
+                            "Fichier de niveau : " + levelFilePath + "\n" +
+                            "Fichier de carte : " + mapFilePath + "\n" +
+                            "Raison : La carte a des dimensions invalides (hauteur ou largeur nulle).\n" +
+                            "Le jeu va maintenant se terminer.");
         }
 
         // Vérification des spawns et bases
         if (enemySpawns.isEmpty()) {
             throw new NoEnemySpawnException(
-                    "Error: No enemy spawns found!\n" +
-                            "Level file: " + levelFilePath + "\n" +
-                            "Map file: " + mapFilePath + "\n" +
-                            "The game will now terminate.");
+                    "Erreur : Aucun point de spawn ennemi trouvé!\n" +
+                            "Fichier de niveau : " + levelFilePath + "\n" +
+                            "Fichier de carte : " + mapFilePath + "\n" +
+                            "Le jeu va maintenant se terminer.");
         }
 
         if (playerBases.isEmpty()) {
             throw new NoPlayerBaseException(
-                    "Error: No player base found!\n" +
-                            "Level file: " + levelFilePath + "\n" +
-                            "Map file: " + mapFilePath + "\n" +
-                            "The game will now terminate.");
+                    "Erreur : Aucune base de joueur trouvée!\n" +
+                            "Fichier de niveau : " + levelFilePath + "\n" +
+                            "Fichier de carte : " + mapFilePath + "\n" +
+                            "Le jeu va maintenant se terminer.");
         }
 
         if (playerBases.size() > 1) {
             StringBuilder positions = new StringBuilder();
             for (Tile base : playerBases) {
-                positions.append(" - Row: ").append(base.getRow()).append(", Column: ").append(base.getCol())
+                positions.append(" - Ligne : ").append(base.getRow()).append(", Colonne : ").append(base.getCol())
                         .append("\n");
             }
             throw new MultiplePlayerBaseException(
-                    "Error: Multiple player bases found!\n" +
-                            "Level file: " + levelFilePath + "\n" +
-                            "Map file: " + mapFilePath + "\n" +
-                            "Positions of player bases:\n" + positions +
-                            "The game will now terminate.");
+                    "Erreur : Plusieurs bases de joueur trouvées!\n" +
+                            "Fichier de niveau : " + levelFilePath + "\n" +
+                            "Fichier de carte : " + mapFilePath + "\n" +
+                            "Positions des bases de joueur :\n" + positions +
+                            "Le jeu va maintenant se terminer.");
         }
 
         if (enemySpawns.size() > 1) {
             StringBuilder positions = new StringBuilder();
             for (Tile spawn : enemySpawns) {
-                positions.append(" - Row: ").append(spawn.getRow()).append(", Column: ").append(spawn.getCol())
+                positions.append(" - Ligne : ").append(spawn.getRow()).append(", Colonne : ").append(spawn.getCol())
                         .append("\n");
             }
             throw new MultipleEnemySpawnException(
-                    "Error: Multiple enemy spawns found!\n" +
-                            "Level file: " + levelFilePath + "\n" +
-                            "Map file: " + mapFilePath + "\n" +
-                            "Positions of enemy spawns:\n" + positions +
-                            "The game will now terminate.");
+                    "Erreur : Plusieurs points de spawn ennemi trouvés!\n" +
+                            "Fichier de niveau : " + levelFilePath + "\n" +
+                            "Fichier de carte : " + mapFilePath + "\n" +
+                            "Positions des points de spawn ennemi :\n" + positions +
+                            "Le jeu va maintenant se terminer.");
         }
     }
 
     /**
-     * Find the number of rows and columns in the map file.
+     * Trouve le nombre de lignes et de colonnes dans le fichier de la carte.
      *
-     * @param filePath the path to the map file.
-     * @return an array with the number of rows and columns.
-     * @throws IOException if the file cannot be read.
+     * @param filePath le chemin vers le fichier de la carte.
+     * @return un tableau contenant le nombre de lignes et de colonnes.
+     * @throws IOException si le fichier ne peut pas être lu.
      */
     private int[] FindDimensions(final String filePath) throws IOException {
         int rowCount = 0;
@@ -205,113 +253,170 @@ public class Map {
         return new int[] { rowCount, colCount };
     }
 
+    /**
+     * Retourne le nombre de lignes de la carte.
+     *
+     * @return le nombre de lignes.
+     */
     public int getRows() {
         return rows;
     }
 
+    /**
+     * Retourne le nombre de colonnes de la carte.
+     *
+     * @return le nombre de colonnes.
+     */
     public int getCols() {
         return cols;
     }
 
+    /**
+     * Retourne la tuile à une position spécifique.
+     *
+     * @param row la ligne de la tuile.
+     * @param col la colonne de la tuile.
+     * @return la tuile située à la position spécifiée.
+     */
     public Tile getTile(final int row, final int col) {
         return tiles[row][col];
     }
 
+    /**
+     * Retourne le chemin trouvé sur la carte.
+     *
+     * @return la liste des coordonnées du chemin.
+     */
     public List<int[]> getPath() {
         return this.path;
     }
 
     /**
-     * Finds the path from a spawn tile to a base tile.
-     *
-     * @param spawn the spawn tile.
-     * @param base  the base tile.
-     * @return the path as a list of coordinates.
+     * Tableau utilisé pour la recherche en profondeur (DFS) du chemin.
+     * 0 : blanc (non visité), 1 : gris (en cours de visite), 2 : noir (visité).
      */
-    private List<int[]> findPath(final Tile spawn, final Tile base) throws InvalidMapPathException {
-        final List<int[]> path = new ArrayList<>();
-        final int[][] directions = {
-                { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 }
-        };
+    private int[][] color; // 0: blanc, 1: gris, 2: noir
 
-        boolean[][] visited = new boolean[rows][cols];
-        int currentRow = spawn.getRow();
-        int currentCol = spawn.getCol();
-        int lastVisitedRow = currentRow;
-        int lastVisitedCol = currentCol;
+    /**
+     * Recherche (en DFS) un chemin UNIQUE entre le spawn et la base.
+     *
+     * @param spawn la tuile de spawn.
+     * @param base  la tuile de la base.
+     * @return la liste des coordonnées représentant le chemin.
+     * @throws InvalidMapPathException si le chemin est invalide.
+     */
+    public List<int[]> findPath(Tile spawn, Tile base) throws InvalidMapPathException {
+        // Initialise le tableau color à 0 (BLANC) partout
+        color = new int[rows][cols];
+        path = new ArrayList<>();
 
-        final int baseRow = base.getRow();
-        final int baseCol = base.getCol();
+        int spawnRow = spawn.getRow();
+        int spawnCol = spawn.getCol();
+        int baseRow = base.getRow();
+        int baseCol = base.getCol();
 
-        while (currentRow != baseRow || currentCol != baseCol) {
-            boolean moved = false;
-
-            for (int[] dir : directions) {
-                final int testRow = currentRow + dir[0];
-                final int testCol = currentCol + dir[1];
-
-                if (testRow < 0 || testRow >= rows || testCol < 0 || testCol >= cols) {
-                    continue; // Ignore out-of-bounds tiles
-                }
-
-                final Tile testTile = tiles[testRow][testCol];
-                final boolean isRoadOrBase = testTile.getType().equals(TileType.ROAD) ||
-                        testTile.getType().equals(TileType.BASE);
-                final boolean isNotBacktracking = testRow != lastVisitedRow || testCol != lastVisitedCol;
-
-                if (isRoadOrBase && isNotBacktracking) {
-                    if (visited[testRow][testCol]) {
-                        throw new InvalidMapPathException(
-                                "Error: Loop detected in path!\n" +
-                                        "Level file: " + levelFilePath + "\n" +
-                                        "Map file: " + mapFilePath + "\n" +
-                                        "Reason: Path loops back on itself at row " + testRow + ", column " + testCol
-                                        + ".\n" +
-                                        "The game will now terminate.");
-                    }
-
-                    visited[currentRow][currentCol] = true;
-                    path.add(new int[] { currentRow, currentCol });
-                    lastVisitedRow = currentRow;
-                    lastVisitedCol = currentCol;
-                    currentRow = testRow;
-                    currentCol = testCol;
-                    moved = true;
-                    break;
-                }
-            }
-
-            if (!moved) {
-                throw new InvalidMapPathException(
-                        "Error: No valid path found from spawn to base!\n" +
-                                "Level file: " + levelFilePath + "\n" +
-                                "Map file: " + mapFilePath + "\n" +
-                                "Reason: Dead end or disconnected tiles.\n" +
-                                "The game will now terminate.");
-            }
+        // On lance la DFS : si dfs(...) renvoie true, un chemin a été trouvé
+        boolean found = dfs(spawnRow, spawnCol, -1, -1, baseRow, baseCol);
+        if (!found) {
+            // Si DFS n'a rien trouvé, c'est qu'il n'y a pas de chemin
+            throw new InvalidMapPathException(
+                    "Erreur : Aucun chemin valide trouvé du spawn à la base!\n" +
+                            "Fichier de niveau : " + levelFilePath + "\n" +
+                            "Fichier de carte : " + mapFilePath + "\n" +
+                            "Raison : Impasse ou tuiles déconnectées.\n" +
+                            "Le jeu va maintenant se terminer.");
         }
 
-        // Check for multiple paths (if visited tiles could lead to ambiguity)
-        for (int[] dir : directions) {
-            final int testRow = currentRow + dir[0];
-            final int testCol = currentCol + dir[1];
-
-            if (testRow >= 0 && testRow < rows && testCol >= 0 && testCol < cols) {
-                if (tiles[testRow][testCol].getType().equals(TileType.ROAD) && !visited[testRow][testCol]) {
-                    throw new InvalidMapPathException(
-                            "Error: Multiple paths detected!\n" +
-                                    "Level file: " + levelFilePath + "\n" +
-                                    "Map file: " + mapFilePath + "\n" +
-                                    "Reason: Ambiguous routes leading to the base.\n" +
-                                    "The game will now terminate.");
-                }
-            }
-        }
-
-        path.add(new int[] { baseRow, baseCol });
+        // 'path' contient le chemin dans l'ordre spawn -> base
         return path;
     }
 
+    /**
+     * DFS récursive pour chercher un chemin unique de (r,c) vers (baseR, baseC).
+     *
+     * @param r       ligne courante.
+     * @param c       colonne courante.
+     * @param parentR ligne du parent (pour éviter de revenir direct en arrière).
+     * @param parentC colonne du parent.
+     * @param baseR   ligne de la base.
+     * @param baseC   colonne de la base.
+     * @return true si un chemin unique vers la base est trouvé, sinon false.
+     * @throws InvalidMapPathException si un cycle ou un embranchement est détecté.
+     */
+    private boolean dfs(int r, int c, int parentR, int parentC,
+            int baseR, int baseC) throws InvalidMapPathException {
+
+        // Marque la case (r,c) comme "en cours de visite" (GRIS = 1)
+        color[r][c] = 1;
+
+        // Ajoute (r,c) à 'path'
+        path.add(new int[] { r, c });
+
+        // Si on a atteint la base, c'est gagné
+        if (r == baseR && c == baseC) {
+            return true;
+        }
+
+        // Directions : haut, bas, gauche, droite
+        int[][] dirs = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
+
+        for (int[] d : dirs) {
+            int nr = r + d[0];
+            int nc = c + d[1];
+
+            // Vérification des bornes
+            if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) {
+                continue;
+            }
+
+            // Vérifier que la tuile est passable (ROAD ou BASE)
+            TileType type = tiles[nr][nc].getType();
+            if (type != TileType.ROAD && type != TileType.BASE) {
+                continue;
+            }
+
+            // Empêcher de revenir directement à la case parent
+            if (nr == parentR && nc == parentC) {
+                continue;
+            }
+
+            // Switch sur la couleur
+            if (color[nr][nc] == 0) {
+                // 0 = BLANC => pas encore visité, on explore
+                boolean foundBase = dfs(nr, nc, r, c, baseR, baseC);
+                if (foundBase) {
+                    // Si la base est atteinte via ce chemin, on renvoie true direct
+                    return true;
+                }
+                // Sinon, on continue à tester les autres voisins
+            } else if (color[nr][nc] == 1 || color[nr][nc] == 2) {
+                // On est retombé sur une tuile en cours de visite => CYCLE
+                throw new InvalidMapPathException(
+                        "Erreur : Boucle détectée dans le chemin!\n" +
+                                "Fichier de niveau : " + levelFilePath + "\n" +
+                                "Fichier de carte : " + mapFilePath + "\n" +
+                                "Raison : Le chemin revient sur lui-même à la ligne " + nr + ", colonne " + nc
+                                + ".\n" +
+                                "Le jeu va maintenant se terminer.");
+            }
+        }
+
+        // Si aucun voisin n'a permis d'atteindre la base, on doit faire marche arrière
+        // On retire (r,c) du path (backtracking)
+        path.remove(path.size() - 1);
+
+        // On marque (r,c) comme NOIR (exploration terminée)
+        color[r][c] = 2;
+
+        // Et on retourne false => ce chemin ne mène pas à la base
+        return false;
+    }
+
+    /**
+     * Convertit le chemin en coordonnées de pixels pour l'affichage.
+     *
+     * @return la liste des coordonnées en pixels du chemin.
+     */
     private List<double[]> setPixelPath() {
         List<double[]> pixelPath = new ArrayList<>();
         double cellSize = Math.min(700.0 / rows, 700.0 / cols); // Calcule la taille d'une cellule
@@ -326,11 +431,13 @@ public class Map {
         return pixelPath;
     }
 
+    /**
+     * Retourne le chemin en coordonnées de pixels pour l'affichage.
+     *
+     * @return la liste des coordonnées en pixels du chemin.
+     */
     public List<double[]> getPixelPath() {
         return this.pixelPath;
     }
 
-     public static void main(String[] args) throws GameException, IOException {
-        Map newMap = new Map("resources/maps/Error_Path_Loop_1.mtp", "null");
-    }
 }
