@@ -3,43 +3,43 @@ package src;
 import java.util.List;
 
 /**
- * Abstract class representing a generic enemy in the game.
- * Handles common attributes and behaviors for all enemies, such as movement
- * and interaction with the game map.
+ * Classe abstraite représentant un ennemi générique dans le jeu.
+ * Gère les attributs et comportements communs à tous les ennemis, tels que le déplacement
+ * et l'interaction avec la carte du jeu.
  */
 public abstract class Ennemy extends Warrior {
 
-    // Immutable properties
-    private final double spawnTime; // Spawn time in the wave
-    private final List<int[]> path; // Path in tile coordinates
-    private final List<double[]> pixelPath; // Path in pixel coordinates
-    private final Map map; // Reference to the game map
-    private final int reward;
+    // Propriétés immuables
+    private final double spawnTime; // Temps d'apparition dans la vague
+    private final List<int[]> path; // Chemin en coordonnées de tuiles
+    private final List<double[]> pixelPath; // Chemin en coordonnées de pixels
+    private final Map map; // Référence à la carte du jeu
+    private final int reward; // Récompense pour avoir tué l'ennemi
 
-    // Mutable properties
-    private double movingSpeed; // Movement speed of the enemy
+    // Propriétés mutables
+    private double movingSpeed; // Vitesse de déplacement de l'ennemi
     // Multiplicateurs statiques pour les bonus globaux
     private static double baseSpeedMultiplier = 1.0; // Multiplicateur global pour la vitesse de déplacement
 
-    private double x; // Current X coordinate (in pixels)
-    private double y; // Current Y coordinate (in pixels)
-    private int currentStep; // Current step in the path
+    private double x; // Coordonnée X actuelle (en pixels)
+    private double y; // Coordonnée Y actuelle (en pixels)
+    private int currentStep; // Étape actuelle dans le chemin
 
     /**
-     * Constructor for the Ennemy class.
+     * Constructeur de la classe Ennemy.
      *
-     * @param PV          Health points of the enemy.
-     * @param ATK         Attack points of the enemy.
-     * @param ATKSpeed    Attack speed of the enemy.
-     * @param range       Attack range of the enemy (in tiles).
-     * @param element     Element type of the enemy.
-     * @param movingSpeed Movement speed of the enemy.
-     * @param spawnTime   Time at which the enemy spawns in the wave.
-     * @param x           Initial X coordinate (in pixels).
-     * @param y           Initial Y coordinate (in pixels).
-     * @param map         Reference to the game map.
-     * @param reward      Reward for killing the enemy.
-     * @param modeAttaque Attack mode of the enemy.
+     * @param PV          Points de vie de l'ennemi.
+     * @param ATK         Points d'attaque de l'ennemi.
+     * @param ATKSpeed    Vitesse d'attaque de l'ennemi.
+     * @param range       Portée d'attaque de l'ennemi (en tuiles).
+     * @param element     Type d'élément de l'ennemi.
+     * @param movingSpeed Vitesse de déplacement de l'ennemi.
+     * @param spawnTime   Temps d'apparition de l'ennemi dans la vague.
+     * @param x           Coordonnée X initiale (en pixels).
+     * @param y           Coordonnée Y initiale (en pixels).
+     * @param map         Référence à la carte du jeu.
+     * @param reward      Récompense pour avoir tué l'ennemi.
+     * @param modeAttaque Mode d'attaque de l'ennemi.
      */
     public Ennemy(int PV, int ATK, double ATKSpeed, int range, Element element,
             double movingSpeed, double spawnTime, double x, double y, Map map, int reward, ModeAttaque modeAttaque) {
@@ -74,19 +74,15 @@ public abstract class Ennemy extends Warrior {
     }
 
     /**
-     * Met à jour la position de l'ennemi sur la carte en fonction de son
-     * déplacement.
+     * Met à jour la position de l'ennemi sur la carte en fonction de son déplacement.
      * 
-     * Cette méthode gère le déplacement d'un ennemi sur son chemin défini
-     * (pixelPath)
+     * Cette méthode gère le déplacement d'un ennemi sur son chemin défini (pixelPath)
      * et met à jour ses coordonnées (x, y) ainsi que sa case actuelle (Tile)
      * lorsque l'ennemi traverse une frontière de case.
      * Elle prend en compte la vitesse de déplacement de l'ennemi et le temps écoulé
      * depuis la dernière mise à jour pour calculer la progression.
      *
-     * @param deltaTimeSec Le temps écoulé en secondes depuis la dernière mise à
-     *                     jour.
-     *
+     * @param deltaTimeSec Le temps écoulé en secondes depuis la dernière mise à jour.
      */
     public void updatePosition(double deltaTimeSec) {
         if (currentStep >= pixelPath.size()) {
@@ -137,76 +133,91 @@ public abstract class Ennemy extends Warrior {
     }
 
     /**
-     * Gets the current X coordinate of the enemy.
+     * Retourne la coordonnée X actuelle de l'ennemi.
      *
-     * @return The X coordinate (in pixels).
+     * @return La coordonnée X (en pixels).
      */
     public double getX() {
         return x;
     }
 
     /**
-     * Gets the current Y coordinate of the enemy.
+     * Retourne la coordonnée Y actuelle de l'ennemi.
      *
-     * @return The Y coordinate (in pixels).
+     * @return La coordonnée Y (en pixels).
      */
     public double getY() {
         return y;
     }
 
     /**
-     * Gets the movement speed of the enemy.
+     * Retourne la vitesse de déplacement de l'ennemi.
      *
-     * @return The movement speed.
+     * @return La vitesse de déplacement.
      */
     public double getMovingSpeed() {
         return movingSpeed;
     }
 
     /**
-     * Gets the spawn time of the enemy.
+     * Retourne le temps d'apparition de l'ennemi.
      *
-     * @return The spawn time.
+     * @return Le temps d'apparition.
      */
     public double getSpawnTime() {
         return spawnTime;
     }
 
     /**
-     * Checks if the enemy has reached the end of its path.
+     * Vérifie si l'ennemi a atteint la fin de son chemin.
      *
-     * @return True if the enemy has completed its path, false otherwise.
+     * @return True si l'ennemi a terminé son chemin, sinon false.
      */
     public boolean hasReachedEnd() {
         return currentStep >= pixelPath.size();
     }
 
     /**
-     * Gets the tile path of the enemy.
+     * Retourne le chemin en coordonnées de tuiles de l'ennemi.
      *
-     * @return The list of tile coordinates representing the path.
+     * @return La liste des coordonnées de tuiles représentant le chemin.
      */
     public List<int[]> getPath() {
         return path;
     }
 
     /**
-     * Gets the pixel path of the enemy.
+     * Retourne le chemin en coordonnées de pixels de l'ennemi.
      *
-     * @return The list of pixel coordinates representing the path.
+     * @return La liste des coordonnées de pixels représentant le chemin.
      */
     public List<double[]> getPixelPath() {
         return pixelPath;
     }
 
+    /**
+     * Retourne la récompense pour avoir tué l'ennemi.
+     *
+     * @return La récompense.
+     */
     public int getReward() {
         return reward;
     }
 
+    /**
+     * Retourne l'étape actuelle dans le chemin de l'ennemi.
+     *
+     * @return L'étape actuelle.
+     */
     public int getCurrentStep() {
         return currentStep;
     }
 
+    /**
+     * Définit la vitesse de déplacement de l'ennemi.
+     *
+     * @param movingSpeed La nouvelle vitesse de déplacement.
+     */
     public void setMovingSpeed(double movingSpeed) {
         this.movingSpeed = movingSpeed;
     }
@@ -216,10 +227,21 @@ public abstract class Ennemy extends Warrior {
     private double poisonTimer = 0; // Temps écoulé depuis la dernière application du poison
     private double poisonDamage = 0; // Dégâts infligés par le poison
 
+    /**
+     * Vérifie si l'ennemi est empoisonné.
+     *
+     * @return True si l'ennemi est empoisonné, sinon false.
+     */
     public boolean isPoisoned() {
         return poisoned;
     }
 
+    /**
+     * Applique un effet de poison à l'ennemi.
+     *
+     * @param damage   Dégâts infligés par le poison.
+     * @param interval Intervalle de temps entre chaque application de dégâts.
+     */
     public void applyPoison(double damage, double interval) {
         if (poisoned)
             return;
@@ -229,6 +251,11 @@ public abstract class Ennemy extends Warrior {
         poisonDamage = damage;
     }
 
+    /**
+     * Met à jour l'état du poison sur l'ennemi.
+     *
+     * @param deltaTime Le temps écoulé depuis la dernière mise à jour.
+     */
     public void updatePoison(double deltaTime) {
         if (!poisoned)
             return;
@@ -236,8 +263,7 @@ public abstract class Ennemy extends Warrior {
         poisonTimer += deltaTime;
 
         if (poisonTimer >= poisonCooldown) {
-            this.takeDamage(poisonDamage);
-            ; // Inflige les dégâts
+            this.takeDamage(poisonDamage); // Inflige les dégâts
             poisonTimer -= poisonCooldown; // Réinitialise le timer
 
             if (this.getPV() <= 0) {
@@ -245,5 +271,4 @@ public abstract class Ennemy extends Warrior {
             }
         }
     }
-
 }

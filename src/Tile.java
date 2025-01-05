@@ -4,14 +4,14 @@ public class Tile {
     private final int row;           
     private final int col;          
     private final TileType type;     // Type de la case (défini par l'enum)
-    private boolean occupiedByTower;        // Si la case est occupée par une TOUR uniquement (par défaut : false)
+    private boolean occupiedByTower; // Si la case est occupée par une TOUR uniquement (par défaut : false)
 
     /**
-     * Constructor of the class Tile.
+     * Constructeur de la classe Tile.
      *
-     * @param row  Row of the tile.
-     * @param col  Col of the tile.
-     * @param type Type of the tile.
+     * @param row  Ligne de la case.
+     * @param col  Colonne de la case.
+     * @param type Type de la case.
      */
     public Tile(int row, int col, TileType type) {
         this.row = row;
@@ -20,54 +20,78 @@ public class Tile {
         this.occupiedByTower = false; 
     }
 
+    /**
+     * Retourne la ligne de la case.
+     *
+     * @return La ligne de la case.
+     */
     public int getRow() {
         return row;
     }
 
+    /**
+     * Retourne la colonne de la case.
+     *
+     * @return La colonne de la case.
+     */
     public int getCol() {
         return col;
     }
 
+    /**
+     * Retourne le type de la case.
+     *
+     * @return Le type de la case.
+     */
     public TileType getType() {
         return type;
     }
 
+    /**
+     * Vérifie si la case est occupée par une tour.
+     *
+     * @return True si la case est occupée par une tour, sinon False.
+     */
     public boolean isOccupiedByTower() {
         return occupiedByTower;
     }
 
+    /**
+     * Définit si la case est occupée par une tour.
+     *
+     * @param occupied True si la case est occupée par une tour, sinon False.
+     */
     public void setOccupiedByTower(boolean occupied) {
         this.occupiedByTower = occupied;
     }
 
     /**
-     * Check if the tile is clickable.
+     * Vérifie si la case est cliquable.
      *
-     * @return True if the tile is clickable, else False.
+     * @return True si la case est cliquable, sinon False.
      */
     public boolean isClickable() {
         return type.isClickable();
     }
 
     /**
-     * Check if the tile is constructible.
+     * Vérifie si la case est constructible et non occupée.
      *
-     * A tile is considered constructible if it is of type CONSTRUCTIBLE
-     * and is not already occupied by a tower.
+     * Une case est considérée comme constructible si elle est de type CONSTRUCTIBLE
+     * et n'est pas déjà occupée par une tour.
      *
-     * @return True if the tile is constructible, else False.
+     * @return True si la case est constructible et non occupée, sinon False.
      */
     public boolean isConstructibleAndNotOccupied() {
         return type == TileType.CONSTRUCTIBLE && !occupiedByTower;
     }
 
     /**
-     * Check if the tile is constructible.
+     * Vérifie si la case est constructible.
      *
-     * A tile is considered constructible if it is of type CONSTRUCTIBLE
+     * Une case est considérée comme constructible si elle est de type CONSTRUCTIBLE.
      *
-     *
-     * @return True if the tile is constructible, else False.
+     * @return True si la case est constructible, sinon False.
      */
     public boolean isConstructibleBis() {
         return type == TileType.CONSTRUCTIBLE;

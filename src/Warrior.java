@@ -4,7 +4,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public abstract class Warrior { // Classe abstraite Warrior (représente les entités du jeu : tours, ennemis)
+/**
+ * Classe abstraite Warrior (représente les entités du jeu : tours, ennemis).
+ */
+public abstract class Warrior {
 
     private int PV; // Points de vie
     private final int maxPV;
@@ -34,8 +37,19 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
         this.y = y;
     }
 
+    /**
+     * Constructeur de la classe Warrior.
+     *
+     * @param PV          Points de vie de l'entité.
+     * @param ATK         Points d'attaque de l'entité.
+     * @param ATKSpeed    Vitesse d'attaque de l'entité.
+     * @param Range       Portée d'attaque de l'entité.
+     * @param element     Type d'élément de l'entité.
+     * @param position    Position de l'entité.
+     * @param modeAttaque Mode d'attaque de l'entité.
+     */
     public Warrior(int PV, double ATK, double ATKSpeed, double Range, Element element, Tile position,
-            ModeAttaque modeAttaque) { // Constructeur
+            ModeAttaque modeAttaque) {
         this.PV = PV;
         this.maxPV = PV;
         this.ATK = ATK;
@@ -46,7 +60,7 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
         this.modeAttaque = modeAttaque;
     }
 
-    public int getPV() { // Getter
+    public int getPV() {
         return PV;
     }
 
@@ -71,50 +85,55 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
         }
     }
 
-    public double getATK() { // Getter
+    public double getATK() {
         return ATK;
     }
 
-    public void setATK(double ATK) { // Setter
+    public void setATK(double ATK) {
         this.ATK = ATK;
     }
 
-    public double getATKSpeed() { // Getter
+    public double getATKSpeed() {
         return ATKSpeed;
     }
 
-    public void setATKSpeed(double ATKSpeed) { // Setter
+    public void setATKSpeed(double ATKSpeed) {
         this.ATKSpeed = ATKSpeed;
     }
 
-    public double getRange() { // Getter
+    public double getRange() {
         return Range;
     }
 
-    public Element getElement() { // Getter
+    public Element getElement() {
         return element;
     }
 
-    public void setElement(Element element) { // Setter
+    public void setElement(Element element) {
         this.element = element;
     }
 
-    public Tile getPosition() { // Getter
+    public Tile getPosition() {
         return position;
     }
 
-    public void setPosition(Tile position) { // Setter
+    public void setPosition(Tile position) {
         this.position = position;
     }
 
-    public ModeAttaque getModeAttaque() { // Getter
+    public ModeAttaque getModeAttaque() {
         return modeAttaque;
     }
 
-    public void setModeAttaque(ModeAttaque modeAttaque) { // Setter
+    public void setModeAttaque(ModeAttaque modeAttaque) {
         this.modeAttaque = modeAttaque;
     }
 
+    /**
+     * Inflige des dégâts à l'entité.
+     *
+     * @param poisonDamage Les dégâts à infliger.
+     */
     public void takeDamage(double poisonDamage) {
         this.PV -= poisonDamage;
         if (PV < 0) {
@@ -122,28 +141,32 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
         }
     }
 
-    public double CalculateVulnerability(Element element) { // Méthode qui retourne le coefficient de vulnérabilité de
-                                                            // l'entité
-        // par rapport à un élément
-        if (this.element == Element.Feu) { // Si l'entité est de type feu
+    /**
+     * Calcule la vulnérabilité de l'entité par rapport à un élément.
+     *
+     * @param element L'élément contre lequel la vulnérabilité est calculée.
+     * @return Le coefficient de vulnérabilité.
+     */
+    public double CalculateVulnerability(Element element) {
+        if (this.element == Element.Feu) {
             if (element == Element.Eau) {
                 return 1.5;
             } else if (element == Element.Terre) {
                 return 0.5;
             }
-        } else if (this.element == Element.Eau) { // Si l'entité est de type eau
+        } else if (this.element == Element.Eau) {
             if (element == Element.Air) {
                 return 1.5;
             } else if (element == Element.Feu) {
                 return 0.5;
             }
-        } else if (this.element == Element.Terre) { // Si l'entité est de type terre
+        } else if (this.element == Element.Terre) {
             if (element == Element.Feu) {
                 return 1.5;
             } else if (element == Element.Air) {
                 return 0.5;
             }
-        } else if (this.element == Element.Air) { // Si l'entité est de type air
+        } else if (this.element == Element.Air) {
             if (element == Element.Terre) {
                 return 1.5;
             } else if (element == Element.Eau) {
@@ -153,7 +176,12 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
         return 1;
     }
 
-    public void attaquer(Warrior cible) { // Méthode qui permet à l'entité d'attaquer
+    /**
+     * Permet à l'entité d'attaquer une cible.
+     *
+     * @param cible La cible à attaquer.
+     */
+    public void attaquer(Warrior cible) {
         cible.PV -= (int) (this.ATK * cible.CalculateVulnerability(this.element));
         if (cible.PV < 0) {
             cible.PV = 0;
@@ -161,28 +189,23 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
     }
 
     /**
-     * Calculates the Euclidean distance between the current entity and another
-     * entity.
+     * Calcule la distance euclidienne entre l'entité actuelle et une autre entité.
      *
-     * @param target The target entity whose distance from the current entity is
-     *               calculated.
-     * @return The Euclidean distance rounded to an integer.
-     * @throws IllegalArgumentException If the target or its position is invalid.
+     * @param target La cible dont la distance est calculée.
+     * @return La distance euclidienne arrondie à un entier.
+     * @throws IllegalArgumentException Si la cible ou sa position est invalide.
      */
     public int calculateDistance(Warrior target) {
-
         return calculateDistance(this, target);
     }
 
     /**
-     * Calculates the Euclidean distance between two Warriors based on their
-     * positions.
+     * Calcule la distance euclidienne entre deux entités Warrior en fonction de leurs positions.
      *
-     * @param warrior1 The first Warrior.
-     * @param warrior2 The second Warrior.
-     * @return The Euclidean distance rounded to an integer.
-     * @throws IllegalArgumentException If one or both Warriors or their positions
-     *                                  are null.
+     * @param warrior1 La première entité Warrior.
+     * @param warrior2 La deuxième entité Warrior.
+     * @return La distance euclidienne arrondie à un entier.
+     * @throws IllegalArgumentException Si une ou les deux entités ou leurs positions sont nulles.
      */
     public int calculateDistance(Warrior warrior1, Warrior warrior2) {
         Tile pos1 = warrior1.getPosition();
@@ -194,12 +217,10 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
     }
 
     /**
-     * Calculates the Euclidean distance between two Warriors based on their pixel
-     * coordinates.
+     * Calcule la distance euclidienne entre deux entités Warrior en fonction de leurs coordonnées en pixels.
      *
-     * @param target The target Warrior whose distance from the current Warrior is
-     *               calculated.
-     * @return The Euclidean distance.
+     * @param target La cible dont la distance est calculée.
+     * @return La distance euclidienne.
      */
     public double calculatePixelDistance(Warrior target) {
         return Math.sqrt(Math.pow(this.getX() - target.getX(), 2) + Math.pow(this.getY() - target.getY(), 2));
@@ -210,34 +231,29 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
     }
 
     /**
-     * Calculates the Euclidean distance between two Warriors based on their pixel
-     * coordinates.
+     * Calcule la distance euclidienne entre deux entités Warrior en fonction de leurs coordonnées en pixels.
      *
-     * @param w1 The first Warrior.
-     * @param w2 The second Warrior.
-     * @return The Euclidean distance between the two Warriors.
+     * @param w1 La première entité Warrior.
+     * @param w2 La deuxième entité Warrior.
+     * @return La distance euclidienne entre les deux entités.
      */
     public static double calculatePixelDistance(Warrior w1, Warrior w2) {
         return Math.sqrt(Math.pow(w1.getX() - w2.getX(), 2) + Math.pow(w1.getY() - w2.getY(), 2));
     }
 
     /**
-     * Sélectionne des cibles pour une entité à attaquer en fonction du mode
-     * d'attaque.
+     * Sélectionne des cibles pour une entité à attaquer en fonction du mode d'attaque.
      *
-     * @param mode    Le mode d'attaque de l'entité qui détermine la logique de
-     *                sélection des cibles.
+     * @param mode    Le mode d'attaque de l'entité qui détermine la logique de sélection des cibles.
      * @param ennemis La liste des ennemis à portée.
-     * @return Une liste contenant les cibles sélectionnées. Si aucune cible n'est
-     *         trouvée, retourne une liste vide.
+     * @return Une liste contenant les cibles sélectionnées. Si aucune cible n'est trouvée, retourne une liste vide.
      */
     public List<Warrior> selectTargets(ModeAttaque mode, List<Warrior> ennemis) {
         switch (mode) {
             case NEAREST:
                 // Trouver l'ennemi le plus proche en pixels
                 return ennemis.stream()
-                        .min(Comparator.comparingDouble(this::calculatePixelDistance)) // Compare les distances en
-                                                                                       // pixels
+                        .min(Comparator.comparingDouble(this::calculatePixelDistance)) // Compare les distances en pixels
                         .map(Collections::singletonList) // Transforme en liste contenant un seul élément
                         .orElse(Collections.emptyList()); // Si aucun ennemi trouvé, retourne une liste vide
             case NEAREST_FROM_BASE:
@@ -253,32 +269,34 @@ public abstract class Warrior { // Classe abstraite Warrior (représente les ent
                 }
                 return List.of(ciblePrincipale); // Retourne une liste contenant uniquement la cible principale
             case LEAST_HP_TOWER:
-                if (mode == ModeAttaque.LEAST_HP_TOWER) {
-                    // Trouve la tour ayant le moins de PV dans sa portée
-                    Warrior cible = ennemis.stream()
-                            .filter(t -> this.calculateDistance(t) <= this.getRange()) // Vérifie que la tour est
-                                                                                            // dans la portée
-                            .min((t1, t2) -> Integer.compare(t1.getPV(), t2.getPV())) // Compare les PV
-                            .orElse(null);
+                // Trouve la tour ayant le moins de PV dans sa portée
+                Warrior cible = ennemis.stream()
+                        .filter(t -> this.calculateDistance(t) <= this.getRange()) // Vérifie que la tour est dans la portée
+                        .min((t1, t2) -> Integer.compare(t1.getPV(), t2.getPV())) // Compare les PV
+                        .orElse(null);
 
-                    return cible != null ? List.of(cible) : List.of(); // Retourne la cible ou une liste vide
-                }
-
+                return cible != null ? List.of(cible) : List.of(); // Retourne la cible ou une liste vide
             default:
                 // Retourne le premier ennemi si présent, sinon une liste vide
                 return ennemis.isEmpty() ? Collections.emptyList() : List.of(ennemis.get(0));
         }
     }
 
-    // Vérifie si la tour peut attaquer
+    /**
+     * Vérifie si la tour peut attaquer.
+     *
+     * @param deltaTime Le temps écoulé depuis la dernière mise à jour.
+     * @return True si la tour peut attaquer, sinon False.
+     */
     public boolean canAttack(double deltaTime) {
         attackCooldown -= deltaTime;
         return attackCooldown <= 0;
     }
 
-    // Réinitialise le cooldown après une attaque
+    /**
+     * Réinitialise le cooldown après une attaque.
+     */
     public void resetAttackCooldown() {
         this.attackCooldown = this.getATKSpeed();
     }
-
 }

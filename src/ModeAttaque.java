@@ -39,9 +39,19 @@ public enum ModeAttaque {
      */
     STRONGEST_PERCENT_PV,
 
-
+    /**
+     * Attaque avec un railgun.
+     */
     RAILGUN,
+
+    /**
+     * N'attaque personne.
+     */
     NOBODY,
+
+    /**
+     * Attaque la tour avec le moins de PV.
+     */
     LEAST_HP_TOWER,
 
     /**
